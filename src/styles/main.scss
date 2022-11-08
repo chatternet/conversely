@@ -1,0 +1,181 @@
+@import "colors";
+
+$font-family-sans-serif: "Inter", -apple-system, system-ui, sans-serif !default;
+
+$min-contrast-ratio: 3;
+$btn-border-width: 0;
+$btn-border-radius: 50rem;
+
+@import "../../node_modules/bootstrap/scss/bootstrap";
+@import "../../node_modules/bootstrap-icons/font/bootstrap-icons.css";
+
+@each $name, $width in $container-max-widths {
+  .max-width-#{$name} {
+    max-width: $width;
+  }
+}
+
+body {
+  background-color: $dark;
+}
+
+a {
+  text-decoration: none;
+  font-weight: 500;
+  color: $blue;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 500;
+}
+
+.text-spaced {
+  line-height: 2;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-top: 1.5 * $spacer;
+    margin-bottom: $spacer;
+  }
+}
+
+.btn {
+  box-shadow: $box-shadow-sm;
+}
+
+.bg-blue-to-purple {
+  background-image: linear-gradient(135deg, $blue, $purple);
+  color: $white;
+  &:hover {
+    color: $white;
+  }
+}
+
+.bg-purple-to-red {
+  background-image: linear-gradient(135deg, $purple, $red);
+  color: $white;
+  &:hover {
+    color: $white;
+  }
+}
+
+@mixin animate($animation, $duration, $method, $times) {
+  animation: $animation $duration $method $times;
+}
+
+@mixin keyframes($name) {
+  @keyframes #{$name} {
+    @content;
+  }
+}
+
+.bg-masthead {
+  background-image: radial-gradient(
+      ellipse at top left,
+      rgba($purple-300, 0.2),
+      transparent 50%
+    ),
+    radial-gradient(ellipse at top right, rgba($blue-400, 0.2), transparent 50%),
+    radial-gradient(
+      ellipse at center left,
+      rgba($pink-500, 0.2),
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at center right,
+      rgba($orange-200, 0.2),
+      transparent 50%
+    );
+  background-size: 100% 64rem;
+  background-repeat: no-repeat;
+}
+
+.bg-icon {
+  width: 1.66em;
+  height: 1.66em;
+  line-height: 1.66em;
+  display: inline-block;
+  text-align: center;
+  color: $white;
+  box-shadow: $box-shadow-sm;
+  background: $blue;
+}
+
+.text-purple {
+  color: $purple;
+}
+
+.text-red {
+  color: $red;
+}
+
+.text-pink {
+  color: $pink;
+}
+
+.text-blue {
+  color: $blue;
+}
+
+.text-shadow-sm {
+  text-shadow: $box-shadow-sm;
+}
+
+.display-name {
+  display: inline-block;
+  padding: $badge-padding-y $badge-padding-x;
+  font-size: $badge-font-size;
+  font-weight: $badge-font-weight;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 50rem;
+
+  &-light {
+    @extend .display-name;
+    background-color: rgba($dark, 0.1);
+    color: $dark;
+  }
+
+  &-dark {
+    @extend .display-name;
+    background-color: rgba($light, 0.1);
+    color: $light;
+  }
+}
+
+.display-name-suffix {
+  &-light {
+    color: rgba($dark, 0.5);
+  }
+  &-dark {
+    color: rgba($light, 0.5);
+  }
+}
+
+.hero-logo-bg {
+  border-radius: 50%;
+  background: linear-gradient(
+    90deg,
+    rgba($purple-200, 0.75) 50%,
+    rgba($red-200, 0.75) 50%
+  );
+  filter: blur(3em);
+}
+
+.hero-text {
+  background-image: linear-gradient(135deg, $purple-400, $red-400);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: bolder;
+}
