@@ -1,11 +1,11 @@
 import { CreatePost, CreatePostProps } from "./common/CreatePost";
-import { Messages, MessagesProps } from "./common/Messages";
+import { MessagesList, MessagesListProps } from "./common/MessagesList";
 import { Alert, Container } from "react-bootstrap";
 
 export type FeedProps = {
   loggedIn: boolean;
   createPostProps: CreatePostProps;
-  messagesProps: MessagesProps;
+  messagesListProps: Omit<MessagesListProps, "numDisplay" | "allowMore">;
 };
 
 export function Feed(props: FeedProps) {
@@ -14,7 +14,11 @@ export function Feed(props: FeedProps) {
       {props.loggedIn ? (
         <>
           <CreatePost {...props.createPostProps} />
-          <Messages {...props.messagesProps} />
+          <MessagesList
+            numDisplay={32}
+            allowMore={true}
+            {...props.messagesListProps}
+          />
         </>
       ) : (
         <Alert>Cannot access feed without logging in.</Alert>

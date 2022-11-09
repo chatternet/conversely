@@ -6,7 +6,6 @@ import type {
   Messages,
 } from "../controllers/interfaces";
 import {
-  createAccount,
   login,
   loginFromSession,
   logout,
@@ -92,8 +91,7 @@ export function Home() {
       createPostProps: {
         postMessage: async (_message: string) => {},
       },
-      messagesProps: {
-        messages,
+      messagesListProps: {
         messagesDisplayProps: {
           languageTag: "en",
           getIdNameSuffix: async (id: string) => {
@@ -106,6 +104,15 @@ export function Home() {
     welcomeProps: {
       loggedIn: !!chatterNet,
       didNameSuffix,
+      messagesListProps: {
+        messagesDisplayProps: {
+          languageTag: "en",
+          getIdNameSuffix: async (id: string) => {
+            if (!chatterNet) throw Error("chatterNet is not initialized");
+            return await chatterNet.getIdNameSuffix(id);
+          },
+        },
+      },
     },
     settingsProps: {
       clearAll,

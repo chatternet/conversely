@@ -1,19 +1,21 @@
 import { LOGO, LOGO_SOLID } from "../commonutils";
 import { FormatIdNameSuffix } from "./common/FormatNameSuffix";
+import { MessagesList, MessagesListProps } from "./common/MessagesList";
 import { IdNameSuffix } from "chatternet-client-http";
 import { Card, Row, Col, Container, Alert } from "react-bootstrap";
 
 export type WelcomeProps = {
   loggedIn: boolean | undefined;
   didNameSuffix: IdNameSuffix | undefined;
+  messagesListProps: Omit<MessagesListProps, "numDisplay" | "allowMore">;
 };
 
 export function Welcome(props: WelcomeProps) {
   return (
     <div>
       <Container className="max-width-lg pt-3">
-        <Row className="align-items-center">
-          <Col md={8} className="my-3 text-center">
+        <Row className="align-items-center text-center my-4">
+          <Col md={8}>
             <h1>
               <span className="display-5 text-purple-to-red text-shadow-sm">
                 Chit Chatter
@@ -21,8 +23,8 @@ export function Welcome(props: WelcomeProps) {
             </h1>
             <div className="display-6">A different kind of social.</div>
           </Col>
-          <Col md className="my-3 text-center">
-            <div style={{ height: "12em" }} className="position-relative">
+          <Col md>
+            <div style={{ height: "18em" }} className="position-relative">
               <div
                 style={{ height: "12em", width: "12em" }}
                 className="bg-round-purple-to-red position-absolute top-50 start-50 translate-middle"
@@ -32,7 +34,7 @@ export function Welcome(props: WelcomeProps) {
                 alt="logo"
                 style={{
                   height: "8em",
-                  filter: "invert(1) blur(1.5em)",
+                  filter: "invert(1) blur(2em)",
                 }}
                 className="position-absolute top-50 start-50 translate-middle"
               />
@@ -55,38 +57,50 @@ export function Welcome(props: WelcomeProps) {
             </div>
           </Col>
         </Row>
-        <div className="my-4" />
-        <div className="max-width-md mx-auto my-3">
-          <p className="fs-5">
-            Welcome to Chit Chatter
-            {props.didNameSuffix ? (
-              <>
-                {" "}
-                <FormatIdNameSuffix idNameSuffix={props.didNameSuffix} />
-              </>
-            ) : null}
-            .{" "}
-            {props.loggedIn ? (
-              <>
-                You're already logged in and ready to go, it's really that easy!
-              </>
-            ) : (
-              <>
-                Select or create an account to get started. All you need is a
-                name and a password.
-              </>
-            )}
-          </p>
-          <p>
-            There's a lot going on behind the scenes to deliver a social
-            experience which empowers you, the user. Find more information on
-            this page, or jump right into the social feed.
-          </p>
-        </div>
-        <div className="my-4" />
+      </Container>
+
+      <Container className="max-width-md my-5">
+        <p className="fs-5">
+          Welcome to Chit Chatter
+          {props.didNameSuffix ? (
+            <>
+              {" "}
+              <FormatIdNameSuffix idNameSuffix={props.didNameSuffix} />
+            </>
+          ) : null}
+          .{" "}
+          {props.loggedIn ? (
+            <>
+              You're already logged in and ready to go, it's really that easy!
+            </>
+          ) : (
+            <>
+              Select or create an account to get started. All you need is a name
+              and a password.
+            </>
+          )}
+        </p>
       </Container>
 
       <Container className="max-width-lg">
+        <div className="border rounded p-3">
+          <MessagesList
+            numDisplay={4}
+            allowMore={false}
+            {...props.messagesListProps}
+          />
+        </div>
+      </Container>
+
+      <Container className="max-width-md my-5">
+        <p>
+          There's a lot going on behind the scenes to deliver a social
+          experience which empowers you, the user. Find more information on this
+          page, or jump right into the social feed.
+        </p>
+      </Container>
+
+      <Container className="max-width-lg my-5">
         <Row>
           <Col md className="my-3">
             <Card className="h-100">
@@ -143,9 +157,9 @@ export function Welcome(props: WelcomeProps) {
               </Card.Header>
               <Card.Body className="text-secondary">
                 <Card.Text>
-                  You hear only from people you follow, and the people they
-                  follow, and so on. A would-be spammer need to gain the trust
-                  of people you trust to reach you.
+                  You hear only from people you follow, the people they follow,
+                  and so on. A spammer must gain the trust of someone you trust
+                  to reach you.
                 </Card.Text>
               </Card.Body>
             </Card>

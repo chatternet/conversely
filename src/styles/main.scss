@@ -165,12 +165,8 @@ h6 {
 
 .bg-round-purple-to-red {
   border-radius: 50%;
-  background: linear-gradient(
-    90deg,
-    rgba($purple-200, 0.75) 50%,
-    rgba($red-200, 0.75) 50%
-  );
-  filter: blur(3em);
+  background: linear-gradient(90deg, $purple-200 50%, $red-200 50%);
+  filter: blur(4em);
 }
 
 .text-purple-to-red {
