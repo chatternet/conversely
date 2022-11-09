@@ -11,19 +11,21 @@ export type WelcomeProps = {
 export function Welcome(props: WelcomeProps) {
   return (
     <div>
-      <Container className="max-width-md pt-3">
+      <Container className="max-width-lg pt-3">
         <Row className="align-items-center">
-          <Col md={8} className="my-3">
+          <Col md={8} className="my-3 text-center">
             <h1>
-              <span className="hero-text text-shadow-sm">Chit Chatter</span>
+              <span className="display-5 text-purple-to-red text-shadow-sm">
+                Chit Chatter
+              </span>
             </h1>
             <div className="display-6">A different kind of social.</div>
           </Col>
-          <Col md className="my-3">
+          <Col md className="my-3 text-center">
             <div style={{ height: "12em" }} className="position-relative">
               <div
                 style={{ height: "12em", width: "12em" }}
-                className="hero-logo-bg position-absolute top-50 start-50 translate-middle"
+                className="bg-round-purple-to-red position-absolute top-50 start-50 translate-middle"
               ></div>
               <img
                 src={LOGO_SOLID}
@@ -40,7 +42,7 @@ export function Welcome(props: WelcomeProps) {
                 style={{
                   height: "8em",
                   filter: "blur(0.3em)",
-                  opacity: 0.15,
+                  opacity: 0.2,
                 }}
                 className="position-absolute top-50 start-50 translate-middle"
               />
@@ -54,7 +56,7 @@ export function Welcome(props: WelcomeProps) {
           </Col>
         </Row>
         <div className="my-4" />
-        <div className="m-3">
+        <div className="max-width-md mx-auto my-3">
           <p className="fs-5">
             Welcome to Chit Chatter
             {props.didNameSuffix ? (
@@ -84,7 +86,7 @@ export function Welcome(props: WelcomeProps) {
         <div className="my-4" />
       </Container>
 
-      <Container>
+      <Container className="max-width-lg">
         <Row>
           <Col md className="my-3">
             <Card className="h-100">
@@ -96,14 +98,14 @@ export function Welcome(props: WelcomeProps) {
                   <span className="bg-icon rounded">
                     <i className="bi bi-person-badge-fill"></i>
                   </span>
-                  &nbsp; No de-platforming
+                  &nbsp; Own your identity
                 </span>
               </Card.Header>
               <Card.Body className="text-secondary">
                 <Card.Text>
-                  You have the ability to prove who you are and interact with
-                  others. No need for an organization to issue an account which
-                  they can take back for arbitrary reasons.
+                  You prove your own identity when interacting with others. No
+                  need for an organization to issue an account which can be
+                  retracted.
                 </Card.Text>
               </Card.Body>
             </Card>
@@ -120,9 +122,8 @@ export function Welcome(props: WelcomeProps) {
               </Card.Header>
               <Card.Body className="text-secondary">
                 <Card.Text>
-                  Content and accounts can move freely between apps. If you
-                  don't like the direction an app is taking, you can move to
-                  another.
+                  Content and accounts can move freely between apps. If an app
+                  falls to the wayside, simply move to a new app.
                 </Card.Text>
               </Card.Body>
             </Card>
@@ -137,14 +138,14 @@ export function Welcome(props: WelcomeProps) {
                   <span className="bg-icon rounded">
                     <i className="bi bi-robot"></i>
                   </span>
-                  &nbsp; No unknown spam
+                  &nbsp; Spot bot spam
                 </span>
               </Card.Header>
               <Card.Body className="text-secondary">
                 <Card.Text>
                   You hear only from people you follow, and the people they
-                  follow, and so on. A would-be spammer needs to enter your
-                  social circle in order to send you spam.
+                  follow, and so on. A would-be spammer need to gain the trust
+                  of people you trust to reach you.
                 </Card.Text>
               </Card.Body>
             </Card>

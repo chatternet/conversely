@@ -3,7 +3,7 @@ import type { SetState } from "../commonutils";
 import type { ErrorState } from "./interfaces";
 import type { LoginInfo, IdNameSuffix } from "./interfaces";
 import { ChatterNet, DidKey } from "chatternet-client-http";
-import { random, sample } from "lodash-es";
+import { sample } from "lodash-es";
 
 export async function login(
   loginInfo: LoginInfo | undefined,
@@ -13,12 +13,9 @@ export async function login(
 ) {
   if (!loginInfo) return;
   setLoggingIn(true);
-  const chatterNet = await ChatterNet.new(
-    loginInfo.did,
-    loginInfo.password,
-    2,
-    ["http://127.0.0.1:3030"]
-  );
+  const chatterNet = await ChatterNet.new(loginInfo.did, loginInfo.password, [
+    "http://127.0.0.1:3030",
+  ]);
   chatterNet
     .getIdNameSuffix(loginInfo.did)
     .then(setDidNameSuffix)
