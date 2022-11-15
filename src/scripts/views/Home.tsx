@@ -1,10 +1,6 @@
 import type { UseState } from "../commonutils";
 import { clearAll } from "../controllers/clear.js";
-import type {
-  ErrorState,
-  IdNameSuffix,
-  Messages,
-} from "../controllers/interfaces";
+import type { ErrorState } from "../controllers/interfaces";
 import {
   login,
   loginFromSession,
@@ -14,6 +10,7 @@ import {
 import { Router, RouterProps } from "./Router";
 import { ErrorTop } from "./common/ErrorTop";
 import { Header, HeaderProps } from "./common/Header";
+import type { IdName } from "chatternet-client-http";
 import { ChatterNet } from "chatternet-client-http";
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
@@ -27,10 +24,7 @@ export function Home() {
   const [chatterNet, setChatterNet]: UseState<ChatterNet | undefined> =
     useState();
   // name and suffix for currently logged in DID
-  const [didNameSuffix, setDidNameSuffix]: UseState<IdNameSuffix | undefined> =
-    useState();
-  // messages currently in the UI
-  const [messages, _setMessages]: UseState<Messages | undefined> = useState();
+  const [didName, setDidName]: UseState<IdName | undefined> = useState();
   // the current window location
   const [location, setLocation]: UseState<URL> = useState(
     new URL(window.location.href)
@@ -44,10 +38,9 @@ export function Home() {
     (async () => {
       // if no accounts are available, create anonymous
       if ((await ChatterNet.getDeviceDidNames()).length <= 0)
-        await loginAnonymous(setLoggingIn, setChatterNet, setDidNameSuffix);
+        await loginAnonymous(setLoggingIn, setChatterNet, setDidName);
       // otherwise try to login from session data
-      else
-        await loginFromSession(setLoggingIn, setChatterNet, setDidNameSuffix);
+      else await loginFromSession(setLoggingIn, setChatterNet, setDidName);
       // otherwise user can navigate use account selector
     })().catch((x) => console.error(x));
   }, []);
@@ -58,12 +51,12 @@ export function Home() {
       loggedIn: !!chatterNet,
       loggingIn,
       loginButtonProps: {
-        didNameDisplay: didNameSuffix,
+        didName,
         loggedIn: !!chatterNet,
         loggingIn,
       },
       accountModalInBodyProps: {
-        didNameDisplay: didNameSuffix,
+        didName,
         logout: async () => logout(chatterNet, setChatterNet),
       },
       accountModalOutBodyProps: {
@@ -72,14 +65,18 @@ export function Home() {
           // NOTE: could use `loginInfo` from scope, but instead use the state
           // as seen by the UI component to ensure no surprises
           login: async (did: string, password: string) =>
-            login(
-              { did, password },
-              setLoggingIn,
-              setChatterNet,
-              setDidNameSuffix
-            ),
+            login({ did, password }, setLoggingIn, setChatterNet, setDidName),
         },
       },
+    },
+  };
+
+  const messagesListProps = {
+    buildMessageIter: async () => chatterNet?.buildMessageIter(),
+    getIdName: async (id: string) => chatterNet?.getIdName(id),
+    getObjectDoc: async (id: string) => chatterNet?.getObjectDoc(id),
+    messagesDisplayProps: {
+      languageTag: "en",
     },
   };
 
@@ -92,26 +89,16 @@ export function Home() {
         postMessage: async (_message: string) => {},
       },
       messagesListProps: {
-        messagesDisplayProps: {
-          languageTag: "en",
-          getIdNameSuffix: async (id: string) => {
-            if (!chatterNet) throw Error("chatterNet is not initialized");
-            return await chatterNet.getIdNameSuffix(id);
-          },
-        },
+        pageSize: 32,
+        ...messagesListProps,
       },
     },
     welcomeProps: {
       loggedIn: !!chatterNet,
-      didNameSuffix,
+      didName,
       messagesListProps: {
-        messagesDisplayProps: {
-          languageTag: "en",
-          getIdNameSuffix: async (id: string) => {
-            if (!chatterNet) throw Error("chatterNet is not initialized");
-            return await chatterNet.getIdNameSuffix(id);
-          },
-        },
+        pageSize: 8,
+        ...messagesListProps,
       },
     },
     settingsProps: {

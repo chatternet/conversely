@@ -1,7 +1,7 @@
 import { UseState, SetState, clearState } from "../../commonutils";
-import type { IdNameSuffix } from "../../controllers/interfaces";
 import { CopyLink } from "./CopyLink";
-import { FormatIdNameSuffix } from "./FormatNameSuffix";
+import { FormatIdName } from "./FormatIdName";
+import type { IdName } from "chatternet-client-http";
 import { isEmpty } from "lodash-es";
 import { useEffect, useState } from "react";
 import React from "react";
@@ -15,7 +15,7 @@ import {
 } from "react-bootstrap";
 
 interface AccountSelectorProps {
-  didNameSuffix: IdNameSuffix;
+  didName: IdName;
   selectedDid: string | undefined;
   login: (did: string, password: string) => Promise<void>;
   setSelectedDid: SetState<string | undefined>;
@@ -27,7 +27,7 @@ function AccountSelector(props: AccountSelectorProps) {
   const [password, setPassword]: UseState<string> = useState("");
 
   const submit = async () => {
-    await props.login(props.didNameSuffix.id, password);
+    await props.login(props.didName.id, password);
   };
 
   const onSubmit: React.FormEventHandler = (event: React.FormEvent) => {
@@ -40,11 +40,11 @@ function AccountSelector(props: AccountSelectorProps) {
       <a
         href="#"
         className="list-group-item list-group-item-action"
-        onClick={() => props.setSelectedDid(props.didNameSuffix.id)}
+        onClick={() => props.setSelectedDid(props.didName.id)}
       >
-        <FormatIdNameSuffix idNameSuffix={props.didNameSuffix} plain />
+        <FormatIdName {...props.didName} />
       </a>
-      <Collapse in={props.selectedDid === props.didNameSuffix.id}>
+      <Collapse in={props.selectedDid === props.didName.id}>
         <Form onSubmit={onSubmit}>
           <Form.Group className="m-3">
             <InputGroup>
@@ -72,17 +72,17 @@ function AccountSelector(props: AccountSelectorProps) {
 
 interface AccountModalOutBodyProps {
   count: number;
-  getAccountsName: () => Promise<IdNameSuffix[]>;
+  getAccountsName: () => Promise<IdName[]>;
   accountSelectorProps: Omit<
     AccountSelectorProps,
-    "didNameSuffix" | "selectedDid" | "setSelectedDid"
+    "didName" | "selectedDid" | "setSelectedDid"
   >;
 }
 
 function AccountModalOutBody(props: AccountModalOutBodyProps) {
   const [selectedDid, setSelectedDid]: UseState<string | undefined> =
     useState();
-  const [accountsName, setAccountsName]: UseState<IdNameSuffix[] | undefined> =
+  const [accountsName, setAccountsName]: UseState<IdName[] | undefined> =
     useState();
 
   // re-calculate whenever it is shown (count goes up)
@@ -101,7 +101,7 @@ function AccountModalOutBody(props: AccountModalOutBodyProps) {
           {Object.values(accountsName ? accountsName : []).map((x) => (
             <AccountSelector
               key={x.id}
-              didNameSuffix={x}
+              didName={x}
               selectedDid={selectedDid}
               setSelectedDid={setSelectedDid}
               {...props.accountSelectorProps}
@@ -116,12 +116,12 @@ function AccountModalOutBody(props: AccountModalOutBodyProps) {
 }
 
 interface AccountModalInBodyProps {
-  didNameDisplay: IdNameSuffix | undefined;
+  didName: IdName | undefined;
   logout: () => Promise<void>;
 }
 
 function AccountModalInBody(props: AccountModalInBodyProps) {
-  if (!props.didNameDisplay) return null;
+  if (!props.didName) return null;
   if (!props.logout) return null;
 
   return (
@@ -141,12 +141,12 @@ function AccountModalInBody(props: AccountModalInBodyProps) {
       <div className="grid m-2">
         <div className="row mb-2">
           <div className="col-3 bg-secondary text-white rounded">Name</div>
-          <div className="col-9 text-truncate">{props.didNameDisplay.name}</div>
+          <div className="col-9 text-truncate">{props.didName.name}</div>
         </div>
         <div className="row mb-2">
           <div className="col-3 bg-secondary text-white rounded">DID</div>
           <div className="col-9 text-truncate">
-            <CopyLink value={props.didNameDisplay.id} />
+            <CopyLink value={props.didName.id} />
           </div>
         </div>
       </div>
@@ -155,21 +155,14 @@ function AccountModalInBody(props: AccountModalInBodyProps) {
 }
 
 export interface LoginButtonProps {
-  didNameDisplay: IdNameSuffix | undefined;
+  didName: IdName | undefined;
   loggedIn: boolean;
   loggingIn: boolean;
 }
 
 function LoginButton(props: LoginButtonProps) {
-  if (props.loggedIn && props.didNameDisplay) {
-    if (props.didNameDisplay)
-      return (
-        <FormatIdNameSuffix
-          idNameSuffix={props.didNameDisplay}
-          plain
-          variant="dark"
-        />
-      );
+  if (props.loggedIn && props.didName) {
+    if (props.didName) return <FormatIdName {...props.didName} />;
     else return <span>Logged in</span>;
   } else if (props.loggingIn) {
     return (

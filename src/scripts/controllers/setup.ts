@@ -1,7 +1,7 @@
 import { default as ANIMAL_NAMES } from "../../assets/alliterative-animals.json";
 import type { SetState } from "../commonutils";
 import type { ErrorState } from "./interfaces";
-import type { LoginInfo, IdNameSuffix } from "./interfaces";
+import type { LoginInfo, IdName } from "./interfaces";
 import { ChatterNet, DidKey } from "chatternet-client-http";
 import { sample } from "lodash-es";
 
@@ -9,17 +9,17 @@ export async function login(
   loginInfo: LoginInfo | undefined,
   setLoggingIn: SetState<boolean>,
   setChatterNet: SetState<ChatterNet | undefined>,
-  setDidNameSuffix: SetState<IdNameSuffix | undefined>
+  setDidName: SetState<IdName | undefined>
 ) {
   if (!loginInfo) return;
   setLoggingIn(true);
   const chatterNet = await ChatterNet.new(loginInfo.did, loginInfo.password, [
     "http://127.0.0.1:3030",
   ]);
-  chatterNet
-    .getIdNameSuffix(loginInfo.did)
-    .then(setDidNameSuffix)
-    .catch((x) => console.error(x));
+  // let servers know about self
+  chatterNet.postMessages(await chatterNet.createActor());
+  // TODO: post message with follows, post message with listens
+  setDidName({ id: chatterNet.getDid(), name: chatterNet.getName() });
   setChatterNet(chatterNet);
   setLoggingIn(false);
   sessionStorage.setItem("loginInfo", JSON.stringify(loginInfo));
@@ -38,12 +38,12 @@ export async function logout(
 export async function loginFromSession(
   setLoggingIn: SetState<boolean>,
   setChatterNet: SetState<ChatterNet | undefined>,
-  setDidNameSuffix: SetState<IdNameSuffix | undefined>
+  setDidName: SetState<IdName | undefined>
 ) {
   const loginInfoData = sessionStorage.getItem("loginInfo");
   if (!loginInfoData) return;
   const loginInfo: LoginInfo = JSON.parse(loginInfoData);
-  await login(loginInfo, setLoggingIn, setChatterNet, setDidNameSuffix);
+  await login(loginInfo, setLoggingIn, setChatterNet, setDidName);
 }
 
 export async function createAccount(
@@ -76,7 +76,7 @@ export async function createAccount(
 export async function loginAnonymous(
   setLoggingIn: SetState<boolean>,
   setChatterNet: SetState<ChatterNet | undefined>,
-  setDidNameSuffix: SetState<IdNameSuffix | undefined>
+  setDidName: SetState<IdName | undefined>
 ): Promise<void> {
   const animalName = sample(
     ANIMAL_NAMES.filter((x) => x.length >= 4 && x.length <= 8)
@@ -87,5 +87,5 @@ export async function loginAnonymous(
   const password = "";
   const key = await DidKey.newKey();
   const did = await ChatterNet.newAccount(key, displayName, password);
-  await login({ did, password }, setLoggingIn, setChatterNet, setDidNameSuffix);
+  await login({ did, password }, setLoggingIn, setChatterNet, setDidName);
 }

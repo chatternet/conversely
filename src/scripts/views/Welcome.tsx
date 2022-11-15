@@ -1,12 +1,12 @@
 import { LOGO, LOGO_SOLID } from "../commonutils";
-import { FormatIdNameSuffix } from "./common/FormatNameSuffix";
+import { FormatIdName } from "./common/FormatIdName";
 import { MessagesList, MessagesListProps } from "./common/MessagesList";
-import { IdNameSuffix } from "chatternet-client-http";
+import type { IdName } from "chatternet-client-http";
 import { Card, Row, Col, Container, Alert } from "react-bootstrap";
 
 export type WelcomeProps = {
   loggedIn: boolean | undefined;
-  didNameSuffix: IdNameSuffix | undefined;
+  didName: IdName | undefined;
   messagesListProps: Omit<MessagesListProps, "numDisplay" | "allowMore">;
 };
 
@@ -62,10 +62,10 @@ export function Welcome(props: WelcomeProps) {
       <Container className="max-width-md my-5">
         <p className="fs-5">
           Welcome to Chit Chatter
-          {props.didNameSuffix ? (
+          {props.didName ? (
             <>
               {" "}
-              <FormatIdNameSuffix idNameSuffix={props.didNameSuffix} />
+              <FormatIdName {...props.didName} />
             </>
           ) : null}
           .{" "}
@@ -85,7 +85,7 @@ export function Welcome(props: WelcomeProps) {
       <Container className="max-width-lg">
         <div className="border rounded p-3">
           <MessagesList
-            numDisplay={4}
+            pageSize={4}
             allowMore={false}
             {...props.messagesListProps}
           />
