@@ -162,7 +162,7 @@ export interface LoginButtonProps {
 
 function LoginButton(props: LoginButtonProps) {
   if (props.loggedIn && props.didName) {
-    if (props.didName) return <FormatIdName {...props.didName} />;
+    if (props.didName) return <FormatIdName {...props.didName} plain />;
     else return <span>Logged in</span>;
   } else if (props.loggingIn) {
     return (

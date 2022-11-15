@@ -140,27 +140,8 @@ h6 {
   white-space: nowrap;
   vertical-align: baseline;
   border-radius: 50rem;
-
-  &-light {
-    @extend .display-name;
-    background-color: rgba($dark, 0.1);
-    color: $dark;
-  }
-
-  &-dark {
-    @extend .display-name;
-    background-color: rgba($light, 0.1);
-    color: $light;
-  }
-}
-
-.display-name-suffix {
-  &-light {
-    color: rgba($dark, 0.5);
-  }
-  &-dark {
-    color: rgba($light, 0.5);
-  }
+  background-color: rgba($dark, 0.1);
+  color: $dark;
 }
 
 .bg-round-purple-to-red {
