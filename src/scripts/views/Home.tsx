@@ -10,6 +10,7 @@ import {
 import { Router, RouterProps } from "./Router";
 import { ErrorTop } from "./common/ErrorTop";
 import { Header, HeaderProps } from "./common/Header";
+import { MessagesListProps } from "./common/MessagesList";
 import type { IdName } from "chatternet-client-http";
 import { ChatterNet } from "chatternet-client-http";
 import { useEffect, useState } from "react";
@@ -71,9 +72,10 @@ export function Home() {
     },
   };
 
-  const messagesListProps = {
+  const messagesListProps: Omit<MessagesListProps, "pageSize" | "allowMore"> = {
+    loggedIn: !!chatterNet,
     buildMessageIter: async () => chatterNet?.buildMessageIter(),
-    getIdName: async (id: string) => chatterNet?.getIdName(id),
+    getActor: async (id: string) => chatterNet?.getActor(id),
     getObjectDoc: async (id: string) => chatterNet?.getObjectDoc(id),
     messagesDisplayProps: {
       languageTag: "en",
@@ -86,20 +88,18 @@ export function Home() {
     feedProps: {
       loggedIn: !!chatterNet,
       createPostProps: {
-        postMessage: async (_message: string) => {},
+        postNote: async (note: string) =>
+          await chatterNet?.postMessageObjectDoc(
+            await chatterNet?.newNote(note)
+          ),
+        setErrorState,
       },
-      messagesListProps: {
-        pageSize: 32,
-        ...messagesListProps,
-      },
+      messagesListProps,
     },
     welcomeProps: {
       loggedIn: !!chatterNet,
       didName,
-      messagesListProps: {
-        pageSize: 8,
-        ...messagesListProps,
-      },
+      messagesListProps,
     },
     settingsProps: {
       clearAll,

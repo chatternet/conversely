@@ -5,7 +5,7 @@ import { Alert, Container } from "react-bootstrap";
 export type FeedProps = {
   loggedIn: boolean;
   createPostProps: CreatePostProps;
-  messagesListProps: Omit<MessagesListProps, "numDisplay" | "allowMore">;
+  messagesListProps: Omit<MessagesListProps, "pageSize" | "allowMore">;
 };
 
 export function Feed(props: FeedProps) {

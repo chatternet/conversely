@@ -11,7 +11,9 @@ export interface MessageDisplay {
 export class MessageDisplayGrouper {
   constructor(
     private readonly messageIter: MessageIter,
-    private readonly getIdName: (id: string) => Promise<IdName | undefined>,
+    private readonly getActor: (
+      id: string
+    ) => Promise<Messages.Actor | undefined>,
     private readonly getObjectDoc: (
       id: string
     ) => Promise<Messages.ObjectDocWithId | undefined>,
@@ -23,7 +25,8 @@ export class MessageDisplayGrouper {
   ): Promise<MessageDisplay | undefined> {
     if (!!message.origin) return;
 
-    const objectDoc = await this.getObjectDoc(message.id);
+    const [objectId] = message.object;
+    const objectDoc = await this.getObjectDoc(objectId);
     if (!objectDoc) return;
 
     let content: string | undefined = undefined;
@@ -33,13 +36,13 @@ export class MessageDisplayGrouper {
 
     const date = message.published;
 
-    const actor = await this.getIdName(message.actor);
+    const actor = await this.getActor(message.actor);
     if (!actor) return;
 
     return {
       id: message.id,
       date,
-      actor,
+      actor: { id: actor.id, name: actor.name },
       content,
     };
   }

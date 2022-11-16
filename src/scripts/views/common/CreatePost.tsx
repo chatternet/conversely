@@ -1,15 +1,17 @@
-import { SetState } from "../../commonutils";
+import { SetState, UseState } from "../../commonutils";
+import { ErrorState } from "../../controllers/interfaces";
 import { useState } from "react";
 import { Button, Container, Form } from "react-bootstrap";
 
 export interface CreatePostProps {
-  postMessage: (message: string) => Promise<void>;
+  postNote: (note: string) => Promise<void>;
+  setErrorState: SetState<ErrorState | undefined>;
 }
 
 export function CreatePost(props: CreatePostProps) {
-  if (!props.postMessage) return null;
+  if (!props.postNote) return null;
 
-  const [message, setMessage]: [string, SetState<string>] = useState("");
+  const [note, setNote]: UseState<string> = useState("");
 
   return (
     <Container>
@@ -18,10 +20,10 @@ export function CreatePost(props: CreatePostProps) {
           <Form.Control
             as="textarea"
             rows={4}
-            value={message}
-            placeholder="Share a message ..."
+            value={note}
+            placeholder="Share a note ..."
             onChange={(e) => {
-              setMessage(e.target.value);
+              setNote(e.target.value);
             }}
           />
         </div>
@@ -29,9 +31,16 @@ export function CreatePost(props: CreatePostProps) {
           <Button
             onClick={() => {
               props
-                .postMessage(message)
-                .catch((err) => console.error(err))
-                .then(() => setMessage(""));
+                .postNote(note)
+                .catch((err) => {
+                  console.error(err);
+                  props.setErrorState({
+                    title: "Create Post",
+                    message: "Post was not sent to servers.",
+                    display: true,
+                  });
+                })
+                .then(() => setNote(""));
             }}
           >
             Share

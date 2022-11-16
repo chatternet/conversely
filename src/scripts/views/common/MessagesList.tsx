@@ -7,16 +7,17 @@ import { MessageItem, MessageItemProps } from "./MessageItem";
 import type {
   ObjectDocWithId,
   MessageIter,
-  IdName,
+  Messages,
 } from "chatternet-client-http";
 import { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 
 export interface MessagesListProps {
+  loggedIn: boolean;
   pageSize: number;
   allowMore: boolean;
   buildMessageIter: () => Promise<MessageIter | undefined>;
-  getIdName: (id: string) => Promise<IdName | undefined>;
+  getActor: (id: string) => Promise<Messages.Actor | undefined>;
   getObjectDoc: (id: string) => Promise<ObjectDocWithId | undefined>;
   messagesDisplayProps: Omit<MessageItemProps, "message">;
 }
@@ -35,22 +36,18 @@ export function MessagesList(props: MessagesListProps) {
       .buildMessageIter()
       .then(setMessageIter)
       .catch((x) => console.error(x));
-  }, []);
+  }, [props.loggedIn]);
 
   useEffect(() => {
     if (!messageIter) return;
     setMessageDisplayGrouper(
       new MessageDisplayGrouper(
         messageIter,
-        props.getIdName,
+        props.getActor,
         props.getObjectDoc,
         setMessages
       )
     );
-    props
-      .buildMessageIter()
-      .then(setMessageIter)
-      .catch((x) => console.error(x));
   }, [messageIter]);
 
   useEffect(() => {

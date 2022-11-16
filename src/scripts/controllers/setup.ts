@@ -1,8 +1,8 @@
 import { default as ANIMAL_NAMES } from "../../assets/alliterative-animals.json";
 import type { SetState } from "../commonutils";
 import type { ErrorState } from "./interfaces";
-import type { LoginInfo, IdName } from "./interfaces";
-import { ChatterNet, DidKey } from "chatternet-client-http";
+import type { LoginInfo } from "./interfaces";
+import { ChatterNet, DidKey, IdName } from "chatternet-client-http";
 import { sample } from "lodash-es";
 
 export async function login(
@@ -16,10 +16,15 @@ export async function login(
   const chatterNet = await ChatterNet.new(loginInfo.did, loginInfo.password, [
     "http://127.0.0.1:3030",
   ]);
+  const did = chatterNet.getDid();
   // let servers know about self
-  chatterNet.postMessages(await chatterNet.createActor());
-  // TODO: post message with follows, post message with listens
-  setDidName({ id: chatterNet.getDid(), name: chatterNet.getName() });
+  chatterNet
+    .postMessageObjectDoc(await chatterNet.newActor())
+    .catch((x) => console.error(x));
+  await chatterNet
+    .postMessageObjectDoc(await chatterNet.newFollow(`${did}/actor`))
+    .catch((x) => console.error(x));
+  setDidName({ id: did, name: chatterNet.getName() });
   setChatterNet(chatterNet);
   setLoggingIn(false);
   sessionStorage.setItem("loginInfo", JSON.stringify(loginInfo));

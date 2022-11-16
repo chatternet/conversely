@@ -7,7 +7,7 @@ import { Card, Row, Col, Container, Alert } from "react-bootstrap";
 export type WelcomeProps = {
   loggedIn: boolean | undefined;
   didName: IdName | undefined;
-  messagesListProps: Omit<MessagesListProps, "numDisplay" | "allowMore">;
+  messagesListProps: Omit<MessagesListProps, "pageSize" | "allowMore">;
 };
 
 export function Welcome(props: WelcomeProps) {
