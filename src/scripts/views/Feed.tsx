@@ -14,11 +14,13 @@ export function Feed(props: FeedProps) {
       {props.loggedIn ? (
         <>
           <CreatePost {...props.createPostProps} />
-          <MessagesList
-            pageSize={32}
-            allowMore={true}
-            {...props.messagesListProps}
-          />
+          <div className="my-3">
+            <MessagesList
+              pageSize={32}
+              allowMore={true}
+              {...props.messagesListProps}
+            />
+          </div>
         </>
       ) : (
         <Alert>Cannot access feed without logging in.</Alert>

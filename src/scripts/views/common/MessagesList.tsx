@@ -10,7 +10,7 @@ import type {
   Messages,
 } from "chatternet-client-http";
 import { useEffect, useState } from "react";
-import { Button } from "react-bootstrap";
+import { Button, Card } from "react-bootstrap";
 
 export interface MessagesListProps {
   loggedIn: boolean;
@@ -68,9 +68,13 @@ export function MessagesList(props: MessagesListProps) {
           ))}
         </div>
       ) : (
-        <div className="text-secondary text-center">
-          No messages to display.
-        </div>
+        <Card className="rounded m-3">
+          <Card.Body>
+            <Card.Text className="text-secondary text-center">
+              No messages to display.
+            </Card.Text>
+          </Card.Body>
+        </Card>
       )}
       {props.allowMore ? (
         <div className="d-flex justify-content-center">

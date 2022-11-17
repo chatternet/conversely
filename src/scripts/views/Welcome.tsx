@@ -59,7 +59,7 @@ export function Welcome(props: WelcomeProps) {
         </Row>
       </Container>
 
-      <Container className="max-width-md my-5">
+      <Container className="max-width-md my-3">
         <p className="fs-5">
           Welcome to Chit Chatter
           {props.didName ? (
@@ -82,8 +82,8 @@ export function Welcome(props: WelcomeProps) {
         </p>
       </Container>
 
-      <Container className="max-width-lg">
-        <div className="border rounded p-3">
+      <Container className="my-3">
+        <div className="max-width-md mx-auto">
           <MessagesList
             pageSize={4}
             allowMore={false}
@@ -92,8 +92,8 @@ export function Welcome(props: WelcomeProps) {
         </div>
       </Container>
 
-      <Container className="max-width-md my-5">
-        <p>
+      <Container className="max-width-md my-3">
+        <p className="fs-5">
           There's a lot going on behind the scenes to deliver a social
           experience which empowers you, the user. Find more information on this
           page, or jump right into the social feed.
