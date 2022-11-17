@@ -30,28 +30,12 @@ export function Welcome(props: WelcomeProps) {
                 className="bg-round-purple-to-red position-absolute top-50 start-50 translate-middle"
               ></div>
               <img
-                src={LOGO_SOLID}
-                alt="logo"
-                style={{
-                  height: "8em",
-                  filter: "invert(1) blur(2em)",
-                }}
-                className="position-absolute top-50 start-50 translate-middle"
-              />
-              <img
-                src={LOGO_SOLID}
-                alt="logo"
-                style={{
-                  height: "8em",
-                  filter: "blur(0.3em)",
-                  opacity: 0.2,
-                }}
-                className="position-absolute top-50 start-50 translate-middle"
-              />
-              <img
                 src={LOGO}
                 alt="logo"
-                style={{ height: "8em" }}
+                style={{
+                  height: "8em",
+                  filter: "drop-shadow(0 0 1.0em rgba(255, 255, 255, 0.667))",
+                }}
                 className="position-absolute top-50 start-50 translate-middle"
               />
             </div>
