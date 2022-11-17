@@ -13,19 +13,23 @@ export async function login(
 ) {
   if (!loginInfo) return;
   setLoggingIn(true);
+
   const chatterNet = await ChatterNet.new(loginInfo.did, loginInfo.password, [
     "http://127.0.0.1:3030",
   ]);
   const did = chatterNet.getDid();
+
   // let servers know about self
   chatterNet
     .postMessageObjectDoc(await chatterNet.newActor())
     .catch((x) => console.error(x));
-  await chatterNet
+  chatterNet
     .postMessageObjectDoc(await chatterNet.newFollow(`${did}/actor`))
     .catch((x) => console.error(x));
+
   setDidName({ id: did, name: chatterNet.getName() });
   setChatterNet(chatterNet);
+
   setLoggingIn(false);
   sessionStorage.setItem("loginInfo", JSON.stringify(loginInfo));
 }
