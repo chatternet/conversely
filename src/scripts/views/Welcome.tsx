@@ -1,4 +1,5 @@
-import { LOGO, LOGO_SOLID } from "../commonutils";
+import { LOGO } from "../commonutils";
+import { CreateAccount, CreateAccountProps } from "./common/CreateAccount";
 import { FormatIdName } from "./common/FormatIdName";
 import { MessagesList, MessagesListProps } from "./common/MessagesList";
 import type { IdName } from "chatternet-client-http";
@@ -8,6 +9,7 @@ export type WelcomeProps = {
   loggedIn: boolean | undefined;
   didName: IdName | undefined;
   messagesListProps: Omit<MessagesListProps, "pageSize" | "allowMore">;
+  createAccountProps: CreateAccountProps;
 };
 
 export function Welcome(props: WelcomeProps) {
@@ -44,7 +46,7 @@ export function Welcome(props: WelcomeProps) {
       </Container>
 
       <Container className="max-width-md my-3">
-        <p className="fs-5">
+        <p>
           Welcome to Chit Chatter
           {props.didName ? (
             <>
@@ -68,16 +70,20 @@ export function Welcome(props: WelcomeProps) {
 
       <Container className="my-3">
         <div className="max-width-md mx-auto">
-          <MessagesList
-            pageSize={4}
-            allowMore={false}
-            {...props.messagesListProps}
-          />
+          {props.loggedIn ? (
+            <MessagesList
+              pageSize={4}
+              allowMore={false}
+              {...props.messagesListProps}
+            />
+          ) : (
+            <CreateAccount {...props.createAccountProps} />
+          )}
         </div>
       </Container>
 
       <Container className="max-width-md my-3">
-        <p className="fs-5">
+        <p>
           There's a lot going on behind the scenes to deliver a social
           experience which empowers you, the user. Find more information on this
           page, or jump right into the social feed.

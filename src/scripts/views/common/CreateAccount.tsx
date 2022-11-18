@@ -8,7 +8,7 @@ export interface CreateAccountProps {
   createAccount: (
     displayName: string,
     password: string,
-    passwordConfirm: string
+    confirmPassword: string
   ) => Promise<void>;
 }
 
@@ -17,22 +17,20 @@ export function CreateAccount(props: CreateAccountProps) {
 
   const [displayName, setDisplayName]: UseState<string> = useState("");
   const [password, setPassword]: UseState<string> = useState("");
-  const [passwordConfirm, setPasswordConfirm]: UseState<string> = useState("");
+  const [confirmPassword, setPasswordConfirm]: UseState<string> = useState("");
   const [wasFocused, setWasFocused]: UseState<boolean> = useState(false);
 
   const onSubmit: React.FormEventHandler = (event: React.FormEvent) => {
     event.preventDefault();
     props
-      .createAccount(displayName, password, passwordConfirm)
+      .createAccount(displayName, password, confirmPassword)
       .catch((err) => console.error(err));
   };
 
   return (
     <Card className="shadow-sm">
+      <Card.Header>Create an account</Card.Header>
       <Card.Body>
-        <Card.Text className="lead">
-          Create an identity to get started!
-        </Card.Text>
         <Form
           onSubmit={onSubmit}
           onFocus={() => {
@@ -87,18 +85,20 @@ export function CreateAccount(props: CreateAccountProps) {
                     placeholder="confirm password"
                     type="password"
                     autoComplete="new-password"
-                    value={passwordConfirm}
+                    value={confirmPassword}
                     onChange={(e) => {
                       setPasswordConfirm(e.target.value);
                     }}
-                    isValid={!!password && password === passwordConfirm}
-                    isInvalid={password !== passwordConfirm}
+                    isValid={!!password && password === confirmPassword}
+                    isInvalid={password !== confirmPassword}
                   />
                 </InputGroup>
               </Form.Group>
             </Row>
 
-            <Button type="submit">Create identity</Button>
+            <div className="text-center">
+              <Button type="submit">Create Account</Button>
+            </div>
           </fieldset>
         </Form>
       </Card.Body>

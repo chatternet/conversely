@@ -9,6 +9,7 @@ import {
   changePassword,
   changeDisplayName,
   followActorId,
+  createAccount,
 } from "../controllers/setup.js";
 import { Router, RouterProps } from "./Router";
 import { ErrorTop } from "./common/ErrorTop";
@@ -148,6 +149,26 @@ export function Home() {
         ...messagesListProps,
         messagesDisplayProps: {
           languageTag: "en",
+        },
+      },
+      createAccountProps: {
+        loggedIn: !!chatterNet,
+        loggingIn,
+        createAccount: async (displayName, password, confirmPassword) => {
+          const did = await createAccount(
+            displayName,
+            password,
+            confirmPassword,
+            setErrorState
+          );
+          if (!did) return;
+          await login(
+            { did, password },
+            setLoggingIn,
+            setChatterNet,
+            setDidName,
+            setErrorState
+          );
         },
       },
     },

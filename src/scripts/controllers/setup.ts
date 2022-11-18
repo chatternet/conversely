@@ -31,7 +31,7 @@ export async function login(
 
   // let servers know about self
   chatterNet
-    .postMessageObjectDoc(await chatterNet.newActor())
+    .postMessageObjectDoc(await chatterNet.getActorMessage())
     .catch((x) => console.error(x));
   chatterNet
     .postMessageObjectDoc(await chatterNet.newFollow(`${did}/actor`))
@@ -80,7 +80,7 @@ export async function createAccount(
 ): Promise<string | undefined> {
   if (!displayName) {
     setErrorState({
-      message: "Lacking a display name.",
+      message: "Display name is empty.",
     });
     return;
   }
@@ -128,13 +128,13 @@ export async function changePassword(
 ) {
   if (newPassword !== confirmPassword) {
     setErrorState({
-      message: "Failed to change password due to incorrect old password.",
+      message: "Passwords do not match.",
     });
     return;
   }
   if (!(await chatterNet.changePassword(oldPassword, newPassword))) {
     setErrorState({
-      message: "Change password failed due to incorrect old password.",
+      message: "Old password is incorrect.",
     });
     return;
   }
@@ -153,13 +153,13 @@ export async function changeDisplayName(
 ) {
   if (!newDisplayName) {
     setErrorState({
-      message: "Change name failed because new name is empty.",
+      message: "Display name is empty.",
     });
     return;
   }
   await chatterNet.changeName(newDisplayName);
   chatterNet
-    .postMessageObjectDoc(await chatterNet.newActor())
+    .postMessageObjectDoc(await chatterNet.getActorMessage())
     .catch((x) => console.error(x));
   setDidName({ id: chatterNet.getDid(), name: chatterNet.getName() });
 }
