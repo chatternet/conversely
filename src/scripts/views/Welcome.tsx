@@ -26,15 +26,15 @@ export function Welcome(props: WelcomeProps) {
           <Col md>
             <div style={{ height: "18em" }} className="position-relative">
               <div
-                style={{ height: "12em", width: "12em" }}
+                style={{ height: "18em", width: "18em" }}
                 className="bg-round-purple-to-red position-absolute top-50 start-50 translate-middle"
               ></div>
               <img
                 src={LOGO}
                 alt="logo"
                 style={{
-                  height: "8em",
-                  filter: "drop-shadow(0 0 1.0em rgba(255, 255, 255, 0.667))",
+                  height: "9em",
+                  filter: "drop-shadow(0 0 2em rgba(255, 255, 255, 1.0))",
                 }}
                 className="position-absolute top-50 start-50 translate-middle"
               />

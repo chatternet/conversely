@@ -1,6 +1,7 @@
 @import "colors";
 
-$font-family-sans-serif: "Inter", -apple-system, system-ui, sans-serif !default;
+$font-family-sans-serif: -apple-system, system-ui, sans-serif;
+$font-size-root: 16px;
 
 $min-contrast-ratio: 3;
 $btn-border-width: 0;
@@ -146,7 +147,7 @@ h6 {
 
 .bg-round-purple-to-red {
   border-radius: 50%;
-  background: linear-gradient(90deg, $purple-200 50%, $red-200 50%);
+  background: linear-gradient(90deg, $purple-100 50%, $red-100 50%);
   filter: blur(4em);
 }
 
