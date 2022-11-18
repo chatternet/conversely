@@ -4,14 +4,14 @@ export interface FormatIdNameProps {
   id: string;
   name: string;
   plain?: boolean;
-  addContact?: (id: string) => Promise<void>;
+  addContact?: (id: string, name: string) => Promise<void>;
 }
 
 export function FormatIdName(props: FormatIdNameProps) {
   function addContact(event: MouseEvent) {
     event.preventDefault();
     if (props.addContact == null) return;
-    props.addContact(props.id).catch((x) => console.error(x));
+    props.addContact(props.id, props.name).catch((x) => console.error(x));
   }
 
   return (

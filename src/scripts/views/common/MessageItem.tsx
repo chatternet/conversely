@@ -5,7 +5,7 @@ import { Card } from "react-bootstrap";
 export interface MessageItemProps {
   message: MessageDisplay;
   languageTag: string;
-  addContact?: (id: string) => Promise<void>;
+  addContact?: (id: string, name: string) => Promise<void>;
 }
 
 function MessageHeader(props: MessageItemProps) {

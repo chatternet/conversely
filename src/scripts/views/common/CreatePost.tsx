@@ -1,11 +1,11 @@
-import { SetState, UseState } from "../../commonutils";
-import { ErrorState } from "../../controllers/interfaces";
+import { UseState } from "../../commonutils";
+import { PushAlertTop } from "../../controllers/interfaces";
 import { useState } from "react";
 import { Button, Container, Form } from "react-bootstrap";
 
 export interface CreatePostProps {
   postNote: (note: string) => Promise<void>;
-  setErrorState: SetState<ErrorState | undefined>;
+  pushAlertTop: PushAlertTop;
 }
 
 export function CreatePost(props: CreatePostProps) {
@@ -34,9 +34,7 @@ export function CreatePost(props: CreatePostProps) {
                 .postNote(note)
                 .catch((err) => {
                   console.error(err);
-                  props.setErrorState({
-                    message: "Post was not sent to servers.",
-                  });
+                  props.pushAlertTop("Post was not delivered.", "danger");
                 })
                 .then(() => setNote(""));
             }}

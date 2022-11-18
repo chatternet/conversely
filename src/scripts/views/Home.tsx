@@ -1,6 +1,6 @@
 import type { UseState } from "../commonutils";
 import { clearAll } from "../controllers/clear.js";
-import type { ErrorState } from "../controllers/interfaces";
+import type { AlertTopItem } from "../controllers/interfaces";
 import {
   login,
   loginFromSession,
@@ -12,18 +12,20 @@ import {
   createAccount,
 } from "../controllers/setup.js";
 import { Router, RouterProps } from "./Router";
-import { ErrorTop } from "./common/ErrorTop";
+import { AlertTop, pushAlertTop } from "./common/AlertTop";
 import { Header, HeaderProps } from "./common/Header";
 import { MessagesListProps } from "./common/MessagesList";
 import type { IdName } from "chatternet-client-http";
 import { ChatterNet } from "chatternet-client-http";
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
+import { Variant } from "react-bootstrap/esm/types";
 
 export function Home() {
   // error information to display
-  const [errorState, setErrorState]: UseState<ErrorState | undefined> =
-    useState();
+  const [alertTopState, setAlertTopState]: UseState<
+    AlertTopItem[] | undefined
+  > = useState();
   const [loggingIn, setLoggingIn]: UseState<boolean> = useState(false);
   // the networking and storage node
   const [chatterNet, setChatterNet]: UseState<ChatterNet | undefined> =
@@ -50,7 +52,8 @@ export function Home() {
           setLoggingIn,
           setChatterNet,
           setDidName,
-          setErrorState
+          (message: string, variant: Variant) =>
+            pushAlertTop(message, variant, setAlertTopState)
         );
       // otherwise try to login from session data
       else
@@ -58,7 +61,8 @@ export function Home() {
           setLoggingIn,
           setChatterNet,
           setDidName,
-          setErrorState
+          (message: string, variant: Variant) =>
+            pushAlertTop(message, variant, setAlertTopState)
         );
       // otherwise user can navigate use account selector
     })().catch((x) => console.error(x));
@@ -89,7 +93,8 @@ export function Home() {
               setLoggingIn,
               setChatterNet,
               setDidName,
-              setErrorState
+              (message: string, variant: Variant) =>
+                pushAlertTop(message, variant, setAlertTopState)
             ),
         },
       },
@@ -117,26 +122,33 @@ export function Home() {
       createPostProps: {
         postNote: async (note: string) => {
           if (!chatterNet) {
-            setErrorState({ message: errorNoChatterNet });
+            pushAlertTop(errorNoChatterNet, "danger", setAlertTopState);
             return;
           }
           const objectDoc = await chatterNet?.newNote(note);
           await chatterNet.postMessageObjectDoc(objectDoc);
           setRefreshCountFeed((prevState) => prevState + 1);
         },
-        setErrorState,
+        pushAlertTop: (message: string, variant: Variant) =>
+          pushAlertTop(message, variant, setAlertTopState),
       },
       messagesListProps: {
         refreshCount: refreshCountFeed,
         ...messagesListProps,
         messagesDisplayProps: {
           languageTag: "en",
-          addContact: async (id: string) => {
+          addContact: async (id: string, name: string) => {
             if (!chatterNet) {
-              setErrorState({ message: errorNoChatterNet });
+              pushAlertTop(errorNoChatterNet, "danger", setAlertTopState);
               return;
             }
-            await followActorId(chatterNet, id);
+            await followActorId(
+              chatterNet,
+              id,
+              name,
+              (message: string, variant: Variant) =>
+                pushAlertTop(message, variant, setAlertTopState)
+            );
           },
         },
       },
@@ -159,7 +171,8 @@ export function Home() {
             displayName,
             password,
             confirmPassword,
-            setErrorState
+            (message: string, variant: Variant) =>
+              pushAlertTop(message, variant, setAlertTopState)
           );
           if (!did) return;
           await login(
@@ -167,7 +180,8 @@ export function Home() {
             setLoggingIn,
             setChatterNet,
             setDidName,
-            setErrorState
+            (message: string, variant: Variant) =>
+              pushAlertTop(message, variant, setAlertTopState)
           );
         },
       },
@@ -176,14 +190,15 @@ export function Home() {
       loggedIn: !!chatterNet,
       changeDisplayName: async (newDisplayName: string) => {
         if (!chatterNet) {
-          setErrorState({ message: errorNoChatterNet });
+          pushAlertTop(errorNoChatterNet, "danger", setAlertTopState);
           return;
         }
         await changeDisplayName(
           chatterNet,
           newDisplayName,
           setDidName,
-          setErrorState
+          (message: string, variant: Variant) =>
+            pushAlertTop(message, variant, setAlertTopState)
         );
       },
       changePassword: async (
@@ -192,7 +207,7 @@ export function Home() {
         confirmPassword: string
       ) => {
         if (!chatterNet) {
-          setErrorState({ message: errorNoChatterNet });
+          pushAlertTop(errorNoChatterNet, "danger", setAlertTopState);
           return;
         }
         await changePassword(
@@ -200,11 +215,11 @@ export function Home() {
           oldPassword,
           newPassword,
           confirmPassword,
-          setErrorState
+          (message: string, variant: Variant) =>
+            pushAlertTop(message, variant, setAlertTopState)
         );
       },
       clearAll,
-      setErrorState,
     },
   };
 
@@ -212,9 +227,9 @@ export function Home() {
     <>
       <div className="bg-white pb-5">
         <Header {...headerProps} />
-        {errorState ? (
+        {alertTopState ? (
           <Container className="max-width-lg my-3">
-            <ErrorTop state={errorState} setState={setErrorState} />
+            <AlertTop state={alertTopState} setState={setAlertTopState} />
           </Container>
         ) : null}
         <Router {...routerProps} />

@@ -1,5 +1,4 @@
-import { SetState, UseState, clearState } from "../commonutils";
-import { ErrorState } from "../controllers/interfaces";
+import { UseState, clearState } from "../commonutils";
 import { FormEvent, useState } from "react";
 import { Button, Card, Container, Form } from "react-bootstrap";
 
@@ -12,7 +11,6 @@ export interface SettingsProps {
     confirmPassword: string
   ): Promise<void>;
   clearAll: () => Promise<void>;
-  setErrorState: SetState<ErrorState | undefined>;
 }
 
 export function Settings(props: SettingsProps) {
