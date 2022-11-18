@@ -163,3 +163,10 @@ export async function changeDisplayName(
     .catch((x) => console.error(x));
   setDidName({ id: chatterNet.getDid(), name: chatterNet.getName() });
 }
+
+export async function followActorId(chatterNet: ChatterNet, id: string) {
+  // TODO: store locally
+  chatterNet
+    .postMessageObjectDoc(await chatterNet.newFollow(id))
+    .catch((x) => console.error(x));
+}

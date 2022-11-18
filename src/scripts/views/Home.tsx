@@ -8,6 +8,7 @@ import {
   loginAnonymous,
   changePassword,
   changeDisplayName,
+  followActorId,
 } from "../controllers/setup.js";
 import { Router, RouterProps } from "./Router";
 import { ErrorTop } from "./common/ErrorTop";
@@ -96,15 +97,12 @@ export function Home() {
 
   const messagesListProps: Omit<
     MessagesListProps,
-    "pageSize" | "allowMore" | "refreshCount"
+    "pageSize" | "allowMore" | "refreshCount" | "messagesDisplayProps"
   > = {
     loggedIn: !!chatterNet,
     buildMessageIter: async () => chatterNet?.buildMessageIter(),
     getActor: async (id: string) => chatterNet?.getActor(id),
     getObjectDoc: async (id: string) => chatterNet?.getObjectDoc(id),
-    messagesDisplayProps: {
-      languageTag: "en",
-    },
   };
 
   const errorNoChatterNet =
@@ -130,6 +128,16 @@ export function Home() {
       messagesListProps: {
         refreshCount: refreshCountFeed,
         ...messagesListProps,
+        messagesDisplayProps: {
+          languageTag: "en",
+          addContact: async (id: string) => {
+            if (!chatterNet) {
+              setErrorState({ message: errorNoChatterNet });
+              return;
+            }
+            await followActorId(chatterNet, id);
+          },
+        },
       },
     },
     welcomeProps: {
@@ -138,6 +146,9 @@ export function Home() {
       messagesListProps: {
         refreshCount: refreshCountWelcome,
         ...messagesListProps,
+        messagesDisplayProps: {
+          languageTag: "en",
+        },
       },
     },
     settingsProps: {
