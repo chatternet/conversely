@@ -15,8 +15,7 @@ export function ErrorTop(props: ErrorTopProps) {
       dismissible
       transition={true}
     >
-      <Alert.Heading>{props.state.title}</Alert.Heading>
-      {props.state.message ? <p>{props.state.message}</p> : null}
+      {props.state.message ? <div>{props.state.message}</div> : null}
     </Alert>
   ) : null;
 }

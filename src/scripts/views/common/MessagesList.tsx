@@ -16,6 +16,7 @@ export interface MessagesListProps {
   loggedIn: boolean;
   pageSize: number;
   allowMore: boolean;
+  refreshCount: number;
   buildMessageIter: () => Promise<MessageIter | undefined>;
   getActor: (id: string) => Promise<Messages.Actor | undefined>;
   getObjectDoc: (id: string) => Promise<ObjectDocWithId | undefined>;
@@ -32,6 +33,7 @@ export function MessagesList(props: MessagesListProps) {
   > = useState();
 
   useEffect(() => {
+    if (!props.loggedIn) return;
     props
       .buildMessageIter()
       .then(setMessageIter)
@@ -54,6 +56,17 @@ export function MessagesList(props: MessagesListProps) {
     if (!messageDisplayGrouper) return;
     messageDisplayGrouper.more(props.pageSize).catch((x) => console.error(x));
   }, [messageDisplayGrouper]);
+
+  // when the refresh count goes up, reset the message iteration
+  useEffect(() => {
+    if (!props.loggedIn) return;
+    setMessages(undefined);
+    setMessageDisplayGrouper(undefined);
+    props
+      .buildMessageIter()
+      .then(setMessageIter)
+      .catch((x) => console.error(x));
+  }, [props.refreshCount, props.loggedIn]);
 
   return (
     <>

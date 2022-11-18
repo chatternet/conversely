@@ -6,6 +6,8 @@ import {
   loginFromSession,
   logout,
   loginAnonymous,
+  changePassword,
+  changeDisplayName,
 } from "../controllers/setup.js";
 import { Router, RouterProps } from "./Router";
 import { ErrorTop } from "./common/ErrorTop";
@@ -30,6 +32,9 @@ export function Home() {
   const [location, setLocation]: UseState<URL> = useState(
     new URL(window.location.href)
   );
+  // used to signal the message lists to refresh
+  const [refreshCountWelcome]: UseState<number> = useState(0);
+  const [refreshCountFeed, setRefreshCountFeed]: UseState<number> = useState(0);
 
   // one-time setup
   useEffect(() => {
@@ -39,9 +44,20 @@ export function Home() {
     (async () => {
       // if no accounts are available, create anonymous
       if ((await ChatterNet.getDeviceDidNames()).length <= 0)
-        await loginAnonymous(setLoggingIn, setChatterNet, setDidName);
+        await loginAnonymous(
+          setLoggingIn,
+          setChatterNet,
+          setDidName,
+          setErrorState
+        );
       // otherwise try to login from session data
-      else await loginFromSession(setLoggingIn, setChatterNet, setDidName);
+      else
+        await loginFromSession(
+          setLoggingIn,
+          setChatterNet,
+          setDidName,
+          setErrorState
+        );
       // otherwise user can navigate use account selector
     })().catch((x) => console.error(x));
   }, []);
@@ -66,13 +82,22 @@ export function Home() {
           // NOTE: could use `loginInfo` from scope, but instead use the state
           // as seen by the UI component to ensure no surprises
           login: async (did: string, password: string) =>
-            login({ did, password }, setLoggingIn, setChatterNet, setDidName),
+            login(
+              { did, password },
+              setLoggingIn,
+              setChatterNet,
+              setDidName,
+              setErrorState
+            ),
         },
       },
     },
   };
 
-  const messagesListProps: Omit<MessagesListProps, "pageSize" | "allowMore"> = {
+  const messagesListProps: Omit<
+    MessagesListProps,
+    "pageSize" | "allowMore" | "refreshCount"
+  > = {
     loggedIn: !!chatterNet,
     buildMessageIter: async () => chatterNet?.buildMessageIter(),
     getActor: async (id: string) => chatterNet?.getActor(id),
@@ -82,27 +107,72 @@ export function Home() {
     },
   };
 
+  const errorNoChatterNet =
+    "Operation not complete because no account is logged in.";
+
   const routerProps: RouterProps = {
     location,
     loggedIn: !!chatterNet,
     feedProps: {
       loggedIn: !!chatterNet,
       createPostProps: {
-        postNote: async (note: string) =>
-          await chatterNet?.postMessageObjectDoc(
-            await chatterNet?.newNote(note)
-          ),
+        postNote: async (note: string) => {
+          if (!chatterNet) {
+            setErrorState({ message: errorNoChatterNet });
+            return;
+          }
+          const objectDoc = await chatterNet?.newNote(note);
+          await chatterNet.postMessageObjectDoc(objectDoc);
+          setRefreshCountFeed((prevState) => prevState + 1);
+        },
         setErrorState,
       },
-      messagesListProps,
+      messagesListProps: {
+        refreshCount: refreshCountFeed,
+        ...messagesListProps,
+      },
     },
     welcomeProps: {
       loggedIn: !!chatterNet,
       didName,
-      messagesListProps,
+      messagesListProps: {
+        refreshCount: refreshCountWelcome,
+        ...messagesListProps,
+      },
     },
     settingsProps: {
+      loggedIn: !!chatterNet,
+      changeDisplayName: async (newDisplayName: string) => {
+        if (!chatterNet) {
+          setErrorState({ message: errorNoChatterNet });
+          return;
+        }
+        await changeDisplayName(
+          chatterNet,
+          newDisplayName,
+          setDidName,
+          setErrorState
+        );
+      },
+      changePassword: async (
+        oldPassword: string,
+        newPassword: string,
+        confirmPassword: string
+      ) => {
+        if (!chatterNet) {
+          setErrorState({ message: errorNoChatterNet });
+          return;
+        }
+        await changePassword(
+          chatterNet,
+          oldPassword,
+          newPassword,
+          confirmPassword,
+          setErrorState
+        );
+      },
       clearAll,
+      setErrorState,
     },
   };
 
@@ -111,7 +181,7 @@ export function Home() {
       <div className="bg-white pb-5">
         <Header {...headerProps} />
         {errorState ? (
-          <Container className="max-width-lg">
+          <Container className="max-width-lg my-3">
             <ErrorTop state={errorState} setState={setErrorState} />
           </Container>
         ) : null}

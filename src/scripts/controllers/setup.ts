@@ -9,14 +9,24 @@ export async function login(
   loginInfo: LoginInfo | undefined,
   setLoggingIn: SetState<boolean>,
   setChatterNet: SetState<ChatterNet | undefined>,
-  setDidName: SetState<IdName | undefined>
+  setDidName: SetState<IdName | undefined>,
+  setErrorState: SetState<ErrorState | undefined>
 ) {
   if (!loginInfo) return;
   setLoggingIn(true);
 
-  const chatterNet = await ChatterNet.new(loginInfo.did, loginInfo.password, [
-    "http://127.0.0.1:3030",
-  ]);
+  let chatterNet = undefined;
+  try {
+    chatterNet = await ChatterNet.new(loginInfo.did, loginInfo.password, [
+      "http://127.0.0.1:3030",
+    ]);
+  } catch {
+    setErrorState({
+      message: "Failed to login due to invalid DID, password.",
+    });
+    setLoggingIn(false);
+    return;
+  }
   const did = chatterNet.getDid();
 
   // let servers know about self
@@ -47,12 +57,19 @@ export async function logout(
 export async function loginFromSession(
   setLoggingIn: SetState<boolean>,
   setChatterNet: SetState<ChatterNet | undefined>,
-  setDidName: SetState<IdName | undefined>
+  setDidName: SetState<IdName | undefined>,
+  setErrorState: SetState<ErrorState | undefined>
 ) {
   const loginInfoData = sessionStorage.getItem("loginInfo");
   if (!loginInfoData) return;
   const loginInfo: LoginInfo = JSON.parse(loginInfoData);
-  await login(loginInfo, setLoggingIn, setChatterNet, setDidName);
+  await login(
+    loginInfo,
+    setLoggingIn,
+    setChatterNet,
+    setDidName,
+    setErrorState
+  );
 }
 
 export async function createAccount(
@@ -63,17 +80,13 @@ export async function createAccount(
 ): Promise<string | undefined> {
   if (!displayName) {
     setErrorState({
-      title: "Create account",
       message: "Lacking a display name.",
-      display: true,
     });
     return;
   }
   if (password !== confirmPassword) {
     setErrorState({
-      title: "Create account",
       message: "Passwords do not match.",
-      display: true,
     });
     return;
   }
@@ -85,7 +98,8 @@ export async function createAccount(
 export async function loginAnonymous(
   setLoggingIn: SetState<boolean>,
   setChatterNet: SetState<ChatterNet | undefined>,
-  setDidName: SetState<IdName | undefined>
+  setDidName: SetState<IdName | undefined>,
+  setErrorState: SetState<ErrorState | undefined>
 ): Promise<void> {
   const animalName = sample(
     ANIMAL_NAMES.filter((x) => x.length >= 4 && x.length <= 8)
@@ -96,5 +110,56 @@ export async function loginAnonymous(
   const password = "";
   const key = await DidKey.newKey();
   const did = await ChatterNet.newAccount(key, displayName, password);
-  await login({ did, password }, setLoggingIn, setChatterNet, setDidName);
+  await login(
+    { did, password },
+    setLoggingIn,
+    setChatterNet,
+    setDidName,
+    setErrorState
+  );
+}
+
+export async function changePassword(
+  chatterNet: ChatterNet,
+  oldPassword: string,
+  newPassword: string,
+  confirmPassword: string,
+  setErrorState: SetState<ErrorState | undefined>
+) {
+  if (newPassword !== confirmPassword) {
+    setErrorState({
+      message: "Failed to change password due to incorrect old password.",
+    });
+    return;
+  }
+  if (!(await chatterNet.changePassword(oldPassword, newPassword))) {
+    setErrorState({
+      message: "Change password failed due to incorrect old password.",
+    });
+    return;
+  }
+  const loginInfo: LoginInfo = {
+    did: chatterNet.getDid(),
+    password: newPassword,
+  };
+  sessionStorage.setItem("loginInfo", JSON.stringify(loginInfo));
+}
+
+export async function changeDisplayName(
+  chatterNet: ChatterNet,
+  newDisplayName: string,
+  setDidName: SetState<IdName | undefined>,
+  setErrorState: SetState<ErrorState | undefined>
+) {
+  if (!newDisplayName) {
+    setErrorState({
+      message: "Change name failed because new name is empty.",
+    });
+    return;
+  }
+  await chatterNet.changeName(newDisplayName);
+  chatterNet
+    .postMessageObjectDoc(await chatterNet.newActor())
+    .catch((x) => console.error(x));
+  setDidName({ id: chatterNet.getDid(), name: chatterNet.getName() });
 }

@@ -2,7 +2,8 @@
 
 ## TODO
 
-- when posting new activity, add immediately
+- display messages in a consistent order
+- fade in messages
 - send message viewed to servers
 - follow actor
 - store follows locally

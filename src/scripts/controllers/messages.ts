@@ -18,7 +18,7 @@ export class MessageDisplayGrouper {
       id: string
     ) => Promise<Messages.ObjectDocWithId | undefined>,
     private readonly setMessages: SetState<MessageDisplay[] | undefined>,
-    private readonly messageIdToIdx: Map<string, number> = new Map()
+    private readonly seenMessagesId: Set<string> = new Set()
   ) {}
 
   private async buildMessageDisplay(
@@ -53,17 +53,17 @@ export class MessageDisplayGrouper {
     while (count < num) {
       const message = await this.messageIter.next();
       if (message == null) break;
-      if (this.messageIdToIdx.has(message.id)) continue;
+
+      if (this.seenMessagesId.has(message.id)) continue;
+      this.seenMessagesId.add(message.id);
 
       const display = await this.buildMessageDisplay(message);
-      if (display == null) return;
+      if (display == null) continue;
 
       this.setMessages((prevState) => {
         if (prevState == null) {
-          this.messageIdToIdx.set(message.id, 0);
           return [display];
         } else {
-          this.messageIdToIdx.set(message.id, prevState.length);
           return [...prevState, display];
         }
       });

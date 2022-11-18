@@ -35,9 +35,7 @@ export function CreatePost(props: CreatePostProps) {
                 .catch((err) => {
                   console.error(err);
                   props.setErrorState({
-                    title: "Create Post",
                     message: "Post was not sent to servers.",
-                    display: true,
                   });
                 })
                 .then(() => setNote(""));
