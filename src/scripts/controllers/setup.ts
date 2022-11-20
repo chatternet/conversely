@@ -2,7 +2,7 @@ import { default as ANIMAL_NAMES } from "../../assets/alliterative-animals.json"
 import type { SetState } from "../commonutils";
 import type { PushAlertTop } from "./interfaces";
 import type { LoginInfo } from "./interfaces";
-import { ChatterNet, DidKey, IdName } from "chatternet-client-http";
+import { ChatterNet, DidKey, IdName, Messages } from "chatternet-client-http";
 import { sample } from "lodash-es";
 
 export async function login(
@@ -171,4 +171,15 @@ export async function followId(
     .postMessageObjectDoc(await chatterNet.newFollow(id))
     .catch((x) => console.error(x));
   pushAlertTop(`Following ${id}.`, "primary");
+}
+
+export async function viewMessage(
+  chatterNet: ChatterNet,
+  message: Messages.MessageWithId
+) {
+  const viewMessage = await chatterNet.newView(message);
+  if (!viewMessage) return;
+  chatterNet
+    .postMessageObjectDoc({ message: viewMessage })
+    .catch((x) => console.error(x));
 }

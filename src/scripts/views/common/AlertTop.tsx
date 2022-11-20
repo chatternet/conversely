@@ -18,7 +18,6 @@ export function pushAlertTop(
     variant,
     key: crypto.randomUUID(),
   };
-  console.debug(alertTopItem);
   setState((prevState) => {
     if (prevState == null) {
       return [alertTopItem];

@@ -10,6 +10,7 @@ import {
   changeDisplayName,
   followId,
   createAccount,
+  viewMessage,
 } from "../controllers/setup.js";
 import { Router, RouterProps } from "./Router";
 import {
@@ -19,7 +20,7 @@ import {
 import { Header, HeaderProps } from "./common/Header";
 import { MessagesListProps } from "./common/MessagesList";
 import type { IdName } from "chatternet-client-http";
-import { ChatterNet } from "chatternet-client-http";
+import { ChatterNet, Messages } from "chatternet-client-http";
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import { Variant } from "react-bootstrap/esm/types";
@@ -110,6 +111,17 @@ export function Home() {
   > = {
     loggedIn: !!chatterNet,
     buildMessageIter: async () => chatterNet?.buildMessageIter(),
+    viewMessage: async (message: Messages.MessageWithId) => {
+      if (!chatterNet) return;
+      await viewMessage(chatterNet, message);
+    },
+    getMessage: async (id: string) => {
+      if (!chatterNet) return;
+      const message = await chatterNet.getObjectDoc(id);
+      if (!Messages.isMessageWithId(message)) return;
+      if (!Messages.verifyMessage(message)) return;
+      return message;
+    },
     getActor: async (id: string) => chatterNet?.getActor(id),
     getObjectDoc: async (id: string) => chatterNet?.getObjectDoc(id),
   };
