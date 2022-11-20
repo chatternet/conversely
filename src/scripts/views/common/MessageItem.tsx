@@ -5,14 +5,14 @@ import { Card } from "react-bootstrap";
 export interface MessageItemProps {
   message: MessageDisplay;
   languageTag: string;
-  addContact?: (id: string, name: string) => Promise<void>;
+  followId?: (id: string) => Promise<void>;
 }
 
 function MessageHeader(props: MessageItemProps) {
   return (
     <div className="d-flex align-items-center">
       <span>
-        <FormatIdName {...props.message.actor} addContact={props.addContact} />
+        <FormatIdName {...props.message.actor} addContact={props.followId} />
       </span>
       <small className="text-muted ms-auto">{props.message.date}</small>
     </div>

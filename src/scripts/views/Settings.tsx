@@ -29,18 +29,22 @@ export function Settings(props: SettingsProps) {
 
   const changeDisplayName = (event: FormEvent) => {
     event.preventDefault();
-    props.changeDisplayName(displayName).catch((err) => console.error(err));
-    setDisplayName("");
+    props
+      .changeDisplayName(displayName)
+      .then(() => setDisplayName(""))
+      .catch((err) => console.error(err));
   };
 
   const changePassword = (event: FormEvent) => {
     event.preventDefault();
     props
       .changePassword(oldPassword, newPassword, confirmPassword)
+      .then(() => {
+        setOldPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      })
       .catch((err) => console.error(err));
-    setOldPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
   };
 
   return (
@@ -76,7 +80,7 @@ export function Settings(props: SettingsProps) {
               <Card.Body>
                 <Form onSubmit={changePassword}>
                   <Form.Control
-                    placeholder="old password"
+                    placeholder="current password"
                     type="password"
                     autoComplete="current-password"
                     value={oldPassword}

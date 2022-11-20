@@ -30,6 +30,13 @@ export function Header(props: HeaderProps) {
               <Nav.Link
                 active={false}
                 href="#"
+                onClick={() => navigate("?following")}
+              >
+                Following
+              </Nav.Link>
+              <Nav.Link
+                active={false}
+                href="#"
                 onClick={() => navigate("?settings")}
               >
                 Settings

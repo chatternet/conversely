@@ -8,11 +8,14 @@ import {
   loginAnonymous,
   changePassword,
   changeDisplayName,
-  followActorId,
+  followId,
   createAccount,
 } from "../controllers/setup.js";
 import { Router, RouterProps } from "./Router";
-import { AlertTop, pushAlertTop } from "./common/AlertTop";
+import {
+  AlertTop,
+  pushAlertTop as pushAlertTopController,
+} from "./common/AlertTop";
 import { Header, HeaderProps } from "./common/Header";
 import { MessagesListProps } from "./common/MessagesList";
 import type { IdName } from "chatternet-client-http";
@@ -40,6 +43,9 @@ export function Home() {
   const [refreshCountWelcome]: UseState<number> = useState(0);
   const [refreshCountFeed, setRefreshCountFeed]: UseState<number> = useState(0);
 
+  const pushAlertTop = (message: string, variant: Variant) =>
+    pushAlertTopController(message, variant, setAlertTopState);
+
   // one-time setup
   useEffect(() => {
     window.addEventListener("popstate", () =>
@@ -52,8 +58,7 @@ export function Home() {
           setLoggingIn,
           setChatterNet,
           setDidName,
-          (message: string, variant: Variant) =>
-            pushAlertTop(message, variant, setAlertTopState)
+          pushAlertTop
         );
       // otherwise try to login from session data
       else
@@ -61,8 +66,7 @@ export function Home() {
           setLoggingIn,
           setChatterNet,
           setDidName,
-          (message: string, variant: Variant) =>
-            pushAlertTop(message, variant, setAlertTopState)
+          pushAlertTop
         );
       // otherwise user can navigate use account selector
     })().catch((x) => console.error(x));
@@ -93,8 +97,7 @@ export function Home() {
               setLoggingIn,
               setChatterNet,
               setDidName,
-              (message: string, variant: Variant) =>
-                pushAlertTop(message, variant, setAlertTopState)
+              pushAlertTop
             ),
         },
       },
@@ -122,7 +125,7 @@ export function Home() {
       createPostProps: {
         postNote: async (note: string) => {
           if (!chatterNet) {
-            pushAlertTop(errorNoChatterNet, "danger", setAlertTopState);
+            pushAlertTop(errorNoChatterNet, "danger");
             return;
           }
           const objectDoc = await chatterNet?.newNote(note);
@@ -130,28 +133,31 @@ export function Home() {
           await sleep(100);
           setRefreshCountFeed((prevState) => prevState + 1);
         },
-        pushAlertTop: (message: string, variant: Variant) =>
-          pushAlertTop(message, variant, setAlertTopState),
+        pushAlertTop,
       },
       messagesListProps: {
         refreshCount: refreshCountFeed,
         ...messagesListProps,
         messagesDisplayProps: {
           languageTag: "en",
-          addContact: async (id: string, name: string) => {
+          followId: async (id: string) => {
             if (!chatterNet) {
-              pushAlertTop(errorNoChatterNet, "danger", setAlertTopState);
+              pushAlertTop(errorNoChatterNet, "danger");
               return;
             }
-            await followActorId(
-              chatterNet,
-              id,
-              name,
-              (message: string, variant: Variant) =>
-                pushAlertTop(message, variant, setAlertTopState)
-            );
+            await followId(chatterNet, id, pushAlertTop);
           },
         },
+      },
+    },
+    followingProps: {
+      loggedIn: !!chatterNet,
+      followId: async (id: string) => {
+        if (!chatterNet) {
+          pushAlertTop(errorNoChatterNet, "danger");
+          return;
+        }
+        await followId(chatterNet, id, pushAlertTop);
       },
     },
     welcomeProps: {
@@ -172,8 +178,7 @@ export function Home() {
             displayName,
             password,
             confirmPassword,
-            (message: string, variant: Variant) =>
-              pushAlertTop(message, variant, setAlertTopState)
+            pushAlertTop
           );
           if (!did) return;
           await login(
@@ -181,8 +186,7 @@ export function Home() {
             setLoggingIn,
             setChatterNet,
             setDidName,
-            (message: string, variant: Variant) =>
-              pushAlertTop(message, variant, setAlertTopState)
+            pushAlertTop
           );
         },
       },
@@ -191,15 +195,14 @@ export function Home() {
       loggedIn: !!chatterNet,
       changeDisplayName: async (newDisplayName: string) => {
         if (!chatterNet) {
-          pushAlertTop(errorNoChatterNet, "danger", setAlertTopState);
+          pushAlertTop(errorNoChatterNet, "danger");
           return;
         }
         await changeDisplayName(
           chatterNet,
           newDisplayName,
           setDidName,
-          (message: string, variant: Variant) =>
-            pushAlertTop(message, variant, setAlertTopState)
+          pushAlertTop
         );
       },
       changePassword: async (
@@ -208,7 +211,7 @@ export function Home() {
         confirmPassword: string
       ) => {
         if (!chatterNet) {
-          pushAlertTop(errorNoChatterNet, "danger", setAlertTopState);
+          pushAlertTop(errorNoChatterNet, "danger");
           return;
         }
         await changePassword(
@@ -216,8 +219,7 @@ export function Home() {
           oldPassword,
           newPassword,
           confirmPassword,
-          (message: string, variant: Variant) =>
-            pushAlertTop(message, variant, setAlertTopState)
+          pushAlertTop
         );
       },
       clearAll,

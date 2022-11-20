@@ -140,7 +140,7 @@ export async function changeDisplayName(
   pushAlertTop: PushAlertTop
 ) {
   if (!newDisplayName) {
-    pushAlertTop("Current password is incorrect.", "danger");
+    pushAlertTop("Display name is empty.", "danger");
     return;
   }
   await chatterNet.changeName(newDisplayName);
@@ -151,14 +151,17 @@ export async function changeDisplayName(
   pushAlertTop("Name changed.", "primary");
 }
 
-export async function followActorId(
+export async function followId(
   chatterNet: ChatterNet,
   id: string,
-  name: string,
   pushAlertTop: PushAlertTop
 ) {
+  if (!id) {
+    pushAlertTop("ID to follow is empty.", "danger");
+    return;
+  }
   chatterNet
     .postMessageObjectDoc(await chatterNet.newFollow(id))
     .catch((x) => console.error(x));
-  pushAlertTop(`Following ${name}.`, "primary");
+  pushAlertTop(`Following ${id}.`, "primary");
 }
