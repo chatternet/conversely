@@ -238,7 +238,7 @@ export function Home() {
         <Router {...routerProps} />
       </div>
       <footer className="text-center text-light">
-        <Container className="max-width-md p-5">Chit Chatter</Container>
+        <Container className="max-width-md p-5">Conversely</Container>
       </footer>
     </>
   );

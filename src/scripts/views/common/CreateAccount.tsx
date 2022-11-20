@@ -53,9 +53,6 @@ export function CreateAccount(props: CreateAccountProps) {
                     isInvalid={!displayName && wasFocused}
                   />
                 </InputGroup>
-                <Form.Text>
-                  Enter a display name to help others find you.
-                </Form.Text>
               </Form.Group>
             </Row>
 
@@ -72,9 +69,6 @@ export function CreateAccount(props: CreateAccountProps) {
                     }}
                   />
                 </InputGroup>
-                <Form.Text>
-                  This password cannot be recovered. Do not lose it.
-                </Form.Text>
               </Form.Group>
             </Row>
 

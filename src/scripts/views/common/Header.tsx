@@ -15,7 +15,7 @@ export function Header(props: HeaderProps) {
         <Container>
           <Navbar.Brand href="#" onClick={() => navigate("/")}>
             <img src={LOGO} alt="logo" style={{ height: "32px" }} />{" "}
-            <span style={{ fontWeight: 500 }}>Chit Chatter</span>
+            <span style={{ fontWeight: 500 }}>Conversely</span>
           </Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse>

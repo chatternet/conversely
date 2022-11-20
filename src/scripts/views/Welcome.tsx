@@ -20,7 +20,7 @@ export function Welcome(props: WelcomeProps) {
           <Col md={8}>
             <h1>
               <span className="display-5 text-purple-to-red text-shadow-sm">
-                Chit Chatter
+                Conversely
               </span>
             </h1>
             <div className="display-6">A different kind of social.</div>
@@ -47,7 +47,7 @@ export function Welcome(props: WelcomeProps) {
 
       <Container className="max-width-md my-3">
         <p>
-          Welcome to Chit Chatter
+          Welcome to Conversely
           {props.didName ? (
             <>
               {" "}
@@ -90,7 +90,7 @@ export function Welcome(props: WelcomeProps) {
         </p>
       </Container>
 
-      <Container className="max-width-lg my-5">
+      <Container className="max-width-xl my-5">
         <Row>
           <Col md className="my-3">
             <Card className="h-100">
@@ -166,8 +166,8 @@ export function Welcome(props: WelcomeProps) {
               <i className="bi bi-exclamation-triangle-fill fs-3"></i>
             </div>
             <div className="ms-2">
-              Chit Chatter is currently in the prototype phase. Some features
-              are missing, some are incomplete, and some are broken.
+              Conversely is currently in the prototype phase. Some features are
+              missing, some are incomplete, and some are broken.
             </div>
           </div>
         </Alert>
