@@ -124,6 +124,8 @@ function AccountModalInBody(props: AccountModalInBodyProps) {
   if (!props.didName) return null;
   if (!props.logout) return null;
 
+  const actorId = `${props.didName.id}/actor`;
+
   return (
     <section>
       <div className="d-flex justify-content-center m-2">
@@ -144,9 +146,9 @@ function AccountModalInBody(props: AccountModalInBodyProps) {
           <div className="col-9 text-truncate">{props.didName.name}</div>
         </div>
         <div className="row mb-2">
-          <div className="col-3 bg-secondary text-white rounded">DID</div>
+          <div className="col-3 bg-secondary text-white rounded">ID</div>
           <div className="col-9 text-truncate">
-            <CopyLink value={props.didName.id} />
+            <CopyLink value={actorId} />
           </div>
         </div>
       </div>

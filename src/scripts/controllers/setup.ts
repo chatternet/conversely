@@ -160,6 +160,13 @@ export async function followId(
     pushAlertTop("ID to follow is empty.", "danger");
     return;
   }
+  if (id.startsWith("did:") && !id.endsWith("/actor")) {
+    pushAlertTop(
+      "ID to follow is a DID document and lacks the `/actor` path.",
+      "danger"
+    );
+    return;
+  }
   chatterNet
     .postMessageObjectDoc(await chatterNet.newFollow(id))
     .catch((x) => console.error(x));
