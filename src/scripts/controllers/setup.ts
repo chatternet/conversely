@@ -18,7 +18,10 @@ export async function login(
   let chatterNet = undefined;
   try {
     chatterNet = await ChatterNet.new(loginInfo.did, loginInfo.password, [
-      "http://127.0.0.1:3030",
+      {
+        url: "http://127.0.0.1:3030",
+        did: "did:key:z6MkmAcyo7DKv1FAoux9wAbbTDsij1AszZCtMXeBJxAYTyx3",
+      },
     ]);
   } catch {
     pushAlertTop("Failed to login due to invalid DID, password.", "danger");
@@ -31,7 +34,6 @@ export async function login(
   chatterNet
     .postMessageObjectDoc(await chatterNet.getActorMessage())
     .catch((x) => console.error(x));
-  console.debug(await chatterNet.getFollowsMessage());
   chatterNet
     .postMessageObjectDoc(await chatterNet.getFollowsMessage())
     .catch((x) => console.error(x));
