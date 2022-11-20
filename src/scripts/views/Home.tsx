@@ -1,4 +1,4 @@
-import type { UseState } from "../commonutils";
+import { sleep, UseState } from "../commonutils";
 import { clearAll } from "../controllers/clear.js";
 import type { AlertTopItem } from "../controllers/interfaces";
 import {
@@ -127,6 +127,7 @@ export function Home() {
           }
           const objectDoc = await chatterNet?.newNote(note);
           await chatterNet.postMessageObjectDoc(objectDoc);
+          await sleep(100);
           setRefreshCountFeed((prevState) => prevState + 1);
         },
         pushAlertTop: (message: string, variant: Variant) =>

@@ -17,3 +17,7 @@ export function navigate(url: string | URL) {
 export function clearState() {
   window.location.assign(`${ROOT_PATH}/`);
 }
+
+export async function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
