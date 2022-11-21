@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 
 export { default as LOGO } from "../assets/logo.svg";
 export { default as LOGO_SOLID } from "../assets/logo-solid.svg";
@@ -12,6 +12,13 @@ export const MAX_POST_BYTES = 1024;
 export function navigate(url: string | URL) {
   history.pushState(null, "", url);
   dispatchEvent(new PopStateEvent("popstate"));
+}
+
+export function onClickNavigate(url: string | URL): React.MouseEventHandler {
+  return (event: React.MouseEvent) => {
+    event.preventDefault();
+    navigate(url);
+  };
 }
 
 export function clearState() {

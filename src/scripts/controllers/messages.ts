@@ -55,6 +55,12 @@ export class MessageDisplayGrouper {
     const actor = await this.getActor(message.actor);
     if (!actor) return;
 
+    // in_inbox = from_contact * in_audience
+    // tau_0 * in_inbox + tau_1 * from_contact * !in_inbox + tau_2 * in_audience * !in_inbox - time_elapsed
+    // tau_0: skip-ahead-time for an inbox message
+    // tau_1: skip-ahead-time for a contact message not in inbox
+    // tau_2: skip-ahead-time for an audience message not in inbox
+
     // TODO: add flag in display to indicate if flag is from inbox
     // - calculate inbox: store following and contacts separately
     // - if actor is contact and audience is in following, flag as inbox message
@@ -85,9 +91,16 @@ export class MessageDisplayGrouper {
           // TODO: want to show how many views a displayed message has
           if (idx >= 0) return prevState;
           // at this stage the message will be viewed (and isn't already in list)
-          this.viewMessage(message).then(() => {
-            console.debug("viewed: %s (%s): %s", message.id, message.origin, message.object);
-          }).catch((x) => console.error(x));
+          this.viewMessage(message)
+            .then(() => {
+              console.debug(
+                "viewed: %s (%s): %s",
+                message.id,
+                message.origin,
+                message.object
+              );
+            })
+            .catch((x) => console.error(x));
           return [...prevState, display];
         }
       });

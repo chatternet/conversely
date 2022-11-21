@@ -14,22 +14,13 @@ export type RouterProps = {
 };
 
 export function Router(props: RouterProps) {
-  if (props.location.pathname === `${ROOT_PATH}/` && !props.location.search) {
+  if (props.location.pathname === `${ROOT_PATH}/`) {
     return <Welcome {...props.welcomeProps} />;
-  } else if (
-    props.location.pathname === `${ROOT_PATH}/` &&
-    props.location.search === "?feed"
-  ) {
+  } else if (props.location.pathname === `${ROOT_PATH}/feed`) {
     return <Feed {...props.feedProps} />;
-  } else if (
-    props.location.pathname === `${ROOT_PATH}/` &&
-    props.location.search === "?following"
-  ) {
+  } else if (props.location.pathname === `${ROOT_PATH}/following`) {
     return <Following {...props.followingProps} />;
-  } else if (
-    props.location.pathname === `${ROOT_PATH}/` &&
-    props.location.search === "?settings"
-  ) {
+  } else if (props.location.pathname === `${ROOT_PATH}/settings`) {
     return <Settings {...props.settingsProps} />;
   }
   return null;

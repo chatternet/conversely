@@ -1,6 +1,7 @@
 import { LOGO } from "../../commonutils";
-import { navigate } from "../../commonutils";
+import { onClickNavigate } from "../../commonutils";
 import { AccountModal, AccountModalProps } from "./AccountModal";
+import React from "react";
 import { Container, Navbar, Nav } from "react-bootstrap";
 
 export interface HeaderProps {
@@ -13,31 +14,31 @@ export function Header(props: HeaderProps) {
     <header className="border-bottom shadow-sm">
       <Navbar bg="light" expand="md" collapseOnSelect>
         <Container>
-          <Navbar.Brand href="#" onClick={() => navigate("/")}>
+          <Navbar.Brand href="/" onClick={onClickNavigate("/")}>
             <img src={LOGO} alt="logo" style={{ height: "32px" }} />{" "}
-            <span style={{ fontWeight: 500 }}>Conversely</span>
+            <span>Conversely</span>
           </Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse>
             <Nav className="me-auto">
               <Nav.Link
                 active={false}
-                href="#"
-                onClick={() => navigate("?feed")}
+                href="/feed"
+                onClick={onClickNavigate("/feed")}
               >
                 Feed
               </Nav.Link>
               <Nav.Link
                 active={false}
-                href="#"
-                onClick={() => navigate("?following")}
+                href="/following"
+                onClick={onClickNavigate("/following")}
               >
                 Following
               </Nav.Link>
               <Nav.Link
                 active={false}
-                href="#"
-                onClick={() => navigate("?settings")}
+                href="/settings"
+                onClick={onClickNavigate("/settings")}
               >
                 Settings
               </Nav.Link>
