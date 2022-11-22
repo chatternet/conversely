@@ -19,8 +19,10 @@ export async function login(
   try {
     chatterNet = await ChatterNet.new(loginInfo.did, loginInfo.password, [
       {
-        url: "http://127.0.0.1:3030",
-        did: "did:key:z6MkmAcyo7DKv1FAoux9wAbbTDsij1AszZCtMXeBJxAYTyx3",
+        // url: "http://127.0.0.1:3030/ap",
+        // did: "did:key:z6MkmAcyo7DKv1FAoux9wAbbTDsij1AszZCtMXeBJxAYTyx3",
+        url: "https://conversely.social/ap",
+        did: "did:key:z6MkpntU299mfMHXCKGzK4M3y3m7QE7b5rhPHRj9tXRRd8cT",
       },
     ]);
   } catch {

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+npm run clean
+npm run fmt
+npm run build
+cp dist/index.html dist/feed.html
+cp dist/index.html dist/following.html
+cp dist/index.html dist/settings.html
+. ~/dhadmin/select conv
+scp -r dist/* $dhs:~/conversely.social/
