@@ -2,6 +2,20 @@ import { MessageDisplay } from "../../controllers/messages";
 import { FormatIdName } from "./FormatIdName";
 import { Card } from "react-bootstrap";
 
+function formatDate(dateString: string): string {
+  const dateNow = new Date();
+  const date = new Date(dateString);
+  if (
+    date.getFullYear() === dateNow.getFullYear() &&
+    date.getMonth() === dateNow.getMonth() &&
+    date.getDate() === dateNow.getDate()
+  ) {
+    return date.toLocaleTimeString();
+  } else {
+    return date.toLocaleDateString();
+  }
+}
+
 export interface MessageItemProps {
   message: MessageDisplay;
   languageTag: string;
@@ -14,7 +28,9 @@ function MessageHeader(props: MessageItemProps) {
       <span>
         <FormatIdName {...props.message.actor} addContact={props.followId} />
       </span>
-      <small className="text-muted ms-auto">{props.message.date}</small>
+      <small className="text-muted ms-auto">
+        {formatDate(props.message.date)}
+      </small>
     </div>
   );
 }

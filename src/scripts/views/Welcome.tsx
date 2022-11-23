@@ -1,9 +1,9 @@
-import { LOGO } from "../commonutils";
+import { LOGO_HERO, onClickNavigate } from "../commonutils";
 import { CreateAccount, CreateAccountProps } from "./common/CreateAccount";
 import { FormatIdName } from "./common/FormatIdName";
 import { MessagesList, MessagesListProps } from "./common/MessagesList";
 import type { IdName } from "chatternet-client-http";
-import { Card, Row, Col, Container, Alert } from "react-bootstrap";
+import { Card, Row, Col, Container, Alert, Button } from "react-bootstrap";
 
 export type WelcomeProps = {
   loggedIn: boolean | undefined;
@@ -15,67 +15,63 @@ export type WelcomeProps = {
 export function Welcome(props: WelcomeProps) {
   return (
     <div>
-      <Container className="max-width-lg pt-3">
-        <Row className="align-items-center text-center my-4">
-          <Col md={8}>
-            <h1>
-              <span className="display-5 text-purple-to-red text-shadow-sm">
-                Conversely
-              </span>
-            </h1>
-            <div className="display-6">A different kind of social.</div>
-          </Col>
-          <Col md>
-            <div style={{ height: "18em" }} className="position-relative">
-              <div
-                style={{ height: "18em", width: "18em" }}
-                className="bg-round-purple-to-red position-absolute top-50 start-50 translate-middle"
-              ></div>
+      <div className="bg-masthead">
+        <Container className="pt-3">
+          <Row className="align-items-center text-center my-4 max-width-lg mx-auto">
+            <Col md={8}>
+              <h1>
+                <span className="display-5 text-purple-to-red text-shadow-sm">
+                  Conversely
+                </span>
+              </h1>
+              <div className="display-6">A different kind of social.</div>
+            </Col>
+            <Col md>
               <img
-                src={LOGO}
+                src={LOGO_HERO}
                 alt="logo"
-                style={{
-                  height: "9em",
-                  filter: "drop-shadow(0 0 2em rgba(255, 255, 255, 1.0))",
-                }}
-                className="position-absolute top-50 start-50 translate-middle"
+                width={"256px"}
+                height={"256px"}
               />
-            </div>
-          </Col>
-        </Row>
-      </Container>
+            </Col>
+          </Row>
+        </Container>
+      </div>
 
-      <Container className="max-width-md my-3">
-        <p>
-          Welcome to Conversely
-          {props.didName ? (
-            <>
-              {" "}
-              <FormatIdName {...props.didName} />
-            </>
-          ) : null}
-          .{" "}
-          {props.loggedIn ? (
-            <>
-              You're already logged in and ready to go, it's really that easy!
-            </>
-          ) : (
-            <>
-              Select or create an account to get started. All you need is a name
-              and a password.
-            </>
-          )}
-        </p>
-      </Container>
+      {props.loggedIn ? (
+        <Container className="max-width-md my-3">
+          <Alert variant="primary">
+            Welcome
+            {props.didName ? (
+              <>
+                {" "}
+                <FormatIdName {...props.didName} />
+              </>
+            ) : null}
+            , you're logged into a default account and ready to go, it's really
+            that easy! To change your account name and create a password, go to
+            the{" "}
+            <a href="/settings" onClick={onClickNavigate("/settings")}>
+              settings page
+            </a>
+            .
+          </Alert>
+        </Container>
+      ) : null}
 
       <Container className="my-3">
         <div className="max-width-md mx-auto">
           {props.loggedIn ? (
-            <MessagesList
-              pageSize={4}
-              allowMore={false}
-              {...props.messagesListProps}
-            />
+            <>
+              <MessagesList
+                pageSize={4}
+                allowMore={false}
+                {...props.messagesListProps}
+              />
+              <div className="text-center">
+                <Button onClick={onClickNavigate("/feed")}>Full feed</Button>
+              </div>
+            </>
           ) : (
             <CreateAccount {...props.createAccountProps} />
           )}
@@ -105,7 +101,7 @@ export function Welcome(props: WelcomeProps) {
                   &nbsp; Own your identity
                 </span>
               </Card.Header>
-              <Card.Body className="text-secondary">
+              <Card.Body>
                 <Card.Text>
                   You prove your own identity when interacting with others. No
                   need for an organization to issue an account which can be
@@ -124,7 +120,7 @@ export function Welcome(props: WelcomeProps) {
                   &nbsp; No lock-in
                 </span>
               </Card.Header>
-              <Card.Body className="text-secondary">
+              <Card.Body>
                 <Card.Text>
                   Content and accounts can move freely between apps. If an app
                   falls to the wayside, simply move to a new app.
@@ -145,7 +141,7 @@ export function Welcome(props: WelcomeProps) {
                   &nbsp; Spot bot spam
                 </span>
               </Card.Header>
-              <Card.Body className="text-secondary">
+              <Card.Body>
                 <Card.Text>
                   You hear only from people you follow, the people they follow,
                   and so on. A spammer must gain the trust of someone you trust

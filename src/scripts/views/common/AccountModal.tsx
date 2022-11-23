@@ -1,4 +1,9 @@
-import { UseState, SetState, clearState } from "../../commonutils";
+import {
+  UseState,
+  SetState,
+  clearState,
+  onClickNavigate,
+} from "../../commonutils";
 import { CopyLink } from "./CopyLink";
 import { FormatIdName } from "./FormatIdName";
 import type { IdName } from "chatternet-client-http";
@@ -118,6 +123,7 @@ function AccountModalOutBody(props: AccountModalOutBodyProps) {
 interface AccountModalInBodyProps {
   didName: IdName | undefined;
   logout: () => Promise<void>;
+  setShowModal: SetState<boolean>;
 }
 
 function AccountModalInBody(props: AccountModalInBodyProps) {
@@ -126,19 +132,33 @@ function AccountModalInBody(props: AccountModalInBodyProps) {
 
   const actorId = `${props.didName.id}/actor`;
 
+  const navigate = onClickNavigate("/settings");
+
   return (
     <section>
       <div className="d-flex justify-content-center m-2">
-        <button
+        <Button
           type="button"
           className="btn btn-primary"
           onClick={() => {
             props.logout().catch((err) => console.error(err));
+            props.setShowModal(false);
             clearState();
           }}
         >
           Log out
-        </button>
+        </Button>
+        &nbsp;
+        <Button
+          type="button"
+          className="btn btn-primary"
+          onClick={(event) => {
+            navigate(event);
+            props.setShowModal(false);
+          }}
+        >
+          Modify
+        </Button>
       </div>
       <div className="grid m-2">
         <div className="row mb-2">
@@ -183,7 +203,7 @@ export interface AccountModalProps {
   loggingIn: boolean;
   loggedIn: boolean;
   loginButtonProps: LoginButtonProps;
-  accountModalInBodyProps: AccountModalInBodyProps;
+  accountModalInBodyProps: Omit<AccountModalInBodyProps, "setShowModal">;
   accountModalOutBodyProps: Omit<AccountModalOutBodyProps, "count">;
 }
 
@@ -215,7 +235,10 @@ export function AccountModal(props: AccountModalProps) {
         </Modal.Header>
         <Modal.Body>
           {props.loggedIn ? (
-            <AccountModalInBody {...props.accountModalInBodyProps} />
+            <AccountModalInBody
+              setShowModal={setShowModal}
+              {...props.accountModalInBodyProps}
+            />
           ) : (
             <AccountModalOutBody
               count={count}

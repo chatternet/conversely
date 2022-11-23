@@ -52,6 +52,8 @@ export function Settings(props: SettingsProps) {
       <div className="max-width-md mx-auto">
         {props.loggedIn ? (
           <>
+            <h2>Account</h2>
+
             <Card className="rounded m-3">
               <Card.Header>Change display name</Card.Header>
               <Card.Body>
@@ -118,6 +120,8 @@ export function Settings(props: SettingsProps) {
             </Card>
           </>
         ) : null}
+
+        <h2>Global</h2>
 
         <Card className="rounded m-3">
           <Card.Header>Delete data</Card.Header>

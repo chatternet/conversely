@@ -56,6 +56,7 @@ h6 {
 .bg-blue-to-purple {
   background-image: linear-gradient(135deg, $blue, $purple);
   color: $white;
+
   &:hover {
     color: $white;
   }
@@ -64,6 +65,7 @@ h6 {
 .bg-purple-to-red {
   background-image: linear-gradient(135deg, $purple, $red);
   color: $white;
+
   &:hover {
     color: $white;
   }
@@ -82,21 +84,11 @@ h6 {
 .bg-masthead {
   background-image: radial-gradient(
       ellipse at top left,
-      rgba($purple-300, 0.2),
+      rgba($purple-100, 0.75),
       transparent 50%
     ),
-    radial-gradient(ellipse at top right, rgba($blue-400, 0.2), transparent 50%),
-    radial-gradient(
-      ellipse at center left,
-      rgba($pink-500, 0.2),
-      transparent 50%
-    ),
-    radial-gradient(
-      ellipse at center right,
-      rgba($orange-200, 0.2),
-      transparent 50%
-    );
-  background-size: 100% 64rem;
+    radial-gradient(ellipse at top right, rgba($red-100, 0.75), transparent 50%);
+  background-size: 100% 100%;
   background-repeat: no-repeat;
 }
 
@@ -145,15 +137,13 @@ h6 {
   color: $dark;
 }
 
-.bg-round-purple-to-red {
-  border-radius: 50%;
-  background: linear-gradient(90deg, $purple-100 50%, $red-100 50%);
-  filter: blur(4em);
-}
-
 .text-purple-to-red {
   background-image: linear-gradient(135deg, $purple-400, $red-400);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: bolder;
+}
+
+.round {
+  border-radius: 50%;
 }

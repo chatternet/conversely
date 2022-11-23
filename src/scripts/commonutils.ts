@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction } from "react";
 
 export { default as LOGO } from "../assets/logo.svg";
-export { default as LOGO_SOLID } from "../assets/logo-solid.svg";
+export { default as LOGO_HERO } from "../assets/logo-hero.png";
 
 export type SetState<T> = Dispatch<SetStateAction<T>>;
 export type UseState<T> = [T, SetState<T>];

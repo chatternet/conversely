@@ -27,7 +27,7 @@ export function CreatePost(props: CreatePostProps) {
             }}
           />
         </div>
-        <div className="d-flex align-items-center">
+        <div className="text-center">
           <Button
             onClick={() => {
               props
