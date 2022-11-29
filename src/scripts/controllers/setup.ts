@@ -19,10 +19,10 @@ export async function login(
   try {
     chatterNet = await ChatterNet.new(loginInfo.did, loginInfo.password, [
       {
-        // url: "http://127.0.0.1:3030/ap",
-        // did: "did:key:z6MkmAcyo7DKv1FAoux9wAbbTDsij1AszZCtMXeBJxAYTyx3",
-        url: "https://conversely.social/ap",
-        did: "did:key:z6MkpntU299mfMHXCKGzK4M3y3m7QE7b5rhPHRj9tXRRd8cT",
+        url: "http://127.0.0.1:3030/ap",
+        did: "did:key:z6MkmAcyo7DKv1FAoux9wAbbTDsij1AszZCtMXeBJxAYTyx3",
+        // url: "https://conversely.social/ap",
+        // did: "did:key:z6MkuNDW7uBZv1CnS7KthMVEbkhyCK1ZTXFnEVtyJJqPvRC7",
       },
     ]);
   } catch {
@@ -30,17 +30,9 @@ export async function login(
     setLoggingIn(false);
     return;
   }
-  const did = chatterNet.getDid();
+  const did = chatterNet.getLocalDid();
 
-  // let servers know about self
-  chatterNet
-    .postMessageObjectDoc(await chatterNet.getActorMessage())
-    .catch((x) => console.error(x));
-  chatterNet
-    .postMessageObjectDoc(await chatterNet.getFollowsMessage())
-    .catch((x) => console.error(x));
-
-  setDidName({ id: did, name: chatterNet.getName() });
+  setDidName({ id: did, name: chatterNet.getLocalName() });
   setChatterNet(chatterNet);
 
   setLoggingIn(false);
@@ -53,7 +45,6 @@ export async function logout(
 ) {
   sessionStorage.removeItem("loginInfo");
   if (!chatterNet) throw Error("chatterNet not initialized");
-  chatterNet.stop();
   setChatterNet(undefined);
 }
 
@@ -123,12 +114,14 @@ export async function changePassword(
     pushAlertTop("Passwords do not match.", "danger");
     return;
   }
-  if (!(await chatterNet.changePassword(oldPassword, newPassword))) {
+  try {
+    await chatterNet.changePassword(oldPassword, newPassword);
+  } catch {
     pushAlertTop("Current password is incorrect.", "danger");
     return;
   }
   const loginInfo: LoginInfo = {
-    did: chatterNet.getDid(),
+    did: chatterNet.getLocalDid(),
     password: newPassword,
   };
   sessionStorage.setItem("loginInfo", JSON.stringify(loginInfo));
@@ -147,9 +140,9 @@ export async function changeDisplayName(
   }
   await chatterNet.changeName(newDisplayName);
   chatterNet
-    .postMessageObjectDoc(await chatterNet.getActorMessage())
+    .postMessageObjectDoc(await chatterNet.buildActor())
     .catch((x) => console.error(x));
-  setDidName({ id: chatterNet.getDid(), name: chatterNet.getName() });
+  setDidName({ id: chatterNet.getLocalDid(), name: chatterNet.getLocalName() });
   pushAlertTop("Name changed.", "primary");
 }
 
@@ -182,6 +175,6 @@ export async function viewMessage(
   const viewMessage = await chatterNet.newView(message);
   if (!viewMessage) return;
   chatterNet
-    .postMessageObjectDoc({ message: viewMessage })
+    .postMessageObjectDoc({ message: viewMessage, objects: [] })
     .catch((x) => console.error(x));
 }

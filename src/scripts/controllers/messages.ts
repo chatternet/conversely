@@ -11,6 +11,9 @@ export interface MessageDisplay {
 export class MessageDisplayGrouper {
   constructor(
     private readonly messageIter: MessageIter,
+    private readonly acceptMessage: (
+      message: Messages.MessageWithId
+    ) => Promise<boolean>,
     private readonly viewMessage: (
       message: Messages.MessageWithId
     ) => Promise<void>,
@@ -29,16 +32,21 @@ export class MessageDisplayGrouper {
 
   private async buildMessageDisplay(
     message: Messages.MessageWithId,
-    depth: number = 0
+    indirect?: Messages.MessageWithId
   ): Promise<MessageDisplay | undefined> {
     if (this.seenMessagesId.has(message.id)) return;
     this.seenMessagesId.add(message.id);
 
+    // check if the received message should be shown
+    if (!(await this.acceptMessage(indirect != null ? indirect : message)))
+      return;
+
     if (message.origin) {
-      if (depth > 0) return;
+      // don't follow multiple indirections
+      if (indirect != null) return;
       const origin = await this.getMessage(message.origin);
       if (!origin) return;
-      return await this.buildMessageDisplay(origin, depth + 1);
+      return await this.buildMessageDisplay(origin, message);
     }
 
     const [objectId] = message.object;
@@ -54,17 +62,6 @@ export class MessageDisplayGrouper {
 
     const actor = await this.getActor(message.actor);
     if (!actor) return;
-
-    // in_inbox = from_contact * in_audience
-    // tau_0 * in_inbox + tau_1 * from_contact * !in_inbox + tau_2 * in_audience * !in_inbox - time_elapsed
-    // tau_0: skip-ahead-time for an inbox message
-    // tau_1: skip-ahead-time for a contact message not in inbox
-    // tau_2: skip-ahead-time for an audience message not in inbox
-
-    // TODO: add flag in display to indicate if flag is from inbox
-    // - calculate inbox: store following and contacts separately
-    // - if actor is contact and audience is in following, flag as inbox message
-    // - view only inbox messages
 
     return {
       id: message.id,
@@ -101,7 +98,9 @@ export class MessageDisplayGrouper {
               );
             })
             .catch((x) => console.error(x));
-          return [...prevState, display];
+          const newState = [...prevState, display];
+          newState.sort((a, b) => +(b.date > a.date));
+          return newState;
         }
       });
     }

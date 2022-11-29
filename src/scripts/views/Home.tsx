@@ -54,7 +54,7 @@ export function Home() {
     );
     (async () => {
       // if no accounts are available, create anonymous
-      if ((await ChatterNet.getDeviceDidNames()).length <= 0)
+      if ((await ChatterNet.getAccountNames()).length <= 0)
         await loginAnonymous(
           setLoggingIn,
           setChatterNet,
@@ -88,7 +88,7 @@ export function Home() {
         logout: async () => logout(chatterNet, setChatterNet),
       },
       accountModalOutBodyProps: {
-        getAccountsName: async () => ChatterNet.getDeviceDidNames(),
+        getAccountsName: async () => ChatterNet.getAccountNames(),
         accountSelectorProps: {
           // NOTE: could use `loginInfo` from scope, but instead use the state
           // as seen by the UI component to ensure no surprises
@@ -111,6 +111,13 @@ export function Home() {
   > = {
     loggedIn: !!chatterNet,
     buildMessageIter: async () => chatterNet?.buildMessageIter(),
+    acceptMessage: async (message: Messages.MessageWithId) => {
+      if (!chatterNet) return false;
+      const { fromContact, inAudience } = await chatterNet.buildMessageAffinity(
+        message
+      );
+      return fromContact && inAudience;
+    },
     viewMessage: async (message: Messages.MessageWithId) => {
       if (!chatterNet) return;
       await viewMessage(chatterNet, message);

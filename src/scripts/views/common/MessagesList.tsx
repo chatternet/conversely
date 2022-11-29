@@ -18,6 +18,7 @@ export interface MessagesListProps {
   allowMore: boolean;
   refreshCount: number;
   buildMessageIter: () => Promise<MessageIter | undefined>;
+  acceptMessage: (message: Messages.MessageWithId) => Promise<boolean>;
   viewMessage: (message: Messages.MessageWithId) => Promise<void>;
   getMessage: (id: string) => Promise<Messages.MessageWithId | undefined>;
   getActor: (id: string) => Promise<Messages.Actor | undefined>;
@@ -47,6 +48,7 @@ export function MessagesList(props: MessagesListProps) {
     setMessageDisplayGrouper(
       new MessageDisplayGrouper(
         messageIter,
+        props.acceptMessage,
         props.viewMessage,
         props.getMessage,
         props.getActor,
