@@ -14,9 +14,14 @@ export function FormatIdName(props: FormatIdNameProps) {
     props.addContact(props.id).catch((x) => console.error(x));
   }
 
+  const [did] = props.id.split("/");
+  const suffix = did.split("").reverse().slice(0, 8).join("");
+
+  const name = props.name && props.name.trim().length > 0 ? props.name : suffix;
+
   return (
     <span>
-      <span className={props.plain ? "" : "display-name"}>@{props.name}</span>
+      <span className={props.plain ? "" : "display-name"}>@{name}</span>
       {props.addContact ? (
         <span>
           {" "}

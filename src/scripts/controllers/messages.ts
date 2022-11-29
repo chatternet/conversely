@@ -84,20 +84,14 @@ export class MessageDisplayGrouper {
         if (prevState == null) {
           return [display];
         } else {
+          // don't show the same message multiple times
           const idx = prevState.findIndex((x) => x.id === display.id);
-          // TODO: want to show how many views a displayed message has
           if (idx >= 0) return prevState;
-          // at this stage the message will be viewed (and isn't already in list)
-          this.viewMessage(message)
-            .then(() => {
-              console.debug(
-                "viewed: %s (%s): %s",
-                message.id,
-                message.origin,
-                message.object
-              );
-            })
-            .catch((x) => console.error(x));
+
+          // trigger side effects for viewed messages
+          this.viewMessage(message).catch((x) => console.error(x));
+
+          // rebuild the list
           const newState = [...prevState, display];
           newState.sort((a, b) => +(b.date > a.date));
           return newState;
