@@ -5,22 +5,23 @@ import {
   onClickNavigate,
 } from "../../commonutils";
 import { CopyLink } from "./CopyLink";
-import { FormatIdName } from "./FormatIdName";
-import type { IdName } from "chatternet-client-http";
-import { isEmpty } from "lodash-es";
-import { useEffect, useState } from "react";
+import { FormatIdName, FormatIdNameProps } from "./FormatIdName";
+import { ChatterNet, IdName } from "chatternet-client-http";
+import { useState } from "react";
 import React from "react";
 import {
   Button,
   Collapse,
   Form,
   InputGroup,
+  ListGroup,
   Modal,
   Spinner,
 } from "react-bootstrap";
 
 interface AccountSelectorProps {
-  didName: IdName;
+  did: string;
+  formatIdNameProps: Omit<FormatIdNameProps, "id">;
   selectedDid: string | undefined;
   login: (did: string, password: string) => Promise<void>;
   setSelectedDid: SetState<string | undefined>;
@@ -32,7 +33,7 @@ function AccountSelector(props: AccountSelectorProps) {
   const [password, setPassword]: UseState<string> = useState("");
 
   const submit = async () => {
-    await props.login(props.didName.id, password);
+    await props.login(props.did, password);
   };
 
   const onSubmit: React.FormEventHandler = (event: React.FormEvent) => {
@@ -40,16 +41,18 @@ function AccountSelector(props: AccountSelectorProps) {
     submit().catch((err) => console.error(err));
   };
 
+  const accountId = ChatterNet.actorFromDid(props.did);
+
   return (
-    <div className="m-1">
+    <ListGroup.Item>
       <a
         href="#"
-        className="list-group-item list-group-item-action"
-        onClick={() => props.setSelectedDid(props.didName.id)}
+        className="d-block"
+        onClick={() => props.setSelectedDid(props.did)}
       >
-        <FormatIdName {...props.didName} />
+        <FormatIdName id={accountId} {...props.formatIdNameProps} />
       </a>
-      <Collapse in={props.selectedDid === props.didName.id}>
+      <Collapse in={props.selectedDid === props.did}>
         <Form onSubmit={onSubmit}>
           <Form.Group className="m-3">
             <InputGroup>
@@ -71,48 +74,39 @@ function AccountSelector(props: AccountSelectorProps) {
           </Form.Group>
         </Form>
       </Collapse>
-    </div>
+    </ListGroup.Item>
   );
 }
 
 interface AccountModalOutBodyProps {
-  count: number;
-  getAccountsName: () => Promise<IdName[]>;
+  accountsDid: string[];
+  formatIdNameProps: Omit<FormatIdNameProps, "id">;
   accountSelectorProps: Omit<
     AccountSelectorProps,
-    "didName" | "selectedDid" | "setSelectedDid"
+    "did" | "formatIdNameProps" | "selectedDid" | "setSelectedDid"
   >;
 }
 
 function AccountModalOutBody(props: AccountModalOutBodyProps) {
   const [selectedDid, setSelectedDid]: UseState<string | undefined> =
     useState();
-  const [accountsName, setAccountsName]: UseState<IdName[] | undefined> =
-    useState();
 
-  // re-calculate whenever it is shown (count goes up)
-  useEffect(() => {
-    props
-      .getAccountsName()
-      .then(setAccountsName)
-      .catch(() => console.error("unable to get account names"));
-  }, [props.count]);
-
-  if (!isEmpty(accountsName)) {
+  if (props.accountsDid.length > 0) {
     return (
       <div>
         <p>Log into account:</p>
-        <div className="list-group">
-          {Object.values(accountsName ? accountsName : []).map((x) => (
+        <ListGroup>
+          {props.accountsDid.map((x) => (
             <AccountSelector
-              key={x.id}
-              didName={x}
+              key={x}
+              did={x}
               selectedDid={selectedDid}
               setSelectedDid={setSelectedDid}
+              formatIdNameProps={{ ...props.formatIdNameProps }}
               {...props.accountSelectorProps}
             />
           ))}
-        </div>
+        </ListGroup>
       </div>
     );
   } else {
@@ -177,15 +171,15 @@ function AccountModalInBody(props: AccountModalInBodyProps) {
 }
 
 export interface LoginButtonProps {
-  didName: IdName | undefined;
+  did: string | undefined;
+  formatIdNameProps: Omit<FormatIdNameProps, "id" | "plain">;
   loggedIn: boolean;
   loggingIn: boolean;
 }
 
 function LoginButton(props: LoginButtonProps) {
-  if (props.loggedIn && props.didName) {
-    if (props.didName) return <FormatIdName {...props.didName} plain />;
-    else return <span>Logged in</span>;
+  if (props.loggedIn && props.did) {
+    return <FormatIdName id={props.did} {...props.formatIdNameProps} plain />;
   } else if (props.loggingIn) {
     return (
       <div className="d-flex align-items-center">
@@ -209,7 +203,6 @@ export interface AccountModalProps {
 
 export function AccountModal(props: AccountModalProps) {
   // used to update the state every time the modal is open
-  const [count, setCount]: [number, SetState<number>] = useState(0);
   const [showModal, setShowModal]: [boolean, SetState<boolean>] =
     useState(false);
 
@@ -219,7 +212,6 @@ export function AccountModal(props: AccountModalProps) {
         className="btn bg-purple-to-red"
         onClick={() => {
           if (props.loggingIn) return;
-          setCount((prev) => prev + 1);
           setShowModal(true);
         }}
       >
@@ -240,10 +232,7 @@ export function AccountModal(props: AccountModalProps) {
               {...props.accountModalInBodyProps}
             />
           ) : (
-            <AccountModalOutBody
-              count={count}
-              {...props.accountModalOutBodyProps}
-            />
+            <AccountModalOutBody {...props.accountModalOutBodyProps} />
           )}
         </Modal.Body>
       </Modal>

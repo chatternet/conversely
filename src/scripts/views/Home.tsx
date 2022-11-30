@@ -1,6 +1,6 @@
 import { sleep, UseState } from "../commonutils";
 import { clearAll } from "../controllers/clear.js";
-import type { AlertTopItem } from "../controllers/interfaces";
+import { AlertTopItem, IdToName } from "../controllers/interfaces";
 import {
   login,
   loginFromSession,
@@ -8,7 +8,7 @@ import {
   loginAnonymous,
   changePassword,
   changeDisplayName,
-  followId,
+  addFollowing,
   createAccount,
   viewMessage,
 } from "../controllers/setup.js";
@@ -17,12 +17,12 @@ import {
   AlertTop,
   pushAlertTop as pushAlertTopController,
 } from "./common/AlertTop";
+import { FormatIdNameProps } from "./common/FormatIdName";
 import { Header, HeaderProps } from "./common/Header";
 import { MessagesListProps } from "./common/MessagesList";
-import type { IdName } from "chatternet-client-http";
-import { ChatterNet, Messages } from "chatternet-client-http";
+import { ChatterNet, IdName, Messages } from "chatternet-client-http";
 import { useEffect, useState } from "react";
-import { Container } from "react-bootstrap";
+import { Container, ListGroup } from "react-bootstrap";
 import { Variant } from "react-bootstrap/esm/types";
 
 export function Home() {
@@ -34,8 +34,11 @@ export function Home() {
   // the networking and storage node
   const [chatterNet, setChatterNet]: UseState<ChatterNet | undefined> =
     useState();
-  // name and suffix for currently logged in DID
-  const [didName, setDidName]: UseState<IdName | undefined> = useState();
+  const [idToName, setIdToName]: UseState<IdToName> = useState(new IdToName());
+  const [following, setFollowing]: UseState<Set<string>> = useState(new Set());
+  const [accountsDid, setAccountsDid]: UseState<string[]> = useState(
+    new Array()
+  );
   // the current window location
   const [location, setLocation]: UseState<URL> = useState(
     new URL(window.location.href)
@@ -53,25 +56,53 @@ export function Home() {
       setLocation(new URL(window.location.href))
     );
     (async () => {
-      // if no accounts are available, create anonymous
-      if ((await ChatterNet.getAccountNames()).length <= 0)
-        await loginAnonymous(
-          setLoggingIn,
-          setChatterNet,
-          setDidName,
-          pushAlertTop
-        );
-      // otherwise try to login from session data
-      else
+      // prepare list of accounts
+      const accounts = await ChatterNet.getAccountNames();
+      const timestamp = new Date().getTime() * 1e-3;
+      for (const { id, name } of accounts) {
+        const actorId = ChatterNet.actorFromDid(id);
+        setIdToName((x) => x.update(actorId, name, timestamp));
+        setAccountsDid((x) => [...x, id]);
+      }
+      // login from session if accounts are available
+      if (accounts.length > 0) {
         await loginFromSession(
           setLoggingIn,
           setChatterNet,
-          setDidName,
+          setIdToName,
+          setFollowing,
           pushAlertTop
         );
-      // otherwise user can navigate use account selector
+      }
+      // if no accounts make an anonymous account
+      else {
+        await loginAnonymous(
+          setLoggingIn,
+          setChatterNet,
+          setIdToName,
+          setFollowing,
+          pushAlertTop
+        );
+      }
     })().catch((x) => console.error(x));
   }, []);
+
+  const did = !chatterNet ? undefined : chatterNet.getLocalDid();
+  const didName = !chatterNet
+    ? undefined
+    : { id: chatterNet.getLocalDid(), name: chatterNet.getLocalName() };
+
+  const formatIdNameProps: Omit<FormatIdNameProps, "id"> = {
+    idToName,
+    contacts: following,
+    addFollowing: async (id: string) => {
+      if (!chatterNet) {
+        pushAlertTop(errorNoChatterNet, "danger");
+        return;
+      }
+      await addFollowing(chatterNet, id, setFollowing, pushAlertTop);
+    },
+  };
 
   const headerProps: HeaderProps = {
     loggedIn: !!chatterNet,
@@ -79,7 +110,8 @@ export function Home() {
       loggedIn: !!chatterNet,
       loggingIn,
       loginButtonProps: {
-        didName,
+        did,
+        formatIdNameProps: { ...formatIdNameProps, addFollowing: undefined },
         loggedIn: !!chatterNet,
         loggingIn,
       },
@@ -88,7 +120,8 @@ export function Home() {
         logout: async () => logout(chatterNet, setChatterNet),
       },
       accountModalOutBodyProps: {
-        getAccountsName: async () => ChatterNet.getAccountNames(),
+        accountsDid,
+        formatIdNameProps: { ...formatIdNameProps, addFollowing: undefined },
         accountSelectorProps: {
           // NOTE: could use `loginInfo` from scope, but instead use the state
           // as seen by the UI component to ensure no surprises
@@ -97,7 +130,8 @@ export function Home() {
               { did, password },
               setLoggingIn,
               setChatterNet,
-              setDidName,
+              setIdToName,
+              setFollowing,
               pushAlertTop
             ),
         },
@@ -111,6 +145,7 @@ export function Home() {
   > = {
     loggedIn: !!chatterNet,
     buildMessageIter: async () => chatterNet?.buildMessageIter(),
+    setIdToName,
     acceptMessage: async (message: Messages.MessageWithId) => {
       if (!chatterNet) return false;
       const { fromContact, inAudience } = await chatterNet.buildMessageAffinity(
@@ -159,34 +194,36 @@ export function Home() {
         ...messagesListProps,
         messagesDisplayProps: {
           languageTag: "en",
-          followId: async (id: string) => {
-            if (!chatterNet) {
-              pushAlertTop(errorNoChatterNet, "danger");
-              return;
-            }
-            await followId(chatterNet, id, pushAlertTop);
-          },
+          formatIdNameProps,
         },
       },
     },
     followingProps: {
       loggedIn: !!chatterNet,
+      following,
+      formatIdNameProps: {
+        ...formatIdNameProps,
+        addFollowing: undefined,
+        contacts: undefined,
+      },
       followId: async (id: string) => {
         if (!chatterNet) {
           pushAlertTop(errorNoChatterNet, "danger");
           return;
         }
-        await followId(chatterNet, id, pushAlertTop);
+        await addFollowing(chatterNet, id, setFollowing, pushAlertTop);
       },
     },
     welcomeProps: {
       loggedIn: !!chatterNet,
-      didName,
+      did,
+      formatIdNameProps: { ...formatIdNameProps, addFollowing: undefined },
       messagesListProps: {
         refreshCount: refreshCountWelcome,
         ...messagesListProps,
         messagesDisplayProps: {
           languageTag: "en",
+          formatIdNameProps,
         },
       },
       createAccountProps: {
@@ -204,7 +241,8 @@ export function Home() {
             { did, password },
             setLoggingIn,
             setChatterNet,
-            setDidName,
+            setIdToName,
+            setFollowing,
             pushAlertTop
           );
         },
@@ -220,7 +258,7 @@ export function Home() {
         await changeDisplayName(
           chatterNet,
           newDisplayName,
-          setDidName,
+          setIdToName,
           pushAlertTop
         );
       },

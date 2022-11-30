@@ -1,10 +1,10 @@
 import { MessageDisplay } from "../../controllers/messages";
-import { FormatIdName } from "./FormatIdName";
+import { FormatIdName, FormatIdNameProps } from "./FormatIdName";
 import { Card } from "react-bootstrap";
 
-function formatDate(dateString: string): string {
+function formatTimestamp(timestamp: number): string {
   const dateNow = new Date();
-  const date = new Date(dateString);
+  const date = new Date(timestamp * 1e3);
   if (
     date.getFullYear() === dateNow.getFullYear() &&
     date.getMonth() === dateNow.getMonth() &&
@@ -19,17 +19,17 @@ function formatDate(dateString: string): string {
 export interface MessageItemProps {
   message: MessageDisplay;
   languageTag: string;
-  followId?: (id: string) => Promise<void>;
+  formatIdNameProps: Omit<FormatIdNameProps, "id">;
 }
 
 function MessageHeader(props: MessageItemProps) {
   return (
     <div className="d-flex align-items-center">
       <span>
-        <FormatIdName {...props.message.actor} addContact={props.followId} />
+        <FormatIdName id={props.message.actorId} {...props.formatIdNameProps} />
       </span>
       <small className="text-muted ms-auto">
-        {formatDate(props.message.date)}
+        {formatTimestamp(props.message.timestamp)}
       </small>
     </div>
   );

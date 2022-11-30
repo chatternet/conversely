@@ -1,23 +1,28 @@
 import { default as ANIMAL_NAMES } from "../../assets/alliterative-animals.json";
 import type { SetState } from "../commonutils";
-import type { PushAlertTop } from "./interfaces";
+import type { IdToName, PushAlertTop } from "./interfaces";
 import type { LoginInfo } from "./interfaces";
-import { ChatterNet, DidKey, IdName, Messages } from "chatternet-client-http";
+import { ChatterNet, DidKey, Messages } from "chatternet-client-http";
 import { sample } from "lodash-es";
+
+export async function getFollows(chatterNet: ChatterNet): Promise<Set<string>> {
+  const { message } = await chatterNet.buildFollows();
+  return new Set(message.object);
+}
 
 export async function login(
   loginInfo: LoginInfo | undefined,
   setLoggingIn: SetState<boolean>,
   setChatterNet: SetState<ChatterNet | undefined>,
-  setDidName: SetState<IdName | undefined>,
+  setIdToName: SetState<IdToName>,
+  setFollows: SetState<Set<string>>,
   pushAlertTop: PushAlertTop
 ) {
   if (!loginInfo) return;
   setLoggingIn(true);
 
-  let chatterNet = undefined;
   try {
-    chatterNet = await ChatterNet.new(loginInfo.did, loginInfo.password, [
+    const chatterNet = await ChatterNet.new(loginInfo.did, loginInfo.password, [
       {
         url: "http://127.0.0.1:3030/ap",
         did: "did:key:z6MkmAcyo7DKv1FAoux9wAbbTDsij1AszZCtMXeBJxAYTyx3",
@@ -25,15 +30,17 @@ export async function login(
         // did: "did:key:z6MkuNDW7uBZv1CnS7KthMVEbkhyCK1ZTXFnEVtyJJqPvRC7",
       },
     ]);
+    const timestamp = new Date().getTime() * 1e-3;
+    setIdToName((x) =>
+      x.update(chatterNet.getLocalDid(), chatterNet.getLocalName(), timestamp)
+    );
+    setFollows(await getFollows(chatterNet));
+    setChatterNet(chatterNet);
   } catch {
     pushAlertTop("Failed to login due to invalid DID, password.", "danger");
     setLoggingIn(false);
     return;
   }
-  const did = chatterNet.getLocalDid();
-
-  setDidName({ id: did, name: chatterNet.getLocalName() });
-  setChatterNet(chatterNet);
 
   setLoggingIn(false);
   sessionStorage.setItem("loginInfo", JSON.stringify(loginInfo));
@@ -51,13 +58,21 @@ export async function logout(
 export async function loginFromSession(
   setLoggingIn: SetState<boolean>,
   setChatterNet: SetState<ChatterNet | undefined>,
-  setDidName: SetState<IdName | undefined>,
+  setIdToName: SetState<IdToName>,
+  setFollows: SetState<Set<string>>,
   pushAlertTop: PushAlertTop
 ) {
   const loginInfoData = sessionStorage.getItem("loginInfo");
   if (!loginInfoData) return;
   const loginInfo: LoginInfo = JSON.parse(loginInfoData);
-  await login(loginInfo, setLoggingIn, setChatterNet, setDidName, pushAlertTop);
+  await login(
+    loginInfo,
+    setLoggingIn,
+    setChatterNet,
+    setIdToName,
+    setFollows,
+    pushAlertTop
+  );
 }
 
 export async function createAccount(
@@ -82,7 +97,8 @@ export async function createAccount(
 export async function loginAnonymous(
   setLoggingIn: SetState<boolean>,
   setChatterNet: SetState<ChatterNet | undefined>,
-  setDidName: SetState<IdName | undefined>,
+  setIdToName: SetState<IdToName>,
+  setFollows: SetState<Set<string>>,
   pushAlertTop: PushAlertTop
 ): Promise<void> {
   const animalName = sample(
@@ -98,7 +114,8 @@ export async function loginAnonymous(
     { did, password },
     setLoggingIn,
     setChatterNet,
-    setDidName,
+    setIdToName,
+    setFollows,
     pushAlertTop
   );
 }
@@ -131,7 +148,7 @@ export async function changePassword(
 export async function changeDisplayName(
   chatterNet: ChatterNet,
   newDisplayName: string,
-  setDidName: SetState<IdName | undefined>,
+  setIdToName: SetState<IdToName>,
   pushAlertTop: PushAlertTop
 ) {
   if (!newDisplayName) {
@@ -142,13 +159,17 @@ export async function changeDisplayName(
   chatterNet
     .postMessageObjectDoc(await chatterNet.buildActor())
     .catch((x) => console.error(x));
-  setDidName({ id: chatterNet.getLocalDid(), name: chatterNet.getLocalName() });
+  const timestamp = new Date().getTime() * 1e-3;
+  setIdToName((x) =>
+    x.update(chatterNet.getLocalDid(), chatterNet.getLocalName(), timestamp)
+  );
   pushAlertTop("Name changed.", "primary");
 }
 
-export async function followId(
+export async function addFollowing(
   chatterNet: ChatterNet,
   id: string,
+  setFollows: SetState<Set<string>>,
   pushAlertTop: PushAlertTop
 ) {
   if (!id) {
@@ -162,9 +183,8 @@ export async function followId(
     );
     return;
   }
-  chatterNet
-    .postMessageObjectDoc(await chatterNet.newFollow(id))
-    .catch((x) => console.error(x));
+  await chatterNet.postMessageObjectDoc(await chatterNet.newFollow(id));
+  setFollows((x) => new Set([...x, id]));
   pushAlertTop(`Following ${id}.`, "primary");
 }
 
