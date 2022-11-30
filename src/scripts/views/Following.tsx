@@ -1,9 +1,19 @@
 import { UseState } from "../commonutils";
+import { FormatIdName, FormatIdNameProps } from "./common/FormatIdName";
 import { FormEvent, useState } from "react";
-import { Alert, Card, Container, Form, Button } from "react-bootstrap";
+import {
+  Alert,
+  Card,
+  Container,
+  Form,
+  Button,
+  ListGroup,
+} from "react-bootstrap";
 
 export type FollowingProps = {
   loggedIn: boolean;
+  following: Set<string>;
+  formatIdNameProps: Omit<FormatIdNameProps, "id">;
   followId: (id: string) => Promise<void>;
 };
 
@@ -22,7 +32,7 @@ export function Following(props: FollowingProps) {
     <Container className="my-3 max-width-md mx-auto">
       {props.loggedIn ? (
         <>
-          <Card className="rounded m-3">
+          <Card className="rounded my-3">
             <Card.Header>Follow</Card.Header>
             <Card.Body>
               <Form onSubmit={follow}>
@@ -43,6 +53,14 @@ export function Following(props: FollowingProps) {
               </Form>
             </Card.Body>
           </Card>
+          <ListGroup className="my-3">
+            {[...props.following].map((x) => (
+              <ListGroup.Item key={x}>
+                <FormatIdName id={x} {...props.formatIdNameProps} />
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
+          <div className="list-group"></div>
         </>
       ) : (
         <Alert>Cannot view following list without logging in.</Alert>

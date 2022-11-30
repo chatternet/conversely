@@ -1,13 +1,13 @@
 import { LOGO_HERO, onClickNavigate } from "../commonutils";
 import { CreateAccount, CreateAccountProps } from "./common/CreateAccount";
-import { FormatIdName } from "./common/FormatIdName";
+import { FormatIdName, FormatIdNameProps } from "./common/FormatIdName";
 import { MessagesList, MessagesListProps } from "./common/MessagesList";
-import type { IdName } from "chatternet-client-http";
 import { Card, Row, Col, Container, Alert, Button } from "react-bootstrap";
 
 export type WelcomeProps = {
   loggedIn: boolean | undefined;
-  didName: IdName | undefined;
+  did: string | undefined;
+  formatIdNameProps: Omit<FormatIdNameProps, "id">;
   messagesListProps: Omit<MessagesListProps, "pageSize" | "allowMore">;
   createAccountProps: CreateAccountProps;
 };
@@ -42,10 +42,10 @@ export function Welcome(props: WelcomeProps) {
         <Container className="max-width-md my-3">
           <Alert variant="primary">
             Welcome
-            {props.didName ? (
+            {props.did ? (
               <>
                 {" "}
-                <FormatIdName {...props.didName} />
+                <FormatIdName id={props.did} {...props.formatIdNameProps} />
               </>
             ) : null}
             , you're logged into a default account and ready to go, it's really

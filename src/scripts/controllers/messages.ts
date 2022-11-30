@@ -1,16 +1,18 @@
 import type { SetState } from "../commonutils.js";
-import type { IdName, Messages, MessageIter } from "chatternet-client-http";
+import { IdToName } from "./interfaces.js";
+import type { Messages, MessageIter } from "chatternet-client-http";
 
 export interface MessageDisplay {
   id: string;
-  date: string;
-  actor: IdName;
+  timestamp: number;
+  actorId: string;
   content: string;
 }
 
 export class MessageDisplayGrouper {
   constructor(
     private readonly messageIter: MessageIter,
+    private readonly setIdToName: SetState<IdToName>,
     private readonly acceptMessage: (
       message: Messages.MessageWithId
     ) => Promise<boolean>,
@@ -59,14 +61,17 @@ export class MessageDisplayGrouper {
     if (!content) return;
 
     const date = message.published;
+    const timestamp = new Date(date).getTime() * 1e-3;
 
     const actor = await this.getActor(message.actor);
     if (!actor) return;
+    if (actor.name)
+      this.setIdToName((x) => x.update(actor.id, actor.name, timestamp));
 
     return {
       id: message.id,
-      date,
-      actor: { id: actor.id, name: actor.name },
+      timestamp,
+      actorId: actor.id,
       content,
     };
   }
@@ -93,7 +98,7 @@ export class MessageDisplayGrouper {
 
           // rebuild the list
           const newState = [...prevState, display];
-          newState.sort((a, b) => +(b.date > a.date));
+          newState.sort((a, b) => b.timestamp - a.timestamp);
           return newState;
         }
       });

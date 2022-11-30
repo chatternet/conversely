@@ -1,4 +1,5 @@
-import type { UseState } from "../../commonutils";
+import type { UseState, SetState } from "../../commonutils";
+import { IdToName } from "../../controllers/interfaces";
 import {
   MessageDisplay,
   MessageDisplayGrouper,
@@ -18,6 +19,7 @@ export interface MessagesListProps {
   allowMore: boolean;
   refreshCount: number;
   buildMessageIter: () => Promise<MessageIter | undefined>;
+  setIdToName: SetState<IdToName>;
   acceptMessage: (message: Messages.MessageWithId) => Promise<boolean>;
   viewMessage: (message: Messages.MessageWithId) => Promise<void>;
   getMessage: (id: string) => Promise<Messages.MessageWithId | undefined>;
@@ -48,6 +50,7 @@ export function MessagesList(props: MessagesListProps) {
     setMessageDisplayGrouper(
       new MessageDisplayGrouper(
         messageIter,
+        props.setIdToName,
         props.acceptMessage,
         props.viewMessage,
         props.getMessage,
