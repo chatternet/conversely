@@ -14,6 +14,17 @@ export function Jidenticon(props: JidenticonProps) {
   const icon = useRef(null);
   useEffect(() => {
     if (icon.current == null) return;
+    jdenticon.configure({
+      lightness: {
+        color: [0.2, 0.5],
+        grayscale: [0.2, 0.5],
+      },
+      saturation: {
+        color: 0.67,
+        grayscale: 0.1,
+      },
+      backColor: "#fff",
+    });
     jdenticon.update(icon.current, props.value);
   }, [props.value]);
   return (
@@ -23,7 +34,6 @@ export function Jidenticon(props: JidenticonProps) {
       ref={icon}
       width={size}
       style={{
-        backgroundColor: "white",
         borderRadius: "50%",
       }}
     />

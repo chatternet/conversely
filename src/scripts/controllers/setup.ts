@@ -32,7 +32,11 @@ export async function login(
     ]);
     const timestamp = new Date().getTime() * 1e-3;
     setIdToName((x) =>
-      x.update(chatterNet.getLocalDid(), chatterNet.getLocalName(), timestamp)
+      x.update(
+        ChatterNet.actorFromDid(chatterNet.getLocalDid()),
+        chatterNet.getLocalName(),
+        timestamp
+      )
     );
     setFollows(await getFollows(chatterNet));
     setChatterNet(chatterNet);

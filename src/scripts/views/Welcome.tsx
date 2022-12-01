@@ -6,7 +6,7 @@ import { Card, Row, Col, Container, Alert, Button } from "react-bootstrap";
 
 export type WelcomeProps = {
   loggedIn: boolean | undefined;
-  did: string | undefined;
+  localActorId: string | undefined;
   formatIdNameProps: Omit<FormatIdNameProps, "id">;
   messagesListProps: Omit<MessagesListProps, "pageSize" | "allowMore">;
   createAccountProps: CreateAccountProps;
@@ -35,10 +35,13 @@ export function Welcome(props: WelcomeProps) {
         <Container className="max-width-md my-3">
           <Alert variant="primary">
             Welcome
-            {props.did ? (
+            {props.localActorId ? (
               <>
                 {" "}
-                <FormatIdName id={props.did} {...props.formatIdNameProps} />
+                <FormatIdName
+                  id={props.localActorId}
+                  {...props.formatIdNameProps}
+                />
               </>
             ) : null}
             , you're logged into a default account and ready to go, it's really

@@ -20,9 +20,9 @@ import {
 import { FormatIdNameProps } from "./common/FormatIdName";
 import { Header, HeaderProps } from "./common/Header";
 import { MessagesListProps } from "./common/MessagesList";
-import { ChatterNet, IdName, Messages } from "chatternet-client-http";
+import { ChatterNet, Messages } from "chatternet-client-http";
 import { useEffect, useState } from "react";
-import { Container, ListGroup } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import { Variant } from "react-bootstrap/esm/types";
 
 export function Home() {
@@ -88,6 +88,7 @@ export function Home() {
   }, []);
 
   const did = !chatterNet ? undefined : chatterNet.getLocalDid();
+  const localActorId = !did ? undefined : ChatterNet.actorFromDid(did);
   const didName = !chatterNet
     ? undefined
     : { id: chatterNet.getLocalDid(), name: chatterNet.getLocalName() };
@@ -110,8 +111,8 @@ export function Home() {
       loggedIn: !!chatterNet,
       loggingIn,
       loginButtonProps: {
-        did,
-        formatIdNameProps: { ...formatIdNameProps, addFollowing: undefined },
+        localActorId,
+        formatIdNameProps: { ...formatIdNameProps, bare: true },
         loggedIn: !!chatterNet,
         loggingIn,
       },
@@ -121,7 +122,7 @@ export function Home() {
       },
       accountModalOutBodyProps: {
         accountsDid,
-        formatIdNameProps: { ...formatIdNameProps, addFollowing: undefined },
+        formatIdNameProps: { ...formatIdNameProps, bare: true },
         accountSelectorProps: {
           // NOTE: could use `loginInfo` from scope, but instead use the state
           // as seen by the UI component to ensure no surprises
@@ -216,8 +217,8 @@ export function Home() {
     },
     welcomeProps: {
       loggedIn: !!chatterNet,
-      did,
-      formatIdNameProps: { ...formatIdNameProps, addFollowing: undefined },
+      localActorId,
+      formatIdNameProps: { ...formatIdNameProps, bare: true },
       messagesListProps: {
         refreshCount: refreshCountWelcome,
         ...messagesListProps,
