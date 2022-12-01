@@ -192,7 +192,7 @@ export async function viewMessage(
   chatterNet: ChatterNet,
   message: Messages.MessageWithId
 ) {
-  const viewMessage = await chatterNet.newView(message);
+  const viewMessage = await chatterNet.newViewMessage(message);
   if (!viewMessage) return;
   chatterNet
     .postMessageObjectDoc({ message: viewMessage, objects: [] })
