@@ -1,5 +1,4 @@
 import { IdName } from "chatternet-client-http";
-import { times } from "lodash-es";
 import { Variant } from "react-bootstrap/esm/types";
 
 export interface AlertTopItem {
