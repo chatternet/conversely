@@ -1,10 +1,11 @@
 import { IdToName } from "../../controllers/interfaces";
+import { Jidenticon } from "./Jidenticon";
 import { MouseEvent } from "react";
 
 export interface FormatIdNameProps {
   id: string;
   idToName: IdToName;
-  plain?: boolean;
+  bare?: boolean;
   contacts?: Set<string>;
   addFollowing?: (id: string) => Promise<void>;
 }
@@ -23,20 +24,22 @@ export function FormatIdName(props: FormatIdNameProps) {
   name = name != null && name.trim().length > 0 ? name : suffix;
 
   const isContact = props.contacts && props.contacts.has(props.id);
+  const showIsContact = !props.bare && isContact;
+  const showAddContact = !props.bare && !isContact && !!props.addFollowing;
 
   return (
     <span>
-      <span className={props.plain ? "" : "display-name"}>@{name}</span>
-      {!props.plain && isContact ? (
-        <span className="display-name ms-1">
+      <span>
+        <Jidenticon value={props.id} size="1em" />
+      </span>
+      <span className="ms-1 fw-bold">{name}</span>
+      {showIsContact ? (
+        <span className="ms-1">
           <i className="bi bi-person-check-fill"></i>
         </span>
       ) : null}
-      {!props.plain &&
-      props.contacts != null &&
-      !isContact &&
-      props.addFollowing ? (
-        <span className="display-name ms-1">
+      {showAddContact ? (
+        <span className="ms-1">
           <a href="#" onClick={addFollowing}>
             <i className="bi bi-person-plus-fill"></i>
           </a>
