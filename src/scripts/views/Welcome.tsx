@@ -15,28 +15,21 @@ export type WelcomeProps = {
 export function Welcome(props: WelcomeProps) {
   return (
     <div>
-      <div className="bg-masthead">
-        <Container className="pt-3">
-          <Row className="align-items-center text-center my-4 max-width-lg mx-auto">
-            <Col md={8}>
-              <h1>
-                <span className="display-5 text-purple-to-red text-shadow-sm">
-                  Conversely
-                </span>
-              </h1>
-              <div className="display-6">A different kind of social.</div>
-            </Col>
-            <Col md>
-              <img
-                src={LOGO_HERO}
-                alt="logo"
-                width={"256px"}
-                height={"256px"}
-              />
-            </Col>
-          </Row>
-        </Container>
-      </div>
+      <Container className="pt-3">
+        <Row className="align-items-center text-center my-4 max-width-lg mx-auto">
+          <Col md={8}>
+            <h1>
+              <span className="display-5 text-purple-to-red text-shadow-sm">
+                Conversely
+              </span>
+            </h1>
+            <div className="display-6">A different kind of social.</div>
+          </Col>
+          <Col md>
+            <img src={LOGO_HERO} alt="logo" width={"256px"} height={"256px"} />
+          </Col>
+        </Row>
+      </Container>
 
       {props.loggedIn ? (
         <Container className="max-width-md my-3">
