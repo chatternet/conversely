@@ -1,4 +1,4 @@
-import { sleep, UseState } from "../commonutils";
+import { ROOT_PATH, sleep, UseState } from "../commonutils";
 import { clearAll } from "../controllers/clear.js";
 import { AlertTopItem, IdToName } from "../controllers/interfaces";
 import {
@@ -283,10 +283,17 @@ export function Home() {
     },
   };
 
+  const showBacksplash = location.pathname === `${ROOT_PATH}/`;
+
   return (
     <>
       <div className="bg-white pb-5">
         <Header {...headerProps} />
+        {showBacksplash ? (
+          <div style={{ position: "relative", width: "100%", height: 0 }}>
+            <div className="backsplash" style={{ position: "absolute" }}></div>
+          </div>
+        ) : null}
         {alertTopState ? (
           <Container className="max-width-lg my-3">
             <AlertTop state={alertTopState} setState={setAlertTopState} />
