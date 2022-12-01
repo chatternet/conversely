@@ -86,21 +86,21 @@ export class MessageDisplayGrouper {
       if (display == null) continue;
 
       this.setMessages((prevState) => {
-        if (prevState == null) {
-          return [display];
-        } else {
-          // don't show the same message multiple times
-          const idx = prevState.findIndex((x) => x.id === display.id);
-          if (idx >= 0) return prevState;
+        prevState = prevState == null ? [] : prevState;
 
-          // trigger side effects for viewed messages
-          this.viewMessage(message).catch((x) => console.error(x));
+        // don't show the same message multiple times
+        const idx = prevState.findIndex((x) => x.id === display.id);
+        if (idx >= 0) return prevState;
 
-          // rebuild the list
-          const newState = [...prevState, display];
-          newState.sort((a, b) => b.timestamp - a.timestamp);
-          return newState;
-        }
+        // trigger side effects for viewed messages
+        this.viewMessage(message).catch((x) => console.error(x));
+        // count towards list size
+        count += 1;
+
+        // rebuild the list
+        const newState = [...prevState, display];
+        newState.sort((a, b) => b.timestamp - a.timestamp);
+        return newState;
       });
     }
   }
