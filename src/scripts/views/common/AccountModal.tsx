@@ -179,7 +179,7 @@ export interface LoginButtonProps {
 
 function LoginButton(props: LoginButtonProps) {
   if (props.loggedIn && props.did) {
-    return <FormatIdName id={props.did} {...props.formatIdNameProps} plain />;
+    return <FormatIdName id={props.did} {...props.formatIdNameProps} bare />;
   } else if (props.loggingIn) {
     return (
       <div className="d-flex align-items-center">

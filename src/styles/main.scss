@@ -123,20 +123,6 @@ h6 {
   text-shadow: $box-shadow-sm;
 }
 
-.display-name {
-  display: inline-block;
-  padding: $badge-padding-y $badge-padding-x;
-  font-size: $badge-font-size;
-  font-weight: $badge-font-weight;
-  line-height: 1;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: baseline;
-  border-radius: 50rem;
-  background-color: rgba($dark, 0.1);
-  color: $dark;
-}
-
 .text-purple-to-red {
   background-image: linear-gradient(135deg, $purple-400, $red-400);
   -webkit-background-clip: text;
