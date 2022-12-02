@@ -11,6 +11,7 @@ import {
   addFollowing,
   createAccount,
   viewMessage,
+  postNote,
 } from "../controllers/setup.js";
 import { Router, RouterProps } from "./Router";
 import {
@@ -183,10 +184,7 @@ export function Home() {
             pushAlertTop(errorNoChatterNet, "danger");
             return;
           }
-          const objectDoc = await chatterNet?.newNote(note);
-          await chatterNet.postMessageObjectDoc(objectDoc);
-          await sleep(100);
-          setRefreshCountFeed((prevState) => prevState + 1);
+          await postNote(chatterNet, note, setRefreshCountFeed);
         },
         pushAlertTop,
       },

@@ -160,9 +160,11 @@ export async function changeDisplayName(
     return;
   }
   await chatterNet.changeName(newDisplayName);
+  // store name in local
+  await chatterNet.storeMessageObjectDoc(await chatterNet.buildActor());
   chatterNet
     .postMessageObjectDoc(await chatterNet.buildActor())
-    .catch((x) => console.error(x));
+    .catch(() => {});
   const timestamp = new Date().getTime() * 1e-3;
   setIdToName((x) =>
     x.update(chatterNet.getLocalDid(), chatterNet.getLocalName(), timestamp)
@@ -187,9 +189,25 @@ export async function addFollowing(
     );
     return;
   }
-  await chatterNet.postMessageObjectDoc(await chatterNet.newFollow(id));
+  // don't need to store follows as they are managed separately
+  chatterNet
+    .postMessageObjectDoc(await chatterNet.newFollow(id))
+    .catch(() => {});
   setFollows((x) => new Set([...x, id]));
   pushAlertTop(`Following ${id}.`, "primary");
+}
+
+export async function postNote(
+  chatterNet: ChatterNet,
+  note: string,
+  setRefreshCountFeed: SetState<number>
+) {
+  const objectDoc = await chatterNet?.newNote(note);
+  // store local posts to local
+  await chatterNet.storeMessageObjectDoc(objectDoc);
+  chatterNet.postMessageObjectDoc(objectDoc).catch(() => {});
+  // propagate message to UI that feed was updated
+  setRefreshCountFeed((prevState) => prevState + 1);
 }
 
 export async function viewMessage(
@@ -198,7 +216,9 @@ export async function viewMessage(
 ) {
   const viewMessage = await chatterNet.newViewMessage(message);
   if (!viewMessage) return;
+  // don't store views to local, not so meaningful to user
+  await chatterNet.storeMessageObjectDoc({ message: viewMessage, objects: [] });
   chatterNet
     .postMessageObjectDoc({ message: viewMessage, objects: [] })
-    .catch((x) => console.error(x));
+    .catch(() => {});
 }

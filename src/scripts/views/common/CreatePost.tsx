@@ -32,11 +32,11 @@ export function CreatePost(props: CreatePostProps) {
             onClick={() => {
               props
                 .postNote(note)
+                .then(() => setNote(""))
                 .catch((err) => {
                   console.error(err);
                   props.pushAlertTop("Post was not delivered.", "danger");
-                })
-                .then(() => setNote(""));
+                });
             }}
           >
             Share
