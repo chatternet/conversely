@@ -215,9 +215,17 @@ export async function viewMessage(
 ) {
   const viewMessage = await chatterNet.newViewMessage(message);
   if (!viewMessage) return;
-  // don't store views to local, not so meaningful to user
-  await chatterNet.storeMessageObjectDoc({ message: viewMessage, objects: [] });
+  // post view message
   chatterNet
     .postMessageObjectDoc({ message: viewMessage, objects: [] })
     .catch(() => {});
+  // also post the origin message and objects
+  const objects: Messages.ObjectDocWithId[] = [];
+  for (const objectId of message.object) {
+    const objectDoc = await chatterNet.getObjectDoc(objectId);
+    // in some case the object might no longer be available
+    if (!objectDoc) continue;
+    objects.push(objectDoc);
+  }
+  chatterNet.postMessageObjectDoc({ message, objects }).catch(() => {});
 }
