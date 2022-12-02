@@ -166,9 +166,8 @@ export async function changeDisplayName(
     .postMessageObjectDoc(await chatterNet.buildActor())
     .catch(() => {});
   const timestamp = new Date().getTime() * 1e-3;
-  setIdToName((x) =>
-    x.update(chatterNet.getLocalDid(), chatterNet.getLocalName(), timestamp)
-  );
+  const actorId = ChatterNet.actorFromDid(chatterNet.getLocalDid());
+  setIdToName((x) => x.update(actorId, chatterNet.getLocalName(), timestamp));
   pushAlertTop("Name changed.", "primary");
 }
 
