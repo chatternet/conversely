@@ -10,7 +10,7 @@ import type {
   MessageIter,
   Messages,
 } from "chatternet-client-http";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Card } from "react-bootstrap";
 
 export interface MessagesListProps {
@@ -36,6 +36,7 @@ export function MessagesList(props: MessagesListProps) {
   const [messageDisplayGrouper, setMessageDisplayGrouper]: UseState<
     MessageDisplayGrouper | undefined
   > = useState();
+  const [pageSize, setPageSize]: UseState<number> = useState(props.pageSize);
 
   useEffect(() => {
     if (!props.loggedIn) return;
@@ -69,7 +70,6 @@ export function MessagesList(props: MessagesListProps) {
   // when the refresh count goes up, reset the message iteration
   useEffect(() => {
     if (!props.loggedIn) return;
-    setMessages(undefined);
     setMessageDisplayGrouper(undefined);
     props
       .buildMessageIter()
@@ -77,11 +77,16 @@ export function MessagesList(props: MessagesListProps) {
       .catch((x) => console.error(x));
   }, [props.refreshCount, props.loggedIn]);
 
+  function loadMore(event: React.MouseEvent) {
+    event.preventDefault();
+    setPageSize((x) => x + props.pageSize);
+  }
+
   return (
     <>
       {messages != null && messages.length > 0 ? (
         <div className="list-group">
-          {messages.map((x) => (
+          {messages.slice(0, pageSize).map((x) => (
             <MessageItem
               key={x.id}
               message={x}
@@ -100,7 +105,7 @@ export function MessagesList(props: MessagesListProps) {
       )}
       {props.allowMore ? (
         <div className="d-flex justify-content-center">
-          <Button>Load more</Button>
+          <Button onClick={loadMore}>Load more</Button>
         </div>
       ) : null}
     </>

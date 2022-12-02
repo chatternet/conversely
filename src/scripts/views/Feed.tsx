@@ -16,7 +16,7 @@ export function Feed(props: FeedProps) {
           <CreatePost {...props.createPostProps} />
           <div className="my-3">
             <MessagesList
-              pageSize={32}
+              pageSize={16}
               allowMore={true}
               {...props.messagesListProps}
             />
