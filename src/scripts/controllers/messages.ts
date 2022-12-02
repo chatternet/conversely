@@ -76,11 +76,21 @@ export class MessageDisplayGrouper {
     };
   }
 
+  /**
+   * Add at least `num` display messages to the messages state, if this many
+   * messages can be retrieved from the local store and servers.
+   *
+   * Will typically add more than `num` as it will iterate through a full page
+   * from the local store and each server. This is to ensure that the final
+   * sort order doesn't change when asking for more subsequently.
+   *
+   * @param num try to build at least this many display messages
+   */
   async more(num: number) {
     let count = 0;
-    while (count < num) {
-      const message = await this.messageIter.next();
-      if (message == null) break;
+    for await (const message of this.messageIter.messages()) {
+      // enough display messages are built and all servers are visited
+      if (count >= num && this.messageIter.getNumCycles() > 0) break;
 
       const display = await this.buildMessageDisplay(message);
       if (display == null) continue;
