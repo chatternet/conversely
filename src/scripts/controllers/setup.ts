@@ -24,9 +24,9 @@ export async function login(
   try {
     const chatterNet = await ChatterNet.new(loginInfo.did, loginInfo.password, [
       {
-        url: "http://127.0.0.1:3030/ap",
+        url: "http://127.0.0.1:3030/api",
         did: "did:key:z6MkmAcyo7DKv1FAoux9wAbbTDsij1AszZCtMXeBJxAYTyx3",
-        // url: "https://conversely.social/ap",
+        // url: "https://conversely.social/api",
         // did: "did:key:z6MkuNDW7uBZv1CnS7KthMVEbkhyCK1ZTXFnEVtyJJqPvRC7",
       },
     ]);
