@@ -213,7 +213,7 @@ export async function viewMessage(
   chatterNet: ChatterNet,
   message: Messages.MessageWithId
 ) {
-  const viewMessage = await chatterNet.newViewMessage(message);
+  const viewMessage = await chatterNet.getOrNewViewMessage(message);
   if (!viewMessage) return;
   // post view message
   chatterNet
