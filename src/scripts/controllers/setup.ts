@@ -25,7 +25,7 @@ export async function login(
     const chatterNet = await ChatterNet.new(loginInfo.did, loginInfo.password, [
       {
         url: "http://127.0.0.1:3030/api",
-        did: "did:key:z6MkmAcyo7DKv1FAoux9wAbbTDsij1AszZCtMXeBJxAYTyx3",
+        did: "did:key:z6Mkp82nVVvwX4ymnXMw9f3rrnd3V4UKvzyUpQLJ9khVP2SN",
         // url: "https://conversely.social/api",
         // did: "did:key:z6MkuNDW7uBZv1CnS7KthMVEbkhyCK1ZTXFnEVtyJJqPvRC7",
       },
@@ -228,4 +228,7 @@ export async function viewMessage(
     objects.push(objectDoc);
   }
   chatterNet.postMessageObjectDoc({ message, objects }).catch(() => {});
+  // and try to post the actor
+  const actor = await chatterNet.getObjectDoc(message.actor);
+  if (actor != null) chatterNet.postObjectDoc(actor);
 }
