@@ -16,8 +16,8 @@ export function Welcome(props: WelcomeProps) {
   return (
     <div>
       <Container className="pt-3">
-        <Row className="align-items-center text-center my-4 max-width-lg mx-auto">
-          <Col md={8}>
+        <Row className="align-items-center text-center my-4 max-width-md mx-auto">
+          <Col md={6}>
             <h1>
               <span className="display-5 text-purple-to-red text-shadow-sm">
                 Conversely
