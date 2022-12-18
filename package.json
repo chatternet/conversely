@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist/",
-    "fmt": "prettier -w src/**/*.{js,ts,jsx,tsx,scss} vite.config.ts",
+    "fmt": "prettier -w 'src/**/*.{js,ts,jsx,tsx,scss}' vite.config.ts",
     "test": "jest src",
     "docs": "npm run clean && npm run fmt && npm run build && rm -rf docs/ && cp -r dist docs"
   },

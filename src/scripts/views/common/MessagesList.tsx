@@ -10,7 +10,7 @@ import type {
   MessageIter,
   Messages,
 } from "chatternet-client-http";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, MouseEvent } from "react";
 import { Button, Card } from "react-bootstrap";
 
 export interface MessagesListProps {
@@ -25,7 +25,8 @@ export interface MessagesListProps {
   getMessage: (id: string) => Promise<Messages.MessageWithId | undefined>;
   getActor: (id: string) => Promise<Messages.Actor | undefined>;
   getObjectDoc: (id: string) => Promise<ObjectDocWithId | undefined>;
-  messagesDisplayProps: Omit<MessageItemProps, "message">;
+  deleteMessage: (messageId: string) => Promise<void>;
+  messagesDisplayProps: Omit<MessageItemProps, "message" | "deleteMessage">;
 }
 
 export function MessagesList(props: MessagesListProps) {
@@ -37,6 +38,11 @@ export function MessagesList(props: MessagesListProps) {
     MessageDisplayGrouper | undefined
   > = useState();
   const [pageSize, setPageSize]: UseState<number> = useState(props.pageSize);
+
+  async function deleteMessage(messageId: string): Promise<void> {
+    await props.deleteMessage(messageId);
+    setMessages((prevState) => prevState?.filter((x) => x.id != messageId));
+  }
 
   useEffect(() => {
     if (!props.loggedIn) return;
@@ -90,6 +96,7 @@ export function MessagesList(props: MessagesListProps) {
             <MessageItem
               key={x.id}
               message={x}
+              deleteMessage={deleteMessage}
               {...props.messagesDisplayProps}
             />
           ))}

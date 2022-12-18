@@ -12,6 +12,8 @@ import {
   createAccount,
   viewMessage,
   postNote,
+  acceptMessage,
+  deleteMessage,
 } from "../controllers/setup.js";
 import { Router, RouterProps } from "./Router";
 import {
@@ -45,8 +47,7 @@ export function Home() {
     new URL(window.location.href)
   );
   // used to signal the message lists to refresh
-  const [refreshCountWelcome]: UseState<number> = useState(0);
-  const [refreshCountFeed, setRefreshCountFeed]: UseState<number> = useState(0);
+  const [refreshCount, setRefreshCount]: UseState<number> = useState(0);
 
   const pushAlertTop = (message: string, variant: Variant) =>
     pushAlertTopController(message, variant, setAlertTopState);
@@ -150,10 +151,7 @@ export function Home() {
     setIdToName,
     acceptMessage: async (message: Messages.MessageWithId) => {
       if (!chatterNet) return false;
-      const { fromContact, inAudience } = await chatterNet.buildMessageAffinity(
-        message
-      );
-      return fromContact && inAudience;
+      return await acceptMessage(chatterNet, message);
     },
     viewMessage: async (message: Messages.MessageWithId) => {
       if (!chatterNet) return;
@@ -168,6 +166,16 @@ export function Home() {
     },
     getActor: async (id: string) => chatterNet?.getActor(id),
     getObjectDoc: async (id: string) => chatterNet?.getObjectDoc(id),
+    deleteMessage: async (messageId: string) => {
+      if (!chatterNet) return;
+      await deleteMessage(chatterNet, messageId);
+    },
+  };
+
+  const messagesDisplayProps = {
+    localActorId,
+    languageTag: "en",
+    formatIdNameProps,
   };
 
   const errorNoChatterNet =
@@ -184,17 +192,14 @@ export function Home() {
             pushAlertTop(errorNoChatterNet, "danger");
             return;
           }
-          await postNote(chatterNet, note, setRefreshCountFeed);
+          await postNote(chatterNet, note, setRefreshCount);
         },
         pushAlertTop,
       },
       messagesListProps: {
-        refreshCount: refreshCountFeed,
+        refreshCount: refreshCount,
         ...messagesListProps,
-        messagesDisplayProps: {
-          languageTag: "en",
-          formatIdNameProps,
-        },
+        messagesDisplayProps,
       },
     },
     followingProps: {
@@ -218,12 +223,9 @@ export function Home() {
       localActorId,
       formatIdNameProps: { ...formatIdNameProps, bare: true },
       messagesListProps: {
-        refreshCount: refreshCountWelcome,
+        refreshCount: refreshCount,
         ...messagesListProps,
-        messagesDisplayProps: {
-          languageTag: "en",
-          formatIdNameProps,
-        },
+        messagesDisplayProps,
       },
       createAccountProps: {
         loggedIn: !!chatterNet,

@@ -1,5 +1,6 @@
 import { MessageDisplay } from "../../controllers/messages";
 import { FormatIdName, FormatIdNameProps } from "./FormatIdName";
+import { MouseEvent } from "react";
 import { Card } from "react-bootstrap";
 
 function formatTimestamp(timestamp: number): string {
@@ -18,7 +19,9 @@ function formatTimestamp(timestamp: number): string {
 
 export interface MessageItemProps {
   message: MessageDisplay;
+  localActorId: string | undefined;
   languageTag: string;
+  deleteMessage: (messageId: string) => Promise<void>;
   formatIdNameProps: Omit<FormatIdNameProps, "id">;
 }
 
@@ -35,6 +38,29 @@ function MessageHeader(props: MessageItemProps) {
   );
 }
 
+function MessageFooter(props: MessageItemProps) {
+  function deleteMessage(event: MouseEvent) {
+    event.preventDefault();
+    props.deleteMessage(props.message.id).catch((x) => console.error(x));
+  }
+
+  return (
+    <>
+      {props.message.actorId === props.localActorId ? (
+        <small>
+          <a
+            href="#"
+            onClick={deleteMessage}
+            className="fw-normal bg-danger text-white rounded-pill py-1 px-2"
+          >
+            Delete
+          </a>
+        </small>
+      ) : null}
+    </>
+  );
+}
+
 function MessageNote(props: MessageItemProps) {
   return (
     <Card className="rounded m-3">
@@ -44,6 +70,9 @@ function MessageNote(props: MessageItemProps) {
       <Card.Body>
         <Card.Text>{props.message.content}</Card.Text>
       </Card.Body>
+      <Card.Footer>
+        <MessageFooter {...props} />
+      </Card.Footer>
     </Card>
   );
 }
