@@ -209,6 +209,18 @@ export async function postNote(
   setRefreshCountFeed((prevState) => prevState + 1);
 }
 
+export async function acceptMessage(
+  chatterNet: ChatterNet,
+  message: Messages.MessageWithId
+) {
+  if (await chatterNet.messageIsDeleted(message.id)) return false;
+  const { fromContact, inAudience } = await chatterNet.buildMessageAffinity(
+    message
+  );
+  if (!fromContact || !inAudience) return false;
+  return true;
+}
+
 export async function viewMessage(
   chatterNet: ChatterNet,
   message: Messages.MessageWithId
@@ -231,4 +243,20 @@ export async function viewMessage(
   // and try to post the actor
   const actor = await chatterNet.getObjectDoc(message.actor);
   if (actor != null) chatterNet.postObjectDoc(actor);
+}
+
+export async function deleteMessage(chatterNet: ChatterNet, messageId: string) {
+  // build the message to request deletion on the network
+  const deleteMessage = await chatterNet.newDelete(messageId);
+  // fails if wrong actor or message not known to local
+  if (deleteMessage == null) return;
+  // build the message to request deletion on the network
+  // delete the message locally
+  await chatterNet.deleteMessageLocal(messageId);
+  const messageObjectDoc = { message: deleteMessage, objects: [] };
+  // propagate the delete message
+  await chatterNet.storeMessageObjectDoc(messageObjectDoc);
+  chatterNet
+    .postMessageObjectDoc(messageObjectDoc)
+    .catch((x) => console.error(x));
 }
