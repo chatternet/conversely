@@ -2,7 +2,7 @@ import { default as ANIMAL_NAMES } from "../../assets/alliterative-animals.json"
 import type { SetState } from "../commonutils";
 import type { IdToName, PushAlertTop } from "./interfaces";
 import type { LoginInfo } from "./interfaces";
-import { ChatterNet, DidKey, Messages } from "chatternet-client-http";
+import { ChatterNet, DidKey, Model } from "chatternet-client-http";
 import { sample } from "lodash-es";
 
 export async function getFollows(chatterNet: ChatterNet): Promise<Set<string>> {
@@ -161,9 +161,9 @@ export async function changeDisplayName(
   }
   await chatterNet.changeName(newDisplayName);
   // store name in local
-  await chatterNet.storeMessageObjectDoc(await chatterNet.buildActor());
+  await chatterNet.storeMessageDocuments(await chatterNet.buildActor());
   chatterNet
-    .postMessageObjectDoc(await chatterNet.buildActor())
+    .postMessageDocuments(await chatterNet.buildActor())
     .catch(() => {});
   const timestamp = new Date().getTime() * 1e-3;
   const actorId = ChatterNet.actorFromDid(chatterNet.getLocalDid());
@@ -190,7 +190,7 @@ export async function addFollowing(
   }
   // don't need to store follows as they are managed separately
   chatterNet
-    .postMessageObjectDoc(await chatterNet.newFollow(id))
+    .postMessageDocuments(await chatterNet.newFollow(id))
     .catch(() => {});
   setFollows((x) => new Set([...x, id]));
   pushAlertTop(`Following ${id}.`, "primary");
@@ -201,17 +201,17 @@ export async function postNote(
   note: string,
   setRefreshCountFeed: SetState<number>
 ) {
-  const objectDoc = await chatterNet?.newNote(note);
+  const document = await chatterNet?.newNote(note);
   // store local posts to local
-  await chatterNet.storeMessageObjectDoc(objectDoc);
-  chatterNet.postMessageObjectDoc(objectDoc).catch(() => {});
+  await chatterNet.storeMessageDocuments(document);
+  chatterNet.postMessageDocuments(document).catch(() => {});
   // propagate message to UI that feed was updated
   setRefreshCountFeed((prevState) => prevState + 1);
 }
 
 export async function acceptMessage(
   chatterNet: ChatterNet,
-  message: Messages.MessageWithId
+  message: Model.Message
 ) {
   if (await chatterNet.messageIsDeleted(message.id)) return false;
   const { fromContact, inAudience } = await chatterNet.buildMessageAffinity(
@@ -223,26 +223,26 @@ export async function acceptMessage(
 
 export async function viewMessage(
   chatterNet: ChatterNet,
-  message: Messages.MessageWithId
+  message: Model.Message
 ) {
   const viewMessage = await chatterNet.getOrNewViewMessage(message);
   if (!viewMessage) return;
   // post view message
   chatterNet
-    .postMessageObjectDoc({ message: viewMessage, objects: [] })
+    .postMessageDocuments({ message: viewMessage, documents: [] })
     .catch(() => {});
   // also post the origin message and objects
-  const objects: Messages.ObjectDocWithId[] = [];
+  const documents: Model.WithId[] = [];
   for (const objectId of message.object) {
-    const objectDoc = await chatterNet.getObjectDoc(objectId);
+    const document = await chatterNet.getDocument(objectId);
     // in some case the object might no longer be available
-    if (!objectDoc) continue;
-    objects.push(objectDoc);
+    if (!document) continue;
+    documents.push(document);
   }
-  chatterNet.postMessageObjectDoc({ message, objects }).catch(() => {});
+  chatterNet.postMessageDocuments({ message, documents }).catch(() => {});
   // and try to post the actor
-  const actor = await chatterNet.getObjectDoc(message.actor);
-  if (actor != null) chatterNet.postObjectDoc(actor);
+  const actor = await chatterNet.getDocument(message.actor);
+  if (actor != null) chatterNet.postDocument(actor);
 }
 
 export async function deleteMessage(chatterNet: ChatterNet, messageId: string) {
@@ -253,10 +253,10 @@ export async function deleteMessage(chatterNet: ChatterNet, messageId: string) {
   // build the message to request deletion on the network
   // delete the message locally
   await chatterNet.deleteMessageLocal(messageId);
-  const messageObjectDoc = { message: deleteMessage, objects: [] };
+  const messageDocuments = { message: deleteMessage, documents: [] };
   // propagate the delete message
-  await chatterNet.storeMessageObjectDoc(messageObjectDoc);
+  await chatterNet.storeMessageDocuments(messageDocuments);
   chatterNet
-    .postMessageObjectDoc(messageObjectDoc)
+    .postMessageDocuments(messageDocuments)
     .catch((x) => console.error(x));
 }

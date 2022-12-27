@@ -5,11 +5,7 @@ import {
   MessageDisplayGrouper,
 } from "../../controllers/messages";
 import { MessageItem, MessageItemProps } from "./MessageItem";
-import type {
-  ObjectDocWithId,
-  MessageIter,
-  Messages,
-} from "chatternet-client-http";
+import type { MessageIter, Model } from "chatternet-client-http";
 import React, { useEffect, useState, MouseEvent } from "react";
 import { Button, Card } from "react-bootstrap";
 
@@ -20,11 +16,11 @@ export interface MessagesListProps {
   refreshCount: number;
   buildMessageIter: () => Promise<MessageIter | undefined>;
   setIdToName: SetState<IdToName>;
-  acceptMessage: (message: Messages.MessageWithId) => Promise<boolean>;
-  viewMessage: (message: Messages.MessageWithId) => Promise<void>;
-  getMessage: (id: string) => Promise<Messages.MessageWithId | undefined>;
-  getActor: (id: string) => Promise<Messages.Actor | undefined>;
-  getObjectDoc: (id: string) => Promise<ObjectDocWithId | undefined>;
+  acceptMessage: (message: Model.Message) => Promise<boolean>;
+  viewMessage: (message: Model.Message) => Promise<void>;
+  getMessage: (id: string) => Promise<Model.Message | undefined>;
+  getActor: (id: string) => Promise<Model.Actor | undefined>;
+  getBody: (id: string) => Promise<Model.Body | undefined>;
   deleteMessage: (messageId: string) => Promise<void>;
   messagesDisplayProps: Omit<MessageItemProps, "message" | "deleteMessage">;
 }
@@ -62,7 +58,7 @@ export function MessagesList(props: MessagesListProps) {
         props.viewMessage,
         props.getMessage,
         props.getActor,
-        props.getObjectDoc,
+        props.getBody,
         setMessages
       )
     );

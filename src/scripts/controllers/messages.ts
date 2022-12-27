@@ -1,6 +1,6 @@
 import type { SetState } from "../commonutils.js";
 import { IdToName } from "./interfaces.js";
-import type { Messages, MessageIter } from "chatternet-client-http";
+import type { Model, MessageIter } from "chatternet-client-http";
 
 export interface MessageDisplay {
   id: string;
@@ -14,27 +14,21 @@ export class MessageDisplayGrouper {
     private readonly messageIter: MessageIter,
     private readonly setIdToName: SetState<IdToName>,
     private readonly acceptMessage: (
-      message: Messages.MessageWithId
+      message: Model.Message
     ) => Promise<boolean>,
-    private readonly viewMessage: (
-      message: Messages.MessageWithId
-    ) => Promise<void>,
+    private readonly viewMessage: (message: Model.Message) => Promise<void>,
     private readonly getMessage: (
       id: string
-    ) => Promise<Messages.MessageWithId | undefined>,
-    private readonly getActor: (
-      id: string
-    ) => Promise<Messages.Actor | undefined>,
-    private readonly getObjectDoc: (
-      id: string
-    ) => Promise<Messages.ObjectDocWithId | undefined>,
+    ) => Promise<Model.Message | undefined>,
+    private readonly getActor: (id: string) => Promise<Model.Actor | undefined>,
+    private readonly getBody: (id: string) => Promise<Model.Body | undefined>,
     private readonly setMessages: SetState<MessageDisplay[] | undefined>,
     private readonly seenMessagesId: Set<string> = new Set()
   ) {}
 
   private async buildMessageDisplay(
-    message: Messages.MessageWithId,
-    indirect?: Messages.MessageWithId
+    message: Model.Message,
+    indirect?: Model.Message
   ): Promise<MessageDisplay | undefined> {
     if (this.seenMessagesId.has(message.id)) return;
     this.seenMessagesId.add(message.id);
@@ -52,7 +46,7 @@ export class MessageDisplayGrouper {
     }
 
     const [objectId] = message.object;
-    const objectDoc = await this.getObjectDoc(objectId);
+    const objectDoc = await this.getBody(objectId);
     if (!objectDoc) return;
 
     let content: string | undefined = undefined;
@@ -65,8 +59,9 @@ export class MessageDisplayGrouper {
 
     const actor = await this.getActor(message.actor);
     if (!actor) return;
-    if (actor.name)
-      this.setIdToName((x) => x.update(actor.id, actor.name, timestamp));
+    const actorName = actor.name;
+    if (actorName != null)
+      this.setIdToName((x) => x.update(actor.id, actorName, timestamp));
 
     return {
       id: message.id,
