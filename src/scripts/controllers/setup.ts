@@ -22,15 +22,21 @@ export async function login(
   setLoggingIn(true);
 
   try {
-    const chatterNet = await ChatterNet.new(loginInfo.did, loginInfo.password, [
-      {
-        url: "http://127.0.0.1:3030/api",
-        did: "did:key:z6Mkp82nVVvwX4ymnXMw9f3rrnd3V4UKvzyUpQLJ9khVP2SN",
-        // url: "https://conversely.social/api",
-        // did: "did:key:z6MkuNDW7uBZv1CnS7KthMVEbkhyCK1ZTXFnEVtyJJqPvRC7",
-      },
-    ]);
+    // url: "https://conversely.social/api",
+    const url = "http://127.0.0.1:3030/api";
+    const did = "did:key:z6Mkh8AnWFeKPMHnDVeVF1kuT8pnhTjSVFbH7SrT4CfYiNqg";
+    const servers = [{ url, did }];
+    const chatterNet = await ChatterNet.new(
+      loginInfo.did,
+      loginInfo.password,
+      servers
+    );
     const timestamp = new Date().getTime() * 1e-3;
+    const serverActor = await chatterNet.getActor(`${did}/actor`);
+    if (serverActor == null) throw Error("server has no actor");
+    const serverName = serverActor.name;
+    if (serverName == null) throw Error("server has no name");
+    chatterNet.newFollow(serverActor.id);
     setIdToName((x) =>
       x.update(
         ChatterNet.actorFromDid(chatterNet.getLocalDid()),
@@ -38,6 +44,7 @@ export async function login(
         timestamp
       )
     );
+    setIdToName((x) => x.update(serverActor.id, serverName, timestamp));
     setFollows(await getFollows(chatterNet));
     setChatterNet(chatterNet);
   } catch {
