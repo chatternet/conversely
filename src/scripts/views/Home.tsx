@@ -23,7 +23,7 @@ import {
 import { FormatIdNameProps } from "./common/FormatIdName";
 import { Header, HeaderProps } from "./common/Header";
 import { MessagesListProps } from "./common/MessagesList";
-import { ChatterNet, Messages } from "chatternet-client-http";
+import { ChatterNet, Model } from "chatternet-client-http";
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import { Variant } from "react-bootstrap/esm/types";
@@ -149,23 +149,27 @@ export function Home() {
     loggedIn: !!chatterNet,
     buildMessageIter: async () => chatterNet?.buildMessageIter(),
     setIdToName,
-    acceptMessage: async (message: Messages.MessageWithId) => {
+    acceptMessage: async (message: Model.Message) => {
       if (!chatterNet) return false;
       return await acceptMessage(chatterNet, message);
     },
-    viewMessage: async (message: Messages.MessageWithId) => {
+    viewMessage: async (message: Model.Message) => {
       if (!chatterNet) return;
       await viewMessage(chatterNet, message);
     },
     getMessage: async (id: string) => {
       if (!chatterNet) return;
-      const message = await chatterNet.getObjectDoc(id);
-      if (!Messages.isMessageWithId(message)) return;
-      if (!Messages.verifyMessage(message)) return;
+      const message = await chatterNet.getDocument(id);
+      if (!Model.isMessage(message)) return;
+      if (!Model.verifyMessage(message)) return;
       return message;
     },
     getActor: async (id: string) => chatterNet?.getActor(id),
-    getObjectDoc: async (id: string) => chatterNet?.getObjectDoc(id),
+    getBody: async (id: string) => {
+      const body = await chatterNet?.getDocument(id);
+      if (!Model.isBody(body)) return;
+      return body;
+    },
     deleteMessage: async (messageId: string) => {
       if (!chatterNet) return;
       await deleteMessage(chatterNet, messageId);
