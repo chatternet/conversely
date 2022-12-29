@@ -222,6 +222,19 @@ export function Home() {
         await addFollowing(chatterNet, id, setFollowing, pushAlertTop);
       },
     },
+    followersProps: {
+      pageSize: 32,
+      buildPageIter: !!chatterNet
+        ? () => {
+            return chatterNet.buildFollowersIter();
+          }
+        : undefined,
+      formatIdNameProps: {
+        ...formatIdNameProps,
+        addFollowing: undefined,
+        contacts: undefined,
+      },
+    },
     welcomeProps: {
       loggedIn: !!chatterNet,
       localActorId,

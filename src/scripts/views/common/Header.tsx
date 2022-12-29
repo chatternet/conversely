@@ -37,6 +37,13 @@ export function Header(props: HeaderProps) {
               </Nav.Link>
               <Nav.Link
                 active={false}
+                href="/following"
+                onClick={onClickNavigate("/followers")}
+              >
+                Followers
+              </Nav.Link>
+              <Nav.Link
+                active={false}
                 href="/settings"
                 onClick={onClickNavigate("/settings")}
               >
