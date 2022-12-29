@@ -84,29 +84,30 @@ export class MessageDisplayGrouper {
   async more(num: number) {
     let count = 0;
     for await (const message of this.messageIter.messages()) {
+      const display = await this.buildMessageDisplay(message);
+
+      if (display != null) {
+        this.setMessages((prevState) => {
+          prevState = prevState == null ? [] : prevState;
+
+          // don't show the same message multiple times
+          const idx = prevState.findIndex((x) => x.id === display.id);
+          if (idx >= 0) return prevState;
+
+          // trigger side effects for viewed messages
+          this.viewMessage(message).catch((x) => console.error(x));
+          // count towards list size
+          count += 1;
+
+          // rebuild the list
+          const newState = [...prevState, display];
+          newState.sort((a, b) => b.timestamp - a.timestamp);
+          return newState;
+        });
+      }
+
       // enough display messages are built and all servers are visited
       if (count >= num && this.messageIter.getNumCycles() > 0) break;
-
-      const display = await this.buildMessageDisplay(message);
-      if (display == null) continue;
-
-      this.setMessages((prevState) => {
-        prevState = prevState == null ? [] : prevState;
-
-        // don't show the same message multiple times
-        const idx = prevState.findIndex((x) => x.id === display.id);
-        if (idx >= 0) return prevState;
-
-        // trigger side effects for viewed messages
-        this.viewMessage(message).catch((x) => console.error(x));
-        // count towards list size
-        count += 1;
-
-        // rebuild the list
-        const newState = [...prevState, display];
-        newState.sort((a, b) => b.timestamp - a.timestamp);
-        return newState;
-      });
     }
   }
 }
