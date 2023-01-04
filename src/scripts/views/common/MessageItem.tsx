@@ -2,6 +2,7 @@ import { MessageDisplay } from "../../controllers/messages";
 import { FormatIdName, FormatIdNameProps } from "./FormatIdName";
 import { MouseEvent } from "react";
 import { Card } from "react-bootstrap";
+import ReactMarkdown from "react-markdown";
 
 function formatTimestamp(timestamp: number): string {
   const dateNow = new Date();
@@ -67,8 +68,8 @@ function MessageNote(props: MessageItemProps) {
       <Card.Header>
         <MessageHeader {...props} />
       </Card.Header>
-      <Card.Body>
-        <Card.Text>{props.message.content}</Card.Text>
+      <Card.Body className="note-text">
+        <ReactMarkdown>{props.message.content}</ReactMarkdown>
       </Card.Body>
       <Card.Footer>
         <MessageFooter {...props} />

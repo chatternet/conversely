@@ -208,7 +208,7 @@ export async function postNote(
   note: string,
   setRefreshCountFeed: SetState<number>
 ) {
-  const document = await chatterNet?.newNote(note);
+  const document = await chatterNet?.newNote(note, undefined, "text/markdown");
   // store local posts to local
   await chatterNet.storeMessageDocuments(document);
   chatterNet.postMessageDocuments(document).catch(() => {});

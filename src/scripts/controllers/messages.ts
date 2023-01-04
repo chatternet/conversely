@@ -49,6 +49,11 @@ export class MessageDisplayGrouper {
     const objectDoc = await this.getBody(objectId);
     if (!objectDoc) return;
 
+    console.debug(objectDoc);
+
+    // display only markdown messages
+    if (objectDoc.mediaType !== "text/markdown") return;
+
     let content: string | undefined = undefined;
     if (objectDoc.content && typeof objectDoc.content === "string")
       content = objectDoc.content;
@@ -107,7 +112,7 @@ export class MessageDisplayGrouper {
       }
 
       // enough display messages are built and all servers are visited
-      if (count >= num && this.messageIter.getNumCycles() > 0) break;
+      if (count >= num && this.messageIter.getPageNumber() > 0) break;
     }
   }
 }
