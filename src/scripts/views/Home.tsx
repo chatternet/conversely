@@ -20,6 +20,7 @@ import {
   AlertTop,
   pushAlertTop as pushAlertTopController,
 } from "./common/AlertTop";
+import { CreatePostProps } from "./common/CreatePost";
 import { FormatIdNameProps } from "./common/FormatIdName";
 import { Header, HeaderProps } from "./common/Header";
 import { MessagesListProps } from "./common/MessagesList";
@@ -176,10 +177,22 @@ export function Home() {
     },
   };
 
+  const createPostProps: CreatePostProps = {
+    postNote: async (note: string) => {
+      if (!chatterNet) {
+        pushAlertTop(errorNoChatterNet, "danger");
+        return;
+      }
+      await postNote(chatterNet, note, setRefreshCount);
+    },
+    pushAlertTop,
+  };
+
   const messagesDisplayProps = {
     localActorId,
     languageTag: "en",
     formatIdNameProps,
+    createPostProps,
   };
 
   const errorNoChatterNet =
@@ -190,16 +203,7 @@ export function Home() {
     loggedIn: !!chatterNet,
     feedProps: {
       loggedIn: !!chatterNet,
-      createPostProps: {
-        postNote: async (note: string) => {
-          if (!chatterNet) {
-            pushAlertTop(errorNoChatterNet, "danger");
-            return;
-          }
-          await postNote(chatterNet, note, setRefreshCount);
-        },
-        pushAlertTop,
-      },
+      createPostProps,
       messagesListProps: {
         refreshCount: refreshCount,
         ...messagesListProps,
