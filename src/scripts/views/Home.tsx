@@ -178,12 +178,12 @@ export function Home() {
   };
 
   const createPostProps: CreatePostProps = {
-    postNote: async (note: string) => {
+    postNote: async (note: string, inReplyTo?: string) => {
       if (!chatterNet) {
         pushAlertTop(errorNoChatterNet, "danger");
         return;
       }
-      await postNote(chatterNet, note, setRefreshCount);
+      await postNote(chatterNet, note, setRefreshCount, inReplyTo);
     },
     pushAlertTop,
   };

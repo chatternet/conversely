@@ -5,7 +5,7 @@ import { Button, Card, Container, Form } from "react-bootstrap";
 import ReactMarkdown from "react-markdown";
 
 export interface CreatePostProps {
-  postNote: (note: string) => Promise<void>;
+  postNote: (note: string, inReplyTo?: string) => Promise<void>;
   pushAlertTop: PushAlertTop;
   inReplyTo?: string;
 }
@@ -37,7 +37,7 @@ export function CreatePost(props: CreatePostProps) {
                 href="#"
                 onClick={() => {
                   props
-                    .postNote(note)
+                    .postNote(note, props.inReplyTo)
                     .then(() => setNote(""))
                     .catch((err) => {
                       console.error(err);
