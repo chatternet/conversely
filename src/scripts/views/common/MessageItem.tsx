@@ -2,6 +2,7 @@ import { SetState, UseState } from "../../commonutils";
 import { MessageDisplay } from "../../controllers/messages";
 import { CreatePost, CreatePostProps } from "./CreatePost";
 import { FormatIdName, FormatIdNameProps } from "./FormatIdName";
+import { omit } from "lodash-es";
 import { MouseEvent, useState } from "react";
 import { Card, Button, Collapse } from "react-bootstrap";
 import ReactMarkdown from "react-markdown";
@@ -103,12 +104,22 @@ function MessageNote(props: MessageItemProps & MessageFooterProps) {
 export function MessageItem(props: MessageItemProps) {
   const [showReply, setShowReply]: UseState<boolean> = useState(false);
 
+  async function postNote(note: string, inReplyTo?: string): Promise<void> {
+    setShowReply(false);
+    return props.createPostProps.postNote(note, inReplyTo);
+  }
+  const createPostProps = omit(props.createPostProps, "postNote");
+
   return (
     <>
       <MessageNote {...props} setShowReply={setShowReply} />
       <Collapse in={showReply}>
         <div>
-          <CreatePost {...props.createPostProps} inReplyTo={props.message.id} />
+          <CreatePost
+            {...createPostProps}
+            postNote={postNote}
+            inReplyTo={props.message.id}
+          />
         </div>
       </Collapse>
     </>
