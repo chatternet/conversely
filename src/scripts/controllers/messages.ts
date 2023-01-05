@@ -49,8 +49,6 @@ export class MessageDisplayGrouper {
     const objectDoc = await this.getBody(objectId);
     if (!objectDoc) return;
 
-    console.debug(objectDoc);
-
     // display only markdown messages
     if (objectDoc.mediaType !== "text/markdown") return;
 
