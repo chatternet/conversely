@@ -23,7 +23,9 @@ export function CreatePost(props: CreatePostProps) {
             as="textarea"
             rows={4}
             value={note}
-            placeholder={"Write a note ..."}
+            placeholder={
+              props.inReplyTo ? "Write a reply ..." : "Write a post ..."
+            }
             onChange={(e) => {
               setNote(e.target.value);
             }}
@@ -46,7 +48,7 @@ export function CreatePost(props: CreatePostProps) {
                 }}
                 className="fw-normal bg-primary text-white rounded-pill py-1 px-2 me-2"
               >
-                Post
+                Post {props.inReplyTo ? "reply" : ""}
               </a>
             </small>
           </div>
