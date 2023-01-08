@@ -2,19 +2,30 @@ import type { SetState } from "../commonutils.js";
 import { IdToName } from "./interfaces.js";
 import type { Model, MessageIter } from "chatternet-client-http";
 
-export interface MessageDisplay {
+export interface MessageDisplayNote {
   id: string;
-  contentId: string;
-  timestamp: number;
-  actorId: string;
   content: string;
-  inReplyTo?: string;
+  attributedTo: string;
 }
 
-function extractContent(objectDoc: Model.Body): string | undefined {
+export interface MessageDisplay {
+  id: string;
+  timestamp: number;
+  note: MessageDisplayNote;
+  inReplyTo?: MessageDisplayNote;
+}
+
+function extractNote(objectDoc: Model.Body): MessageDisplayNote | undefined {
+  if (objectDoc.type !== "Note") return;
   if (objectDoc.mediaType !== "text/markdown") return;
   if (!objectDoc.content || typeof objectDoc.content !== "string") return;
-  return objectDoc.content;
+  if (!objectDoc.attributedTo || typeof objectDoc.attributedTo !== "string")
+    return;
+  return {
+    id: objectDoc.id,
+    content: objectDoc.content,
+    attributedTo: objectDoc.attributedTo,
+  };
 }
 
 export class MessageDisplayGrouper {
@@ -33,6 +44,16 @@ export class MessageDisplayGrouper {
     private readonly setMessages: SetState<MessageDisplay[] | undefined>,
     private readonly seenMessagesId: Set<string> = new Set()
   ) {}
+
+  private async updateActorName(actorId: string): Promise<void> {
+    const actor = await this.getActor(actorId);
+    if (!actor) return;
+    const actorName = actor.name;
+    if (!actorName) return;
+    // current as of now
+    const timestamp = new Date().getTime() * 1e-3;
+    this.setIdToName((x) => x.update(actorId, actorName, timestamp));
+  }
 
   private async buildMessageDisplay(
     message: Model.Message,
@@ -57,29 +78,25 @@ export class MessageDisplayGrouper {
     const objectDoc = await this.getBody(objectId);
     if (!objectDoc) return;
 
-    const content = extractContent(objectDoc);
-    if (!content) return;
-
-    const date = message.published;
-    const timestamp = new Date(date).getTime() * 1e-3;
-
-    const actor = await this.getActor(message.actor);
-    if (!actor) return;
-    const actorName = actor.name;
-    if (actorName != null)
-      this.setIdToName((x) => x.update(actor.id, actorName, timestamp));
+    // display only notes from message actor
+    const note = extractNote(objectDoc);
+    if (!note) return;
+    if (message.actor !== note.attributedTo) return;
+    await this.updateActorName(message.actor);
 
     const inReplyToDoc = objectDoc.inReplyTo
       ? await this.getBody(objectDoc.inReplyTo)
       : undefined;
-    const inReplyTo = inReplyToDoc ? extractContent(inReplyToDoc) : undefined;
+    const inReplyTo = inReplyToDoc ? extractNote(inReplyToDoc) : undefined;
+    if (inReplyTo) await this.updateActorName(inReplyTo.attributedTo);
+
+    const date = message.published;
+    const timestamp = new Date(date).getTime() * 1e-3;
 
     return {
       id: message.id,
-      contentId: objectId,
       timestamp,
-      actorId: actor.id,
-      content,
+      note,
       inReplyTo,
     };
   }

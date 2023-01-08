@@ -34,7 +34,10 @@ function MessageHeader(props: MessageItemProps) {
   return (
     <div className="d-flex align-items-center">
       <span>
-        <FormatIdName id={props.message.actorId} {...props.formatIdNameProps} />
+        <FormatIdName
+          id={props.message.note.attributedTo}
+          {...props.formatIdNameProps}
+        />
       </span>
       <small className="text-muted ms-auto">
         {formatTimestamp(props.message.timestamp)}
@@ -72,7 +75,7 @@ function MessageFooter(props: MessageFooterProps) {
           Reply
         </a>
       </small>
-      {props.message.actorId === props.localActorId ? (
+      {props.message.note.attributedTo === props.localActorId ? (
         <a
           href="#"
           onClick={deleteMessage}
@@ -85,11 +88,16 @@ function MessageFooter(props: MessageFooterProps) {
   );
 }
 
-function MessageReplied(props: { content: string }) {
+function MessageReplied(props: {
+  content: string;
+  attributedTo: string;
+  formatIdNameProps: Omit<FormatIdNameProps, "id">;
+}) {
   return (
     <Card className="rounded mb-3">
       <Card.Header>
-        Replying to
+        In reply to:{" "}
+        <FormatIdName id={props.attributedTo} {...props.formatIdNameProps} />
       </Card.Header>
       <Card.Body className="note-text">
         <ReactMarkdown>{props.content}</ReactMarkdown>
@@ -105,10 +113,13 @@ function MessageNote(props: MessageItemProps & MessageFooterProps) {
         <MessageHeader {...props} />
       </Card.Header>
       <Card.Body className="note-text">
+        <ReactMarkdown>{props.message.note.content}</ReactMarkdown>
         {props.message.inReplyTo ? (
-          <MessageReplied content={props.message.inReplyTo} />
+          <MessageReplied
+            {...props.message.inReplyTo}
+            formatIdNameProps={props.formatIdNameProps}
+          />
         ) : null}
-        <ReactMarkdown>{props.message.content}</ReactMarkdown>
       </Card.Body>
       <Card.Footer>
         <MessageFooter {...props} />
@@ -134,7 +145,7 @@ export function MessageItem(props: MessageItemProps) {
           <CreatePost
             {...createPostProps}
             postNote={postNote}
-            inReplyTo={props.message.contentId}
+            inReplyTo={props.message.note.id}
           />
         </div>
       </Collapse>
