@@ -4,9 +4,17 @@ import type { Model, MessageIter } from "chatternet-client-http";
 
 export interface MessageDisplay {
   id: string;
+  contentId: string;
   timestamp: number;
   actorId: string;
   content: string;
+  inReplyTo?: string;
+}
+
+function extractContent(objectDoc: Model.Body): string | undefined {
+  if (objectDoc.mediaType !== "text/markdown") return;
+  if (!objectDoc.content || typeof objectDoc.content !== "string") return;
+  return objectDoc.content;
 }
 
 export class MessageDisplayGrouper {
@@ -28,18 +36,18 @@ export class MessageDisplayGrouper {
 
   private async buildMessageDisplay(
     message: Model.Message,
-    indirect?: Model.Message
+    referrer?: Model.Message
   ): Promise<MessageDisplay | undefined> {
     if (this.seenMessagesId.has(message.id)) return;
     this.seenMessagesId.add(message.id);
 
     // check if the received message should be shown
-    if (!(await this.acceptMessage(indirect != null ? indirect : message)))
+    if (!(await this.acceptMessage(referrer != null ? referrer : message)))
       return;
 
     if (message.origin) {
       // don't follow multiple indirections
-      if (indirect != null) return;
+      if (referrer != null) return;
       const origin = await this.getMessage(message.origin);
       if (!origin) return;
       return await this.buildMessageDisplay(origin, message);
@@ -49,14 +57,7 @@ export class MessageDisplayGrouper {
     const objectDoc = await this.getBody(objectId);
     if (!objectDoc) return;
 
-    console.debug(objectDoc);
-
-    // display only markdown messages
-    if (objectDoc.mediaType !== "text/markdown") return;
-
-    let content: string | undefined = undefined;
-    if (objectDoc.content && typeof objectDoc.content === "string")
-      content = objectDoc.content;
+    const content = extractContent(objectDoc);
     if (!content) return;
 
     const date = message.published;
@@ -68,11 +69,18 @@ export class MessageDisplayGrouper {
     if (actorName != null)
       this.setIdToName((x) => x.update(actor.id, actorName, timestamp));
 
+    const inReplyToDoc = objectDoc.inReplyTo
+      ? await this.getBody(objectDoc.inReplyTo)
+      : undefined;
+    const inReplyTo = inReplyToDoc ? extractContent(inReplyToDoc) : undefined;
+
     return {
       id: message.id,
+      contentId: objectId,
       timestamp,
       actorId: actor.id,
       content,
+      inReplyTo,
     };
   }
 

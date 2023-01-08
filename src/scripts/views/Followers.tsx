@@ -16,21 +16,17 @@ export function Followers(props: FollowersProps) {
     useState();
 
   useEffect(() => {
-    console.debug("follower has builder: ", !!props.buildPageIter);
     if (!props.buildPageIter) return;
     setPageIter(props.buildPageIter());
   }, [props.buildPageIter]);
 
   useEffect(() => {
     if (!pageIter) return;
-    console.debug("built followers iter");
     (async () => {
       const items: string[] = [];
       for await (const item of pageIter.pageItems()) {
-        console.debug("follower: ", item);
         items.push(item);
       }
-      if (items.length <= 0) console.debug("no followers");
       return items;
     })()
       .then(setFollowers)

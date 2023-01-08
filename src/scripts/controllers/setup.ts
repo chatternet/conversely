@@ -206,9 +206,15 @@ export async function addFollowing(
 export async function postNote(
   chatterNet: ChatterNet,
   note: string,
-  setRefreshCountFeed: SetState<number>
+  setRefreshCountFeed: SetState<number>,
+  inReplyTo?: string
 ) {
-  const document = await chatterNet?.newNote(note, undefined, "text/markdown");
+  const document = await chatterNet?.newNote(
+    note,
+    undefined,
+    "text/markdown",
+    inReplyTo
+  );
   // store local posts to local
   await chatterNet.storeMessageDocuments(document);
   chatterNet.postMessageDocuments(document).catch(() => {});

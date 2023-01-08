@@ -107,7 +107,7 @@ export function MessagesList(props: MessagesListProps) {
         </Card>
       )}
       {props.allowMore ? (
-        <div className="d-flex justify-content-center">
+        <div className="text-center my-3">
           <Button onClick={loadMore}>Load more</Button>
         </div>
       ) : null}
