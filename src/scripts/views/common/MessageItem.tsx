@@ -88,10 +88,17 @@ function MessageFooter(props: MessageFooterProps) {
   );
 }
 
-function MessageReplied(props: { content: string }) {
+function MessageReplied(props: {
+  content: string;
+  attributedTo: string;
+  formatIdNameProps: Omit<FormatIdNameProps, "id">;
+}) {
   return (
     <Card className="rounded mb-3">
-      <Card.Header>Replying to</Card.Header>
+      <Card.Header>
+        In reply to:{" "}
+        <FormatIdName id={props.attributedTo} {...props.formatIdNameProps} />
+      </Card.Header>
       <Card.Body className="note-text">
         <ReactMarkdown>{props.content}</ReactMarkdown>
       </Card.Body>
@@ -106,10 +113,13 @@ function MessageNote(props: MessageItemProps & MessageFooterProps) {
         <MessageHeader {...props} />
       </Card.Header>
       <Card.Body className="note-text">
-        {props.message.inReplyTo ? (
-          <MessageReplied content={props.message.inReplyTo.content} />
-        ) : null}
         <ReactMarkdown>{props.message.note.content}</ReactMarkdown>
+        {props.message.inReplyTo ? (
+          <MessageReplied
+            {...props.message.inReplyTo}
+            formatIdNameProps={props.formatIdNameProps}
+          />
+        ) : null}
       </Card.Body>
       <Card.Footer>
         <MessageFooter {...props} />
