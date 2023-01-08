@@ -4,7 +4,7 @@ import { CreatePost, CreatePostProps } from "./CreatePost";
 import { FormatIdName, FormatIdNameProps } from "./FormatIdName";
 import { omit } from "lodash-es";
 import { MouseEvent, useState } from "react";
-import { Card, Button, Collapse } from "react-bootstrap";
+import { Card, Collapse } from "react-bootstrap";
 import ReactMarkdown from "react-markdown";
 
 function formatTimestamp(timestamp: number): string {
@@ -85,6 +85,19 @@ function MessageFooter(props: MessageFooterProps) {
   );
 }
 
+function MessageReplied(props: { content: string }) {
+  return (
+    <Card className="rounded mb-3">
+      <Card.Header>
+        Replying to
+      </Card.Header>
+      <Card.Body className="note-text">
+        <ReactMarkdown>{props.content}</ReactMarkdown>
+      </Card.Body>
+    </Card>
+  );
+}
+
 function MessageNote(props: MessageItemProps & MessageFooterProps) {
   return (
     <Card className="rounded m-3">
@@ -92,6 +105,9 @@ function MessageNote(props: MessageItemProps & MessageFooterProps) {
         <MessageHeader {...props} />
       </Card.Header>
       <Card.Body className="note-text">
+        {props.message.inReplyTo ? (
+          <MessageReplied content={props.message.inReplyTo} />
+        ) : null}
         <ReactMarkdown>{props.message.content}</ReactMarkdown>
       </Card.Body>
       <Card.Footer>
@@ -118,7 +134,7 @@ export function MessageItem(props: MessageItemProps) {
           <CreatePost
             {...createPostProps}
             postNote={postNote}
-            inReplyTo={props.message.id}
+            inReplyTo={props.message.contentId}
           />
         </div>
       </Collapse>
