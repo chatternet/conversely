@@ -1,7 +1,6 @@
 import { default as ANIMAL_NAMES } from "../../assets/alliterative-animals.json";
 import type { SetState } from "../commonutils";
-import type { IdToName, PushAlertTop } from "./interfaces";
-import type { LoginInfo } from "./interfaces";
+import type { IdToName, LoginInfo, PushAlertTop } from "./interfaces";
 import { ChatterNet, DidKey, Model } from "chatternet-client-http";
 import { sample } from "lodash-es";
 

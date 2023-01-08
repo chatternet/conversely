@@ -34,7 +34,10 @@ function MessageHeader(props: MessageItemProps) {
   return (
     <div className="d-flex align-items-center">
       <span>
-        <FormatIdName id={props.message.actorId} {...props.formatIdNameProps} />
+        <FormatIdName
+          id={props.message.note.attributedTo}
+          {...props.formatIdNameProps}
+        />
       </span>
       <small className="text-muted ms-auto">
         {formatTimestamp(props.message.timestamp)}
@@ -72,7 +75,7 @@ function MessageFooter(props: MessageFooterProps) {
           Reply
         </a>
       </small>
-      {props.message.actorId === props.localActorId ? (
+      {props.message.note.attributedTo === props.localActorId ? (
         <a
           href="#"
           onClick={deleteMessage}
@@ -88,9 +91,7 @@ function MessageFooter(props: MessageFooterProps) {
 function MessageReplied(props: { content: string }) {
   return (
     <Card className="rounded mb-3">
-      <Card.Header>
-        Replying to
-      </Card.Header>
+      <Card.Header>Replying to</Card.Header>
       <Card.Body className="note-text">
         <ReactMarkdown>{props.content}</ReactMarkdown>
       </Card.Body>
@@ -106,9 +107,9 @@ function MessageNote(props: MessageItemProps & MessageFooterProps) {
       </Card.Header>
       <Card.Body className="note-text">
         {props.message.inReplyTo ? (
-          <MessageReplied content={props.message.inReplyTo} />
+          <MessageReplied content={props.message.inReplyTo.content} />
         ) : null}
-        <ReactMarkdown>{props.message.content}</ReactMarkdown>
+        <ReactMarkdown>{props.message.note.content}</ReactMarkdown>
       </Card.Body>
       <Card.Footer>
         <MessageFooter {...props} />
@@ -134,7 +135,7 @@ export function MessageItem(props: MessageItemProps) {
           <CreatePost
             {...createPostProps}
             postNote={postNote}
-            inReplyTo={props.message.contentId}
+            inReplyTo={props.message.note.id}
           />
         </div>
       </Collapse>
