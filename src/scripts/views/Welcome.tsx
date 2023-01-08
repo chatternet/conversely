@@ -26,7 +26,7 @@ export function Welcome(props: WelcomeProps) {
                 Conversely
               </span>
             </h1>
-            <div className="display-6">A different kind of social.</div>
+            <h3 className="fw-light">A different kind of social.</h3>
           </Col>
           <Col md>
             <img src={LOGO_HERO} alt="logo" width={"256px"} height={"256px"} />
