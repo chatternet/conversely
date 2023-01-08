@@ -1,6 +1,16 @@
 import { UseState } from "../../commonutils";
-import React, { useState } from "react";
-import { Button, Form, InputGroup, Row, Card } from "react-bootstrap";
+import { AccountSelector, AccountSelectorProps } from "./AccountSelector";
+import { FormatIdNameProps } from "./FormatIdName";
+import React, { useEffect, useState } from "react";
+import {
+  Button,
+  Form,
+  InputGroup,
+  Row,
+  Card,
+  ListGroup,
+  Alert,
+} from "react-bootstrap";
 
 export interface CreateAccountProps {
   loggedIn: boolean;
@@ -10,6 +20,7 @@ export interface CreateAccountProps {
     password: string,
     confirmPassword: string
   ) => Promise<void>;
+  setSelectAccount: () => void;
 }
 
 export function CreateAccount(props: CreateAccountProps) {
@@ -25,6 +36,13 @@ export function CreateAccount(props: CreateAccountProps) {
     props
       .createAccount(displayName, password, confirmPassword)
       .catch((err) => console.error(err));
+  };
+
+  const setSelectAccount: React.MouseEventHandler = (
+    event: React.MouseEvent
+  ) => {
+    event.preventDefault();
+    props.setSelectAccount();
   };
 
   return (
@@ -89,13 +107,93 @@ export function CreateAccount(props: CreateAccountProps) {
                 </InputGroup>
               </Form.Group>
             </Row>
-
-            <div className="text-center">
-              <Button type="submit">Create Account</Button>
+            <div className="text-center mt-3">
+              <Button type="submit">Create account</Button> or{" "}
+              <a href="#" onClick={setSelectAccount}>
+                Select an account
+              </a>
             </div>
           </fieldset>
         </Form>
       </Card.Body>
     </Card>
+  );
+}
+
+export interface SelectAccountProps {
+  accountsDid: string[];
+  formatIdNameProps: Omit<FormatIdNameProps, "id">;
+  accountSelectorProps: Omit<
+    AccountSelectorProps,
+    "did" | "formatIdNameProps" | "selectedDid" | "setSelectedDid"
+  >;
+  setCreateAccount: () => void;
+}
+
+export function SelectAccount(props: SelectAccountProps) {
+  const [selectedDid, setSelectedDid]: UseState<string | undefined> =
+    useState();
+
+  const setCreateAccount: React.MouseEventHandler = (
+    event: React.MouseEvent
+  ) => {
+    event.preventDefault();
+    props.setCreateAccount();
+  };
+
+  return (
+    <Card className="shadow-sm">
+      <Card.Header>Log into account</Card.Header>
+      <Card.Body>
+        {props.accountsDid.length > 0 ? (
+          <ListGroup>
+            {props.accountsDid.map((x) => (
+              <AccountSelector
+                key={x}
+                did={x}
+                selectedDid={selectedDid}
+                setSelectedDid={setSelectedDid}
+                formatIdNameProps={{ ...props.formatIdNameProps }}
+                {...props.accountSelectorProps}
+              />
+            ))}
+          </ListGroup>
+        ) : (
+          <Alert>No accounts available.</Alert>
+        )}
+        <div className="text-center mt-3">
+          <a href="#" onClick={setCreateAccount}>
+            Create an account
+          </a>
+        </div>
+      </Card.Body>
+    </Card>
+  );
+}
+
+export interface CreateSelectAccountProps {
+  createAccountProps: Omit<CreateAccountProps, "setSelectAccount">;
+  selectAccountProps: Omit<SelectAccountProps, "setCreateAccount">;
+}
+
+export function CreateSelectAccount(props: CreateSelectAccountProps) {
+  const [isCreate, setIsCreate]: UseState<boolean> = useState(true);
+  useEffect(() => {
+    if (props.selectAccountProps.accountsDid.length > 0) setIsCreate(false);
+  }, [props.selectAccountProps.accountsDid]);
+  return isCreate ? (
+    <CreateAccount
+      {...props.createAccountProps}
+      setSelectAccount={() => {
+        setIsCreate(false);
+      }}
+    />
+  ) : (
+    <SelectAccount
+      {...props.selectAccountProps}
+      setCreateAccount={() => {
+        setIsCreate(true);
+      }}
+    />
   );
 }

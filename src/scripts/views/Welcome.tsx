@@ -1,5 +1,8 @@
 import { LOGO_HERO, onClickNavigate } from "../commonutils";
-import { CreateAccount, CreateAccountProps } from "./common/CreateAccount";
+import {
+  CreateSelectAccount,
+  CreateSelectAccountProps,
+} from "./common/CreateSelectAccount";
 import { FormatIdName, FormatIdNameProps } from "./common/FormatIdName";
 import { MessagesList, MessagesListProps } from "./common/MessagesList";
 import { Card, Row, Col, Container, Alert, Button } from "react-bootstrap";
@@ -9,7 +12,7 @@ export type WelcomeProps = {
   localActorId: string | undefined;
   formatIdNameProps: Omit<FormatIdNameProps, "id">;
   messagesListProps: Omit<MessagesListProps, "pageSize" | "allowMore">;
-  createAccountProps: CreateAccountProps;
+  createSelectAccountProps: CreateSelectAccountProps;
 };
 
 export function Welcome(props: WelcomeProps) {
@@ -23,7 +26,7 @@ export function Welcome(props: WelcomeProps) {
                 Conversely
               </span>
             </h1>
-            <div className="display-6">A different kind of social.</div>
+            <h3 className="fw-light">A different kind of social.</h3>
           </Col>
           <Col md>
             <img src={LOGO_HERO} alt="logo" width={"256px"} height={"256px"} />
@@ -69,7 +72,7 @@ export function Welcome(props: WelcomeProps) {
               </div>
             </>
           ) : (
-            <CreateAccount {...props.createAccountProps} />
+            <CreateSelectAccount {...props.createSelectAccountProps} />
           )}
         </div>
       </Container>

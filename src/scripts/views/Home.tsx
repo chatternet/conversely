@@ -21,6 +21,7 @@ import {
   pushAlertTop as pushAlertTopController,
 } from "./common/AlertTop";
 import { CreatePostProps } from "./common/CreatePost";
+import { CreateSelectAccountProps } from "./common/CreateSelectAccount";
 import { FormatIdNameProps } from "./common/FormatIdName";
 import { Header, HeaderProps } from "./common/Header";
 import { MessagesListProps } from "./common/MessagesList";
@@ -108,6 +109,47 @@ export function Home() {
     },
   };
 
+  const createSelectAccountProps: CreateSelectAccountProps = {
+    createAccountProps: {
+      loggedIn: !!chatterNet,
+      loggingIn,
+      createAccount: async (displayName, password, confirmPassword) => {
+        const did = await createAccount(
+          displayName,
+          password,
+          confirmPassword,
+          pushAlertTop
+        );
+        if (!did) return;
+        await login(
+          { did, password },
+          setLoggingIn,
+          setChatterNet,
+          setIdToName,
+          setFollowing,
+          pushAlertTop
+        );
+      },
+    },
+    selectAccountProps: {
+      accountsDid,
+      formatIdNameProps: { ...formatIdNameProps, bare: true },
+      accountSelectorProps: {
+        // NOTE: could use `loginInfo` from scope, but instead use the state
+        // as seen by the UI component to ensure no surprises
+        login: async (did: string, password: string) =>
+          login(
+            { did, password },
+            setLoggingIn,
+            setChatterNet,
+            setIdToName,
+            setFollowing,
+            pushAlertTop
+          ),
+      },
+    },
+  };
+
   const headerProps: HeaderProps = {
     loggedIn: !!chatterNet,
     accountModalProps: {
@@ -123,23 +165,7 @@ export function Home() {
         didName,
         logout: async () => logout(chatterNet, setChatterNet),
       },
-      accountModalOutBodyProps: {
-        accountsDid,
-        formatIdNameProps: { ...formatIdNameProps, bare: true },
-        accountSelectorProps: {
-          // NOTE: could use `loginInfo` from scope, but instead use the state
-          // as seen by the UI component to ensure no surprises
-          login: async (did: string, password: string) =>
-            login(
-              { did, password },
-              setLoggingIn,
-              setChatterNet,
-              setIdToName,
-              setFollowing,
-              pushAlertTop
-            ),
-        },
-      },
+      createSelectAccountProps,
     },
   };
 
@@ -248,27 +274,7 @@ export function Home() {
         ...messagesListProps,
         messagesDisplayProps,
       },
-      createAccountProps: {
-        loggedIn: !!chatterNet,
-        loggingIn,
-        createAccount: async (displayName, password, confirmPassword) => {
-          const did = await createAccount(
-            displayName,
-            password,
-            confirmPassword,
-            pushAlertTop
-          );
-          if (!did) return;
-          await login(
-            { did, password },
-            setLoggingIn,
-            setChatterNet,
-            setIdToName,
-            setFollowing,
-            pushAlertTop
-          );
-        },
-      },
+      createSelectAccountProps,
     },
     settingsProps: {
       loggedIn: !!chatterNet,
