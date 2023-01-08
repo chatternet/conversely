@@ -1,10 +1,9 @@
-import {
-  UseState,
-  SetState,
-  clearState,
-  onClickNavigate,
-} from "../../commonutils";
+import { SetState, clearState, onClickNavigate } from "../../commonutils";
 import { CopyLink } from "./CopyLink";
+import {
+  CreateSelectAccount,
+  CreateSelectAccountProps,
+} from "./CreateSelectAccount";
 import { FormatIdName, FormatIdNameProps } from "./FormatIdName";
 import { ChatterNet, IdName } from "chatternet-client-http";
 import { useState } from "react";
@@ -19,108 +18,13 @@ import {
   Spinner,
 } from "react-bootstrap";
 
-interface AccountSelectorProps {
-  did: string;
-  formatIdNameProps: Omit<FormatIdNameProps, "id">;
-  selectedDid: string | undefined;
-  login: (did: string, password: string) => Promise<void>;
-  setSelectedDid: SetState<string | undefined>;
-}
-
-function AccountSelector(props: AccountSelectorProps) {
-  if (!props.login) return null;
-
-  const [password, setPassword]: UseState<string> = useState("");
-
-  const submit = async () => {
-    await props.login(props.did, password);
-  };
-
-  const onSubmit: React.FormEventHandler = (event: React.FormEvent) => {
-    event.preventDefault();
-    submit().catch((err) => console.error(err));
-  };
-
-  const accountId = ChatterNet.actorFromDid(props.did);
-
-  return (
-    <ListGroup.Item>
-      <a
-        href="#"
-        className="d-block"
-        onClick={() => props.setSelectedDid(props.did)}
-      >
-        <FormatIdName id={accountId} {...props.formatIdNameProps} />
-      </a>
-      <Collapse in={props.selectedDid === props.did}>
-        <Form onSubmit={onSubmit}>
-          <Form.Group className="m-3">
-            <InputGroup>
-              <InputGroup.Text>Password</InputGroup.Text>
-              <Form.Control
-                type="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                }}
-              />
-              <InputGroup.Text>
-                <a href="#" onClick={onSubmit}>
-                  <i className="bi bi-arrow-return-left"></i>
-                </a>
-              </InputGroup.Text>
-            </InputGroup>
-          </Form.Group>
-        </Form>
-      </Collapse>
-    </ListGroup.Item>
-  );
-}
-
-interface AccountModalOutBodyProps {
-  accountsDid: string[];
-  formatIdNameProps: Omit<FormatIdNameProps, "id">;
-  accountSelectorProps: Omit<
-    AccountSelectorProps,
-    "did" | "formatIdNameProps" | "selectedDid" | "setSelectedDid"
-  >;
-}
-
-function AccountModalOutBody(props: AccountModalOutBodyProps) {
-  const [selectedDid, setSelectedDid]: UseState<string | undefined> =
-    useState();
-
-  if (props.accountsDid.length > 0) {
-    return (
-      <div>
-        <p>Log into account:</p>
-        <ListGroup>
-          {props.accountsDid.map((x) => (
-            <AccountSelector
-              key={x}
-              did={x}
-              selectedDid={selectedDid}
-              setSelectedDid={setSelectedDid}
-              formatIdNameProps={{ ...props.formatIdNameProps }}
-              {...props.accountSelectorProps}
-            />
-          ))}
-        </ListGroup>
-      </div>
-    );
-  } else {
-    return <p>No accounts available.</p>;
-  }
-}
-
-interface AccountModalInBodyProps {
+interface AccountModalBodyProps {
   didName: IdName | undefined;
   logout: () => Promise<void>;
   setShowModal: SetState<boolean>;
 }
 
-function AccountModalInBody(props: AccountModalInBodyProps) {
+function AccountModalBody(props: AccountModalBodyProps) {
   if (!props.didName) return null;
   if (!props.logout) return null;
 
@@ -199,8 +103,8 @@ export interface AccountModalProps {
   loggingIn: boolean;
   loggedIn: boolean;
   loginButtonProps: LoginButtonProps;
-  accountModalInBodyProps: Omit<AccountModalInBodyProps, "setShowModal">;
-  accountModalOutBodyProps: Omit<AccountModalOutBodyProps, "count">;
+  accountModalInBodyProps: Omit<AccountModalBodyProps, "setShowModal">;
+  createSelectAccountProps: CreateSelectAccountProps;
 }
 
 export function AccountModal(props: AccountModalProps) {
@@ -229,12 +133,12 @@ export function AccountModal(props: AccountModalProps) {
         </Modal.Header>
         <Modal.Body>
           {props.loggedIn ? (
-            <AccountModalInBody
+            <AccountModalBody
               setShowModal={setShowModal}
               {...props.accountModalInBodyProps}
             />
           ) : (
-            <AccountModalOutBody {...props.accountModalOutBodyProps} />
+            <CreateSelectAccount {...props.createSelectAccountProps} />
           )}
         </Modal.Body>
       </Modal>
