@@ -107,6 +107,12 @@ export function CreateAccount(props: CreateAccountProps) {
                 </InputGroup>
               </Form.Group>
             </Row>
+
+            <Alert variant="info">
+              The password field is optional. If you do not use a password,
+              anyone with access to your device can use your account.
+            </Alert>
+
             <div className="text-center mt-3">
               <Button type="submit">Create account</Button> or{" "}
               <a href="#" onClick={setSelectAccount}>

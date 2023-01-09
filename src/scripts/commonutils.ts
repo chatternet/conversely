@@ -9,6 +9,13 @@ export type UseState<T> = [T, SetState<T>];
 export const ROOT_PATH = "";
 export const MAX_POST_BYTES = 1024;
 
+export function localGet(key: string): any | null {
+  const value = window.localStorage.getItem(key);
+  if (value == null) return null;
+  const parsed = JSON.parse(value);
+  return parsed;
+}
+
 export function navigate(url: string | URL) {
   history.pushState(null, "", url);
   dispatchEvent(new PopStateEvent("popstate"));

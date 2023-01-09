@@ -14,6 +14,7 @@ import {
   postNote,
   acceptMessage,
   deleteMessage,
+  isPasswordless,
 } from "../controllers/setup.js";
 import { Router, RouterProps } from "./Router";
 import {
@@ -135,6 +136,7 @@ export function Home() {
       accountsDid,
       formatIdNameProps: { ...formatIdNameProps, bare: true },
       accountSelectorProps: {
+        isPasswordless,
         // NOTE: could use `loginInfo` from scope, but instead use the state
         // as seen by the UI component to ensure no surprises
         login: async (did: string, password: string) =>
