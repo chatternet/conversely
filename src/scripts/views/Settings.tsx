@@ -1,6 +1,6 @@
 import { UseState, clearState } from "../commonutils";
 import { FormEvent, useState } from "react";
-import { Button, Card, Container, Form } from "react-bootstrap";
+import { Alert, Button, Card, Container, Form } from "react-bootstrap";
 
 export interface SettingsProps {
   loggedIn: boolean;
@@ -110,6 +110,11 @@ export function Settings(props: SettingsProps) {
                     }}
                     className="my-1"
                   />
+                  <Alert variant="info">
+                    The password field is optional. If you do not use a
+                    password, anyone with access to your device can use your
+                    account.
+                  </Alert>
                   <div className="text-center">
                     <Button type="submit" className="my-1">
                       Change password
