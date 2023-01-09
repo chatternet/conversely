@@ -9,6 +9,7 @@ export interface AccountSelectorProps {
   did: string;
   formatIdNameProps: Omit<FormatIdNameProps, "id">;
   selectedDid: string | undefined;
+  isPasswordless: (did: string) => boolean;
   login: (did: string, password: string) => Promise<void>;
   setSelectedDid: SetState<string | undefined>;
 }
@@ -28,6 +29,7 @@ export function AccountSelector(props: AccountSelectorProps) {
   };
 
   const accountId = ChatterNet.actorFromDid(props.did);
+  const isPasswordless = props.isPasswordless(props.did);
 
   return (
     <ListGroup.Item>
@@ -46,7 +48,9 @@ export function AccountSelector(props: AccountSelectorProps) {
               <Form.Control
                 type="password"
                 autoComplete="current-password"
+                placeholder={isPasswordless ? "no password" : ""}
                 value={password}
+                disabled={isPasswordless}
                 onChange={(e) => {
                   setPassword(e.target.value);
                 }}

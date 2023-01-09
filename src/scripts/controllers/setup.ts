@@ -1,12 +1,28 @@
 import { default as ANIMAL_NAMES } from "../../assets/alliterative-animals.json";
-import type { SetState } from "../commonutils";
+import { localGet, SetState } from "../commonutils";
 import type { IdToName, LoginInfo, PushAlertTop } from "./interfaces";
 import { ChatterNet, DidKey, Model } from "chatternet-client-http";
-import { sample } from "lodash-es";
+import { includes, has, remove, sample } from "lodash-es";
 
 export async function getFollows(chatterNet: ChatterNet): Promise<Set<string>> {
   const { message } = await chatterNet.buildFollows();
   return new Set(message.object);
+}
+
+function updatePasswordless(loginInfo: LoginInfo) {
+  let passwordless: string[] | null = localGet("passwordless");
+  if (passwordless == null) passwordless = [];
+  if (!loginInfo.password && !has(passwordless, loginInfo.did)) {
+    passwordless.push(loginInfo.did);
+  } else {
+    remove(passwordless, (x) => x === loginInfo.did);
+  }
+  window.localStorage.setItem("passwordless", JSON.stringify(passwordless));
+}
+
+export function isPasswordless(did: string): boolean {
+  let passwordless: string[] | null = localGet("passwordless");
+  return includes(passwordless, did);
 }
 
 export async function login(
@@ -30,6 +46,7 @@ export async function login(
       loginInfo.password,
       servers
     );
+    updatePasswordless(loginInfo);
     const timestamp = new Date().getTime() * 1e-3;
     const serverActor = await chatterNet.getActor(`${did}/actor`);
     if (serverActor == null) throw Error("server has no actor");
@@ -152,6 +169,7 @@ export async function changePassword(
     password: newPassword,
   };
   sessionStorage.setItem("loginInfo", JSON.stringify(loginInfo));
+  updatePasswordless(loginInfo);
   pushAlertTop("Password changed.", "primary");
 }
 
