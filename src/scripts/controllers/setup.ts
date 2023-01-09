@@ -186,9 +186,10 @@ export async function changeDisplayName(
   await chatterNet.changeName(newDisplayName);
   // store name in local
   await chatterNet.storeMessageDocuments(await chatterNet.buildActor());
-  chatterNet
-    .postMessageDocuments(await chatterNet.buildActor())
-    .catch(() => {});
+  const actor = await chatterNet.buildActor();
+  chatterNet.postMessageDocuments(actor).catch((x) => {
+    console.error(x);
+  });
   const timestamp = new Date().getTime() * 1e-3;
   const actorId = ChatterNet.actorFromDid(chatterNet.getLocalDid());
   setIdToName((x) => x.update(actorId, chatterNet.getLocalName(), timestamp));
@@ -260,16 +261,16 @@ export async function viewMessage(
   // post view message
   chatterNet
     .postMessageDocuments({ message: viewMessage, documents: [] })
-    .catch(() => {});
-  // also post the origin message and objects
-  const documents: Model.WithId[] = [];
+    .catch((x) => {
+      console.error(x);
+    });
+  // also post the origin objects
   for (const objectId of message.object) {
     const document = await chatterNet.getDocument(objectId);
     // in some case the object might no longer be available
     if (!document) continue;
-    documents.push(document);
+    chatterNet.postDocument(document).catch((x) => console.error(x));
   }
-  chatterNet.postMessageDocuments({ message, documents }).catch(() => {});
   // and try to post the actor
   const actor = await chatterNet.getDocument(message.actor);
   if (actor != null) chatterNet.postDocument(actor);
