@@ -186,9 +186,10 @@ export async function changeDisplayName(
   await chatterNet.changeName(newDisplayName);
   // store name in local
   await chatterNet.storeMessageDocuments(await chatterNet.buildActor());
-  chatterNet
-    .postMessageDocuments(await chatterNet.buildActor())
-    .catch(() => {});
+  const actor = await chatterNet.buildActor();
+  chatterNet.postMessageDocuments(actor).catch((x) => {
+    console.error(x);
+  });
   const timestamp = new Date().getTime() * 1e-3;
   const actorId = ChatterNet.actorFromDid(chatterNet.getLocalDid());
   setIdToName((x) => x.update(actorId, chatterNet.getLocalName(), timestamp));
