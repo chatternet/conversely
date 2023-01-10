@@ -170,7 +170,7 @@ export async function changePassword(
   };
   sessionStorage.setItem("loginInfo", JSON.stringify(loginInfo));
   updatePasswordless(loginInfo);
-  pushAlertTop("Password changed.", "primary");
+  pushAlertTop("Password changed.", "info");
 }
 
 export async function changeDisplayName(
@@ -193,7 +193,7 @@ export async function changeDisplayName(
   const timestamp = new Date().getTime() * 1e-3;
   const actorId = ChatterNet.actorFromDid(chatterNet.getLocalDid());
   setIdToName((x) => x.update(actorId, chatterNet.getLocalName(), timestamp));
-  pushAlertTop("Name changed.", "primary");
+  pushAlertTop("Name changed.", "info");
 }
 
 export async function addFollowing(
@@ -218,13 +218,14 @@ export async function addFollowing(
     .postMessageDocuments(await chatterNet.newFollow(id))
     .catch(() => {});
   setFollows((x) => new Set([...x, id]));
-  pushAlertTop(`Following ${id}.`, "primary");
+  pushAlertTop(`Following ${id}.`, "info");
 }
 
 export async function postNote(
   chatterNet: ChatterNet,
   note: string,
   setRefreshCountFeed: SetState<number>,
+  pushAlertTop: PushAlertTop,
   inReplyTo?: string
 ) {
   const document = await chatterNet?.newNote(
@@ -235,7 +236,14 @@ export async function postNote(
   );
   // store local posts to local
   await chatterNet.storeMessageDocuments(document);
-  chatterNet.postMessageDocuments(document).catch(() => {});
+  chatterNet.postMessageDocuments(document).catch(() => {
+    pushAlertTop(
+      "Failed to post note. \
+      The server could be down, \
+      or the post content could be invalid.",
+      "danger"
+    );
+  });
   // propagate message to UI that feed was updated
   setRefreshCountFeed((prevState) => prevState + 1);
 }

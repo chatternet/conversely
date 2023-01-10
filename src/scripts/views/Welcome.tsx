@@ -52,6 +52,7 @@ function ListItemExpand(props: ListItemExpandProps) {
 export type WelcomeProps = {
   loggedIn: boolean | undefined;
   localActorId: string | undefined;
+  newDefaultAccount: boolean;
   formatIdNameProps: Omit<FormatIdNameProps, "id">;
   messagesListProps: Omit<MessagesListProps, "pageSize" | "allowMore">;
   createSelectAccountProps: CreateSelectAccountProps;
@@ -76,26 +77,33 @@ export function Welcome(props: WelcomeProps) {
         </Row>
       </Container>
 
-      {props.loggedIn ? (
+      {props.newDefaultAccount ? (
         <Container className="max-width-md my-3">
-          <Alert variant="primary">
-            Welcome
-            {props.localActorId ? (
-              <>
-                {" "}
-                <FormatIdName
-                  id={props.localActorId}
-                  {...props.formatIdNameProps}
-                />
-              </>
-            ) : null}
-            , you're logged into a default account and ready to go, it's really
-            that easy! To change your account name and create a password, go to
-            the{" "}
-            <a href="/settings" onClick={onClickNavigate("/settings")}>
-              settings page
-            </a>
-            .
+          <Alert variant="info">
+            <div className="d-flex align-items-center">
+              <div className="me-2">
+                <i className="bi bi-info-circle-fill fs-4"></i>
+              </div>
+              <div className="ms-2">
+                Welcome
+                {props.localActorId ? (
+                  <>
+                    {" "}
+                    <FormatIdName
+                      id={props.localActorId}
+                      {...props.formatIdNameProps}
+                    />
+                  </>
+                ) : null}
+                , you're logged into a default account and ready to go, it's
+                really that easy! To change your account name and create a
+                password, go to the{" "}
+                <a href="/settings" onClick={onClickNavigate("/settings")}>
+                  settings page
+                </a>
+                .
+              </div>
+            </div>
           </Alert>
         </Container>
       ) : null}
@@ -123,7 +131,7 @@ export function Welcome(props: WelcomeProps) {
         <Alert variant="danger">
           <div className="d-flex align-items-center">
             <div className="me-2">
-              <i className="bi bi-exclamation-triangle-fill fs-3"></i>
+              <i className="bi bi-exclamation-triangle-fill fs-4"></i>
             </div>
             <div className="ms-2">
               Conversely is currently in the prototype phase. Expect missing
@@ -151,7 +159,11 @@ export function Welcome(props: WelcomeProps) {
             <ListGroup>
               <ListItemExpand
                 className="text-bg-light"
-                heading={<span>Seeing content you don't care about?</span>}
+                heading={
+                  <span className="text-info">
+                    Seeing content you don't care about?
+                  </span>
+                }
                 content={
                   <div className="m-3">
                     In Conversely, you have complete control over what content
@@ -162,7 +174,11 @@ export function Welcome(props: WelcomeProps) {
               />
               <ListItemExpand
                 className="text-bg-light"
-                heading={<span>Can't find interesting new content?</span>}
+                heading={
+                  <span className="text-info">
+                    Can't find interesting new content?
+                  </span>
+                }
                 content={
                   <div className="m-3">
                     In Conversely, you are not spoon fed the most engaging
@@ -191,7 +207,11 @@ export function Welcome(props: WelcomeProps) {
             <ListGroup>
               <ListItemExpand
                 className="text-bg-light"
-                heading={<span>Hard to tell spam and content apart?</span>}
+                heading={
+                  <span className="text-info">
+                    Hard to tell spam and content apart?
+                  </span>
+                }
                 content={
                   <div className="m-3">
                     In Conversely, content gets to you through gossip. If you
@@ -202,7 +222,11 @@ export function Welcome(props: WelcomeProps) {
               />
               <ListItemExpand
                 className="text-bg-light"
-                heading={<span>Ads getting a bit too personal?</span>}
+                heading={
+                  <span className="text-info">
+                    Ads getting a bit too personal?
+                  </span>
+                }
                 content={
                   <div className="m-3">
                     In Conversely, you can see and control exactly what public
@@ -225,7 +249,7 @@ export function Welcome(props: WelcomeProps) {
               <ListItemExpand
                 className="text-bg-light"
                 heading={
-                  <span>
+                  <span className="text-info">
                     Contacts are either relatives or shameless shills?
                   </span>
                 }
@@ -258,7 +282,11 @@ export function Welcome(props: WelcomeProps) {
             <ListGroup>
               <ListItemExpand
                 className="text-bg-light"
-                heading={<span>Rules change, people move on ...</span>}
+                heading={
+                  <span className="text-info">
+                    Platforms change, people move on ...
+                  </span>
+                }
                 content={
                   <div className="m-3">
                     In Conversely, the social circle you build and the content
@@ -386,14 +414,18 @@ export function Welcome(props: WelcomeProps) {
           <p>
             This is a fragile chain of trust, and it puts a lot of power in the
             hands of the platforms which can enact arbitrary rules, pick
-            favorites, and generally manipulate content to their own benefit. It
-            also doesn't make much sense given what you know about public-pair
-            cryptography.
+            favorites, and generally manipulate content to their own benefit. If
+            you don't like the direction a platform is taking, your only
+            alternative is to leave and start from scratch. This doesn't make
+            much sense given what you know about public-pair cryptography.
           </p>
 
           <p>
             In Chatter Net, you verify the authenticity of a message using a
-            user's public key, without having to trust any server.
+            user's public key without having to trust any server. A server
+            cannot manipulate content, but it can restrict what it stores. If
+            you have a bad experience with a server you can move away from it,
+            taking your identity, contacts, and content with you.
           </p>
         </div>
 

@@ -51,6 +51,8 @@ export function Home() {
   );
   // used to signal the message lists to refresh
   const [refreshCount, setRefreshCount]: UseState<number> = useState(0);
+  const [newDefaultAccount, setNewDefaultAccount]: UseState<boolean> =
+    useState(false);
 
   const pushAlertTop = (message: string, variant: Variant) =>
     pushAlertTopController(message, variant, setAlertTopState);
@@ -78,6 +80,7 @@ export function Home() {
           setFollowing,
           pushAlertTop
         );
+        setNewDefaultAccount(false);
       }
       // if no accounts make an anonymous account
       else {
@@ -88,6 +91,7 @@ export function Home() {
           setFollowing,
           pushAlertTop
         );
+        setNewDefaultAccount(true);
       }
     })().catch((x) => console.error(x));
   }, []);
@@ -211,7 +215,13 @@ export function Home() {
         pushAlertTop(errorNoChatterNet, "danger");
         return;
       }
-      await postNote(chatterNet, note, setRefreshCount, inReplyTo);
+      await postNote(
+        chatterNet,
+        note,
+        setRefreshCount,
+        pushAlertTop,
+        inReplyTo
+      );
     },
     pushAlertTop,
   };
@@ -270,6 +280,7 @@ export function Home() {
     welcomeProps: {
       loggedIn: !!chatterNet,
       localActorId,
+      newDefaultAccount,
       formatIdNameProps: { ...formatIdNameProps, bare: true },
       messagesListProps: {
         refreshCount: refreshCount,
