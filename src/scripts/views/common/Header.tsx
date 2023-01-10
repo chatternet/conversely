@@ -13,7 +13,7 @@ export function Header(props: HeaderProps) {
   return (
     <header className="border-bottom shadow-sm">
       <Navbar bg="light" expand="md" collapseOnSelect>
-        <Container>
+        <Container className="max-width-lg">
           <Navbar.Brand href="/" onClick={onClickNavigate("/")}>
             <img src={LOGO} alt="logo" style={{ height: "32px" }} />{" "}
             <span>Conversely</span>
