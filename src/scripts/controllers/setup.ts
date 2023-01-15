@@ -5,7 +5,7 @@ import { ChatterNet, DidKey, Model } from "chatternet-client-http";
 import { includes, has, remove, sample } from "lodash-es";
 
 export async function getFollows(chatterNet: ChatterNet): Promise<Set<string>> {
-  const { message } = await chatterNet.buildFollows();
+  const { message } = await chatterNet.buildSetFollows();
   return new Set(message.object);
 }
 

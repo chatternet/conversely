@@ -66,12 +66,14 @@ export class MessageDisplayGrouper {
     if (!(await this.acceptMessage(referrer != null ? referrer : message)))
       return;
 
-    if (message.origin) {
-      // don't follow multiple indirections
-      if (referrer != null) return;
-      const origin = await this.getMessage(message.origin);
-      if (!origin) return;
-      return await this.buildMessageDisplay(origin, message);
+    if (message.origin != null) {
+      for (const originId of message.origin) {
+        // don't follow multiple indirections
+        if (referrer != null) return;
+        const origin = await this.getMessage(originId);
+        if (!origin) return;
+        return await this.buildMessageDisplay(origin, message);
+      }
     }
 
     const [objectId] = message.object;
