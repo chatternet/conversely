@@ -4,8 +4,8 @@ import type { IdToName, LoginInfo, PushAlertTop } from "./interfaces";
 import { ChatterNet, DidKey, Model } from "chatternet-client-http";
 import { includes, has, remove, sample } from "lodash-es";
 
-export async function getFollows(chatterNet: ChatterNet): Promise<Set<string>> {
-  const { message } = await chatterNet.buildFollows();
+export async function getFollowing(chatterNet: ChatterNet): Promise<Set<string>> {
+  const { message } = await chatterNet.buildSetFollows();
   return new Set(message.object);
 }
 
@@ -30,7 +30,7 @@ export async function login(
   setLoggingIn: SetState<boolean>,
   setChatterNet: SetState<ChatterNet | undefined>,
   setIdToName: SetState<IdToName>,
-  setFollows: SetState<Set<string>>,
+  setFollowing: SetState<Set<string>>,
   pushAlertTop: PushAlertTop
 ) {
   if (!loginInfo) return;
@@ -61,7 +61,7 @@ export async function login(
       )
     );
     setIdToName((x) => x.update(serverActor.id, serverName, timestamp));
-    setFollows(await getFollows(chatterNet));
+    setFollowing(await getFollowing(chatterNet));
     setChatterNet(chatterNet);
   } catch {
     pushAlertTop("Failed to login due to invalid DID, password.", "danger");
@@ -86,7 +86,7 @@ export async function loginFromSession(
   setLoggingIn: SetState<boolean>,
   setChatterNet: SetState<ChatterNet | undefined>,
   setIdToName: SetState<IdToName>,
-  setFollows: SetState<Set<string>>,
+  setFollowing: SetState<Set<string>>,
   pushAlertTop: PushAlertTop
 ) {
   const loginInfoData = sessionStorage.getItem("loginInfo");
@@ -97,7 +97,7 @@ export async function loginFromSession(
     setLoggingIn,
     setChatterNet,
     setIdToName,
-    setFollows,
+    setFollowing,
     pushAlertTop
   );
 }
@@ -125,7 +125,7 @@ export async function loginAnonymous(
   setLoggingIn: SetState<boolean>,
   setChatterNet: SetState<ChatterNet | undefined>,
   setIdToName: SetState<IdToName>,
-  setFollows: SetState<Set<string>>,
+  setFollowing: SetState<Set<string>>,
   pushAlertTop: PushAlertTop
 ): Promise<void> {
   const animalName = sample(
@@ -142,7 +142,7 @@ export async function loginAnonymous(
     setLoggingIn,
     setChatterNet,
     setIdToName,
-    setFollows,
+    setFollowing,
     pushAlertTop
   );
 }
@@ -199,7 +199,7 @@ export async function changeDisplayName(
 export async function addFollowing(
   chatterNet: ChatterNet,
   id: string,
-  setFollows: SetState<Set<string>>,
+  setFollowing: SetState<Set<string>>,
   pushAlertTop: PushAlertTop
 ) {
   if (!id) {
@@ -217,8 +217,22 @@ export async function addFollowing(
   chatterNet
     .postMessageDocuments(await chatterNet.newFollow(id))
     .catch(() => {});
-  setFollows((x) => new Set([...x, id]));
+  setFollowing(await getFollowing(chatterNet));
   pushAlertTop(`Following ${id}.`, "info");
+}
+
+export async function removeFollowing(
+  chatterNet: ChatterNet,
+  id: string,
+  setFollowing: SetState<Set<string>>,
+  pushAlertTop: PushAlertTop
+) {
+  // don't need to store follows as they are managed separately
+  chatterNet
+    .postMessageDocuments(await chatterNet.newUnfollow(id))
+    .catch((x) => {console.error(x)});
+  setFollowing(await getFollowing(chatterNet));
+  pushAlertTop(`Un-following ${id}.`, "info");
 }
 
 export async function postNote(

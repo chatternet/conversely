@@ -9,6 +9,7 @@ import {
   changePassword,
   changeDisplayName,
   addFollowing,
+  removeFollowing,
   createAccount,
   viewMessage,
   postNote,
@@ -200,7 +201,7 @@ export function Home() {
     getActor: async (id: string) => chatterNet?.getActor(id),
     getBody: async (id: string) => {
       const body = await chatterNet?.getDocument(id);
-      if (!Model.isBody(body)) return;
+      if (!Model.isNote1k(body)) return;
       return body;
     },
     deleteMessage: async (messageId: string) => {
@@ -263,6 +264,13 @@ export function Home() {
         }
         await addFollowing(chatterNet, id, setFollowing, pushAlertTop);
       },
+      unfollowId: async (id: string) => {
+        if (!chatterNet) {
+          pushAlertTop(errorNoChatterNet, "danger");
+          return;
+        }
+        await removeFollowing(chatterNet, id, setFollowing, pushAlertTop);
+      },
     },
     followersProps: {
       pageSize: 32,
@@ -271,11 +279,7 @@ export function Home() {
             return chatterNet.buildFollowersIter();
           }
         : undefined,
-      formatIdNameProps: {
-        ...formatIdNameProps,
-        addFollowing: undefined,
-        contacts: undefined,
-      },
+      formatIdNameProps,
     },
     welcomeProps: {
       loggedIn: !!chatterNet,
