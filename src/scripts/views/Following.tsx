@@ -11,7 +11,7 @@ import {
 } from "react-bootstrap";
 
 export type FollowingProps = {
-  loggedIn: boolean;
+  localActorId: string | undefined;
   following: Set<string>;
   formatIdNameProps: Omit<FormatIdNameProps, "id">;
   followId: (id: string) => Promise<void>;
@@ -29,13 +29,9 @@ export function Following(props: FollowingProps) {
       .catch((x) => console.error(x));
   }
 
-  function unfollow(event: MouseEvent) {
-    event.preventDefault();
-  }
-
   return (
     <Container className="my-3 max-width-md mx-auto">
-      {props.loggedIn ? (
+      {props.localActorId != null ? (
         <>
           <Card className="rounded my-3">
             <Card.Header>Follow</Card.Header>
@@ -66,20 +62,22 @@ export function Following(props: FollowingProps) {
                     <FormatIdName id={x} {...props.formatIdNameProps} />
                   </div>
                   <div>
-                <small>
-                  <a
-                    href="#"
-                    onClick={(e: MouseEvent) => {
-                      e.preventDefault();
-                      props
-                        .unfollowId(x)
-                        .catch((err) => console.error(err));
-                    }}
-                    className="fw-normal bg-danger text-white rounded-pill mb-2 py-1 px-2"
-                  >
-                    Unfollow
-                  </a>
-                </small>
+                    <small>
+                      {x !== props.localActorId ? (
+                        <a
+                          href="#"
+                          onClick={(e: MouseEvent) => {
+                            e.preventDefault();
+                            props
+                              .unfollowId(x)
+                              .catch((err) => console.error(err));
+                          }}
+                          className="fw-normal bg-danger text-white rounded-pill mb-2 py-1 px-2"
+                        >
+                          Unfollow
+                        </a>
+                      ) : null}
+                    </small>
                   </div>
                 </div>
               </ListGroup.Item>

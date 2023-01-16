@@ -4,7 +4,9 @@ import type { IdToName, LoginInfo, PushAlertTop } from "./interfaces";
 import { ChatterNet, DidKey, Model } from "chatternet-client-http";
 import { includes, has, remove, sample } from "lodash-es";
 
-export async function getFollowing(chatterNet: ChatterNet): Promise<Set<string>> {
+export async function getFollowing(
+  chatterNet: ChatterNet
+): Promise<Set<string>> {
   const { message } = await chatterNet.buildSetFollows();
   return new Set(message.object);
 }
@@ -230,7 +232,9 @@ export async function removeFollowing(
   // don't need to store follows as they are managed separately
   chatterNet
     .postMessageDocuments(await chatterNet.newUnfollow(id))
-    .catch((x) => {console.error(x)});
+    .catch((x) => {
+      console.error(x);
+    });
   setFollowing(await getFollowing(chatterNet));
   pushAlertTop(`Un-following ${id}.`, "info");
 }
