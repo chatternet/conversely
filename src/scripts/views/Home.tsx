@@ -250,7 +250,7 @@ export function Home() {
       },
     },
     followingProps: {
-      loggedIn: !!chatterNet,
+      localActorId,
       following,
       formatIdNameProps: {
         ...formatIdNameProps,
