@@ -28,7 +28,7 @@ import {
 } from "./views/common/AlertTop";
 import { CreatePostProps } from "./views/common/CreatePost";
 import { CreateSelectAccountProps } from "./views/common/CreateSelectAccount";
-import { FormatIdNameProps } from "./views/common/FormatIdName";
+import { FormatIdName, FormatIdNameProps } from "./views/common/FormatIdName";
 import { HeaderProps } from "./views/common/Header";
 import { MessagesListProps } from "./views/common/MessagesList";
 import { ScaffoldProps } from "./views/common/Scaffold";
@@ -298,14 +298,35 @@ export function Main() {
         pushAlertTop(errorNoChatterNet);
         return;
       }
-      await addFollowing(chatterNet, id, setFollowing, pushAlertTop);
+      if (await addFollowing(chatterNet, id, setFollowing, pushAlertTop)) {
+        pushAlertTop(
+          <span>
+            Following{" "}
+            <FormatIdName
+              id={id}
+              {...formatIdNameProps}
+              addFollowing={undefined}
+            />
+          </span>
+        );
+      }
     },
     unfollowId: async (id: string) => {
       if (!chatterNet) {
         pushAlertTop(errorNoChatterNet);
         return;
       }
-      await removeFollowing(chatterNet, id, setFollowing, pushAlertTop);
+      await removeFollowing(chatterNet, id, setFollowing);
+      pushAlertTop(
+        <span>
+          Stopped following{" "}
+          <FormatIdName
+            id={id}
+            {...formatIdNameProps}
+            addFollowing={undefined}
+          />
+        </span>
+      );
     },
     scaffoldProps,
   };

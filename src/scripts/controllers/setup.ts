@@ -204,28 +204,27 @@ export async function addFollowing(
   id: string,
   setFollowing: SetState<Set<string>>,
   pushAlertTop: (x: ReactNode) => void
-) {
+): Promise<boolean> {
   if (!id) {
     pushAlertTop("ID to follow is empty.");
-    return;
+    return false;
   }
   if (id.startsWith("did:") && !id.endsWith("/actor")) {
     pushAlertTop("ID to follow is a DID document and lacks the `/actor` path.");
-    return;
+    return false;
   }
   // don't need to store follows as they are managed separately
   chatterNet
     .postMessageDocuments(await chatterNet.newFollow(id))
     .catch(() => {});
   setFollowing(await getFollowing(chatterNet));
-  pushAlertTop(`Following ${id}.`);
+  return true;
 }
 
 export async function removeFollowing(
   chatterNet: ChatterNet,
   id: string,
-  setFollowing: SetState<Set<string>>,
-  pushAlertTop: (x: ReactNode) => void
+  setFollowing: SetState<Set<string>>
 ) {
   // don't need to store follows as they are managed separately
   chatterNet
@@ -234,7 +233,6 @@ export async function removeFollowing(
       console.error(x);
     });
   setFollowing(await getFollowing(chatterNet));
-  pushAlertTop(`Un-following ${id}.`);
 }
 
 export async function postNote(

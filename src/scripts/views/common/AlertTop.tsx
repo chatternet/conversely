@@ -28,6 +28,7 @@ export function AlertTop(props: AlertTopProps) {
         <Toast
           className="m-3"
           key={x.key}
+          autohide
           onClose={(e) => {
             e?.preventDefault();
             props.setItems((prevState) =>
