@@ -1,11 +1,13 @@
 import { LOGO } from "../../commonutils";
 import { AccountModal, AccountModalProps } from "./AccountModal";
-import { Container, Navbar, Nav } from "react-bootstrap";
+import { AlertTop, AlertTopProps } from "./AlertTop";
+import { Navbar, Nav, Container } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
 export interface HeaderProps {
   loggedIn: boolean;
   accountModalProps: AccountModalProps;
+  alertTopProps: Omit<AlertTopProps, "style">;
 }
 
 export function Header(props: HeaderProps) {
@@ -47,6 +49,9 @@ export function Header(props: HeaderProps) {
           </Navbar.Collapse>
         </Container>
       </Navbar>
+      <div className="max-width-lg">
+        <AlertTop {...props.alertTopProps} style={{ marginTop: "4em" }} />
+      </div>
     </header>
   );
 }

@@ -6,7 +6,6 @@ import { Container } from "react-bootstrap";
 export interface ScaffoldProps {
   backsplash: boolean;
   headerProps: HeaderProps;
-  alertTopProps: AlertTopProps;
   children: ReactNode;
 }
 
@@ -19,11 +18,6 @@ export function Scaffold(props: ScaffoldProps) {
           <div style={{ position: "relative", width: "100%", height: 0 }}>
             <div className="backsplash" style={{ position: "absolute" }}></div>
           </div>
-        ) : null}
-        {props.alertTopProps.state?.length > 0 ? (
-          <Container className="max-width-lg my-3">
-            <AlertTop {...props.alertTopProps} />
-          </Container>
         ) : null}
         {props.children}
       </div>
