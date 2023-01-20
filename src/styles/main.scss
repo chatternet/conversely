@@ -104,15 +104,17 @@ h6 {
 .backsplash {
   background-image: radial-gradient(
       ellipse at top left,
-      rgba($purple-100, 0.75),
+      rgba($blue-200, 0.33),
       transparent 50%
     ),
-    radial-gradient(ellipse at top right, rgba($red-100, 0.75), transparent 50%);
+    radial-gradient(ellipse at top right, rgba($orange, 0.33), transparent 50%);
   background-size: 100% 100%;
   background-repeat: no-repeat;
-  height: 20em;
+  height: 32em;
   width: 100%;
   position: relative;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .bg-icon {

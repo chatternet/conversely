@@ -1,50 +1,47 @@
 import { SetState } from "../../commonutils";
-import { AlertTopItem } from "../../controllers/interfaces";
-import { Alert } from "react-bootstrap";
-import { Variant } from "react-bootstrap/esm/types";
+import { ReactNode, CSSProperties } from "react";
+import { ToastContainer, Toast } from "react-bootstrap";
 
-export interface AlertTopProps {
-  state: AlertTopItem[];
-  setState: SetState<AlertTopItem[]>;
+export interface AlertItem {
+  node: ReactNode;
+  key: string;
 }
 
-export function pushAlertTop(
-  message: string,
-  variant: Variant,
-  setState: SetState<AlertTopItem[]>
-) {
-  const alertTopItem: AlertTopItem = {
-    message,
-    variant,
+export interface AlertTopProps {
+  items: AlertItem[];
+  setItems: SetState<AlertItem[]>;
+  style: CSSProperties;
+}
+
+export function pushAlertTop(node: ReactNode, setState: SetState<AlertItem[]>) {
+  const alertItem: AlertItem = {
+    node,
     key: crypto.randomUUID(),
   };
-  setState((prevState) => {
-    if (prevState == null) {
-      return [alertTopItem];
-    } else if (prevState.findIndex((x) => x.key === alertTopItem.key) >= 0) {
-      return prevState;
-    } else {
-      return [...prevState, alertTopItem];
-    }
-  });
+  setState((prevState) => [...prevState, alertItem]);
 }
 
 export function AlertTop(props: AlertTopProps) {
   return (
-    <>
-      {props.state.map((x) => (
-        <Alert
+    <ToastContainer position="top-center" style={props.style}>
+      {props.items.map((x) => (
+        <Toast
+          className="m-3"
           key={x.key}
-          variant={x.variant}
-          onClose={() => {
-            props.setState(props.state.filter((y) => y.message !== x.message));
+          autohide
+          onClose={(e) => {
+            e?.preventDefault();
+            props.setItems((prevState) =>
+              prevState.filter((y) => y.key !== x.key)
+            );
           }}
-          dismissible
-          transition={true}
         >
-          <div>{x.message}</div>
-        </Alert>
+          <Toast.Header>
+            <span className="me-auto"></span>
+          </Toast.Header>
+          <Toast.Body>{x.node}</Toast.Body>
+        </Toast>
       ))}
-    </>
+    </ToastContainer>
   );
 }

@@ -1,6 +1,6 @@
 import { UseState } from "./commonutils";
 import { clearAll } from "./controllers/clear.js";
-import { AlertTopItem, IdToName } from "./controllers/interfaces";
+import { IdToName } from "./controllers/interfaces";
 import {
   login,
   loginFromSession,
@@ -23,27 +23,24 @@ import { Following, FollowingProps } from "./views/Following";
 import { Settings, SettingsProps } from "./views/Settings";
 import { Welcome, WelcomeProps } from "./views/Welcome";
 import {
-  AlertTop,
+  AlertItem,
   pushAlertTop as pushAlertTopController,
 } from "./views/common/AlertTop";
-import { AlertTopProps } from "./views/common/AlertTop";
 import { CreatePostProps } from "./views/common/CreatePost";
 import { CreateSelectAccountProps } from "./views/common/CreateSelectAccount";
-import { FormatIdNameProps } from "./views/common/FormatIdName";
-import { Header, HeaderProps } from "./views/common/Header";
+import { FormatIdName, FormatIdNameProps } from "./views/common/FormatIdName";
+import { HeaderProps } from "./views/common/Header";
 import { MessagesListProps } from "./views/common/MessagesList";
 import { ScaffoldProps } from "./views/common/Scaffold";
 import { ChatterNet, Model } from "chatternet-client-http";
-import { useEffect, useState } from "react";
-import { Container } from "react-bootstrap";
-import { Variant } from "react-bootstrap/esm/types";
+import { useEffect, useState, ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 export function Main() {
   // prettier-ignore
   const [alertTopState, setAlertTopState]:
-    UseState<AlertTopItem[]> =
+    UseState<AlertItem[]> =
     useState(new Array());
   // prettier-ignore
   const [loggingIn, setLoggingIn]:
@@ -113,8 +110,8 @@ export function Main() {
   const errorNoChatterNet =
     "Operation not complete because no account is logged in.";
 
-  const pushAlertTop = (message: string, variant: Variant) =>
-    pushAlertTopController(message, variant, setAlertTopState);
+  const pushAlertTop = (message: ReactNode) =>
+    pushAlertTopController(message, setAlertTopState);
 
   const loggedIn = !!chatterNet;
   const did = !chatterNet ? undefined : chatterNet.getLocalDid();
@@ -128,7 +125,7 @@ export function Main() {
     contacts: following,
     addFollowing: async (id: string) => {
       if (!chatterNet) {
-        pushAlertTop(errorNoChatterNet, "danger");
+        pushAlertTop(errorNoChatterNet);
         return;
       }
       await addFollowing(chatterNet, id, setFollowing, pushAlertTop);
@@ -194,6 +191,10 @@ export function Main() {
       },
       createSelectAccountProps,
     },
+    alertTopProps: {
+      items: alertTopState,
+      setItems: setAlertTopState,
+    },
   };
 
   const messagesListProps: Omit<
@@ -233,7 +234,7 @@ export function Main() {
   const createPostProps: CreatePostProps = {
     postNote: async (note: string, inReplyTo?: string) => {
       if (!chatterNet) {
-        pushAlertTop(errorNoChatterNet, "danger");
+        pushAlertTop(errorNoChatterNet);
         return;
       }
       await postNote(
@@ -254,15 +255,9 @@ export function Main() {
     createPostProps,
   };
 
-  const alertTopProps: AlertTopProps = {
-    state: alertTopState,
-    setState: setAlertTopState,
-  };
-
   const scaffoldProps: Omit<ScaffoldProps, "children"> = {
     backsplash: false,
     headerProps,
-    alertTopProps,
   };
 
   const welcomeProps: WelcomeProps = {
@@ -300,17 +295,38 @@ export function Main() {
     },
     followId: async (id: string) => {
       if (!chatterNet) {
-        pushAlertTop(errorNoChatterNet, "danger");
+        pushAlertTop(errorNoChatterNet);
         return;
       }
-      await addFollowing(chatterNet, id, setFollowing, pushAlertTop);
+      if (await addFollowing(chatterNet, id, setFollowing, pushAlertTop)) {
+        pushAlertTop(
+          <span>
+            Following{" "}
+            <FormatIdName
+              id={id}
+              {...formatIdNameProps}
+              addFollowing={undefined}
+            />
+          </span>
+        );
+      }
     },
     unfollowId: async (id: string) => {
       if (!chatterNet) {
-        pushAlertTop(errorNoChatterNet, "danger");
+        pushAlertTop(errorNoChatterNet);
         return;
       }
-      await removeFollowing(chatterNet, id, setFollowing, pushAlertTop);
+      await removeFollowing(chatterNet, id, setFollowing);
+      pushAlertTop(
+        <span>
+          Stopped following{" "}
+          <FormatIdName
+            id={id}
+            {...formatIdNameProps}
+            addFollowing={undefined}
+          />
+        </span>
+      );
     },
     scaffoldProps,
   };
@@ -330,7 +346,7 @@ export function Main() {
     loggedIn: !!chatterNet,
     changeDisplayName: async (newDisplayName: string) => {
       if (!chatterNet) {
-        pushAlertTop(errorNoChatterNet, "danger");
+        pushAlertTop(errorNoChatterNet);
         return;
       }
       await changeDisplayName(
@@ -346,7 +362,7 @@ export function Main() {
       confirmPassword: string
     ) => {
       if (!chatterNet) {
-        pushAlertTop(errorNoChatterNet, "danger");
+        pushAlertTop(errorNoChatterNet);
         return;
       }
       await changePassword(

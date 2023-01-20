@@ -24,7 +24,7 @@ export function FormatIdName(props: FormatIdNameProps) {
   name = name != null && name.trim().length > 0 ? name : suffix;
 
   const isContact = props.contacts && props.contacts.has(props.id);
-  const showIsContact = !props.bare && isContact;
+  const showIsContact = !props.bare && isContact && !!props.addFollowing;
   const showAddContact = !props.bare && !isContact && !!props.addFollowing;
 
   return (

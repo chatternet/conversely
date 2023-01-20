@@ -1,8 +1,9 @@
 import { default as ANIMAL_NAMES } from "../../assets/alliterative-animals.json";
 import { localGet, SetState } from "../commonutils";
-import type { IdToName, LoginInfo, PushAlertTop } from "./interfaces";
+import type { IdToName, LoginInfo } from "./interfaces";
 import { ChatterNet, DidKey, Model } from "chatternet-client-http";
 import { includes, has, remove, sample } from "lodash-es";
+import { ReactNode } from "react";
 
 export async function getFollowing(
   chatterNet: ChatterNet
@@ -33,7 +34,7 @@ export async function login(
   setChatterNet: SetState<ChatterNet | undefined>,
   setIdToName: SetState<IdToName>,
   setFollowing: SetState<Set<string>>,
-  pushAlertTop: PushAlertTop
+  pushAlertTop: (x: ReactNode) => void
 ) {
   if (!loginInfo) return;
   setLoggingIn(true);
@@ -66,7 +67,7 @@ export async function login(
     setFollowing(await getFollowing(chatterNet));
     setChatterNet(chatterNet);
   } catch {
-    pushAlertTop("Failed to login due to invalid DID, password.", "danger");
+    pushAlertTop("Failed to login due to invalid DID, password.");
     setLoggingIn(false);
     return;
   }
@@ -89,7 +90,7 @@ export async function loginFromSession(
   setChatterNet: SetState<ChatterNet | undefined>,
   setIdToName: SetState<IdToName>,
   setFollowing: SetState<Set<string>>,
-  pushAlertTop: PushAlertTop
+  pushAlertTop: (x: ReactNode) => void
 ) {
   const loginInfoData = sessionStorage.getItem("loginInfo");
   if (!loginInfoData) return;
@@ -108,14 +109,14 @@ export async function createAccount(
   displayName: string,
   password: string,
   confirmPassword: string,
-  pushAlertTop: PushAlertTop
+  pushAlertTop: (x: ReactNode) => void
 ): Promise<string | undefined> {
   if (!displayName) {
-    pushAlertTop("Display name is empty.", "danger");
+    pushAlertTop("Display name is empty.");
     return;
   }
   if (password !== confirmPassword) {
-    pushAlertTop("Passwords do not match.", "danger");
+    pushAlertTop("Passwords do not match.");
     return;
   }
   const key = await DidKey.newKey();
@@ -128,7 +129,7 @@ export async function loginAnonymous(
   setChatterNet: SetState<ChatterNet | undefined>,
   setIdToName: SetState<IdToName>,
   setFollowing: SetState<Set<string>>,
-  pushAlertTop: PushAlertTop
+  pushAlertTop: (x: ReactNode) => void
 ): Promise<void> {
   const animalName = sample(
     ANIMAL_NAMES.filter((x) => x.length >= 4 && x.length <= 8)
@@ -154,16 +155,16 @@ export async function changePassword(
   oldPassword: string,
   newPassword: string,
   confirmPassword: string,
-  pushAlertTop: PushAlertTop
+  pushAlertTop: (x: ReactNode) => void
 ) {
   if (newPassword !== confirmPassword) {
-    pushAlertTop("Passwords do not match.", "danger");
+    pushAlertTop("Passwords do not match.");
     return;
   }
   try {
     await chatterNet.changePassword(oldPassword, newPassword);
   } catch {
-    pushAlertTop("Current password is incorrect.", "danger");
+    pushAlertTop("Current password is incorrect.");
     return;
   }
   const loginInfo: LoginInfo = {
@@ -172,17 +173,17 @@ export async function changePassword(
   };
   sessionStorage.setItem("loginInfo", JSON.stringify(loginInfo));
   updatePasswordless(loginInfo);
-  pushAlertTop("Password changed.", "info");
+  pushAlertTop("Password changed.");
 }
 
 export async function changeDisplayName(
   chatterNet: ChatterNet,
   newDisplayName: string,
   setIdToName: SetState<IdToName>,
-  pushAlertTop: PushAlertTop
+  pushAlertTop: (x: ReactNode) => void
 ) {
   if (!newDisplayName) {
-    pushAlertTop("Display name is empty.", "danger");
+    pushAlertTop("Display name is empty.");
     return;
   }
   await chatterNet.changeName(newDisplayName);
@@ -195,39 +196,35 @@ export async function changeDisplayName(
   const timestamp = new Date().getTime() * 1e-3;
   const actorId = ChatterNet.actorFromDid(chatterNet.getLocalDid());
   setIdToName((x) => x.update(actorId, chatterNet.getLocalName(), timestamp));
-  pushAlertTop("Name changed.", "info");
+  pushAlertTop("Name changed.");
 }
 
 export async function addFollowing(
   chatterNet: ChatterNet,
   id: string,
   setFollowing: SetState<Set<string>>,
-  pushAlertTop: PushAlertTop
-) {
+  pushAlertTop: (x: ReactNode) => void
+): Promise<boolean> {
   if (!id) {
-    pushAlertTop("ID to follow is empty.", "danger");
-    return;
+    pushAlertTop("ID to follow is empty.");
+    return false;
   }
   if (id.startsWith("did:") && !id.endsWith("/actor")) {
-    pushAlertTop(
-      "ID to follow is a DID document and lacks the `/actor` path.",
-      "danger"
-    );
-    return;
+    pushAlertTop("ID to follow is a DID document and lacks the `/actor` path.");
+    return false;
   }
   // don't need to store follows as they are managed separately
   chatterNet
     .postMessageDocuments(await chatterNet.newFollow(id))
     .catch(() => {});
   setFollowing(await getFollowing(chatterNet));
-  pushAlertTop(`Following ${id}.`, "info");
+  return true;
 }
 
 export async function removeFollowing(
   chatterNet: ChatterNet,
   id: string,
-  setFollowing: SetState<Set<string>>,
-  pushAlertTop: PushAlertTop
+  setFollowing: SetState<Set<string>>
 ) {
   // don't need to store follows as they are managed separately
   chatterNet
@@ -236,14 +233,13 @@ export async function removeFollowing(
       console.error(x);
     });
   setFollowing(await getFollowing(chatterNet));
-  pushAlertTop(`Un-following ${id}.`, "info");
 }
 
 export async function postNote(
   chatterNet: ChatterNet,
   note: string,
   setRefreshCountFeed: SetState<number>,
-  pushAlertTop: PushAlertTop,
+  pushAlertTop: (x: ReactNode) => void,
   inReplyTo?: string
 ) {
   const document = await chatterNet?.newNote(
@@ -258,8 +254,7 @@ export async function postNote(
     pushAlertTop(
       "Failed to post note. \
       The server could be down, \
-      or the post content could be invalid.",
-      "danger"
+      or the post content could be invalid."
     );
   });
   // propagate message to UI that feed was updated

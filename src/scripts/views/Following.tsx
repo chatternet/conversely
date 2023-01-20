@@ -47,7 +47,7 @@ export function Following(props: FollowingProps) {
                     onChange={(e) => {
                       setIdToFollow(e.target.value);
                     }}
-                    className="my-1"
+                    className="my-1 font-monospace"
                   />
                   <div className="text-center">
                     <Button type="submit" className="my-1">
