@@ -5,13 +5,13 @@ import { Variant } from "react-bootstrap/esm/types";
 
 export interface AlertTopProps {
   state: AlertTopItem[];
-  setState: SetState<AlertTopItem[] | undefined>;
+  setState: SetState<AlertTopItem[]>;
 }
 
 export function pushAlertTop(
   message: string,
   variant: Variant,
-  setState: SetState<AlertTopItem[] | undefined>
+  setState: SetState<AlertTopItem[]>
 ) {
   const alertTopItem: AlertTopItem = {
     message,

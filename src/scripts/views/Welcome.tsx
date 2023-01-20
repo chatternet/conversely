@@ -16,6 +16,7 @@ import {
 } from "./common/CreateSelectAccount";
 import { FormatIdName, FormatIdNameProps } from "./common/FormatIdName";
 import { MessagesList, MessagesListProps } from "./common/MessagesList";
+import { Scaffold, ScaffoldProps } from "./common/Scaffold";
 import React, { useState } from "react";
 import {
   Row,
@@ -59,11 +60,12 @@ export type WelcomeProps = {
   formatIdNameProps: Omit<FormatIdNameProps, "id">;
   messagesListProps: Omit<MessagesListProps, "pageSize" | "allowMore">;
   createSelectAccountProps: CreateSelectAccountProps;
+  scaffoldProps: Omit<ScaffoldProps, "children">;
 };
 
 export function Welcome(props: WelcomeProps) {
   return (
-    <div>
+    <Scaffold {...props.scaffoldProps} backsplash>
       <Container className="my-4 max-width-md mx-auto">
         <Row className="align-items-center">
           <Col md className="text-center">
@@ -480,6 +482,6 @@ export function Welcome(props: WelcomeProps) {
           </p>
         </div>
       </Container>
-    </div>
+    </Scaffold>
   );
 }

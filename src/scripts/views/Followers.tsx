@@ -1,5 +1,6 @@
 import type { UseState, SetState } from "../commonutils";
 import { FormatIdName, FormatIdNameProps } from "./common/FormatIdName";
+import { Scaffold, ScaffoldProps } from "./common/Scaffold";
 import { PageIter } from "chatternet-client-http";
 import { useEffect, useState } from "react";
 import { Alert, Container, ListGroup } from "react-bootstrap";
@@ -8,6 +9,7 @@ export type FollowersProps = {
   pageSize: number;
   buildPageIter: (() => PageIter<string>) | undefined;
   formatIdNameProps: Omit<FormatIdNameProps, "id">;
+  scaffoldProps: Omit<ScaffoldProps, "children">;
 };
 
 export function Followers(props: FollowersProps) {
@@ -35,18 +37,20 @@ export function Followers(props: FollowersProps) {
   }, [pageIter]);
 
   return (
-    <Container className="my-3 max-width-md mx-auto">
-      {props.buildPageIter ? (
-        <ListGroup className="my-3">
-          {(followers != null ? followers : []).map((x) => (
-            <ListGroup.Item key={x}>
-              <FormatIdName id={x} {...props.formatIdNameProps} />
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
-      ) : (
-        <Alert>Cannot view followers list without logging in.</Alert>
-      )}
-    </Container>
+    <Scaffold {...props.scaffoldProps}>
+      <Container className="my-3 max-width-md mx-auto">
+        {props.buildPageIter ? (
+          <ListGroup className="my-3">
+            {(followers != null ? followers : []).map((x) => (
+              <ListGroup.Item key={x}>
+                <FormatIdName id={x} {...props.formatIdNameProps} />
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
+        ) : (
+          <Alert>Cannot view followers list without logging in.</Alert>
+        )}
+      </Container>
+    </Scaffold>
   );
 }
