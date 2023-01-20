@@ -5,18 +5,9 @@ import {
   CreateSelectAccountProps,
 } from "./CreateSelectAccount";
 import { FormatIdName, FormatIdNameProps } from "./FormatIdName";
-import { ChatterNet, IdName } from "chatternet-client-http";
+import { IdName } from "chatternet-client-http";
 import { useState } from "react";
-import React from "react";
-import {
-  Button,
-  Collapse,
-  Form,
-  InputGroup,
-  ListGroup,
-  Modal,
-  Spinner,
-} from "react-bootstrap";
+import { Button, Modal, Spinner } from "react-bootstrap";
 
 interface AccountModalBodyProps {
   didName: IdName | undefined;
