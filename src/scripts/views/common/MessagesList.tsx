@@ -11,12 +11,17 @@ import { Button, Card } from "react-bootstrap";
 
 export interface MessagesListProps {
   loggedIn: boolean;
+  actorId: string | undefined;
   pageSize: number;
   allowMore: boolean;
   refreshCount: number;
-  buildMessageIter: () => Promise<MessageIter | undefined>;
+  buildMessageIter: (actorId?: string) => Promise<MessageIter | undefined>;
   setIdToName: SetState<IdToName>;
-  acceptMessage: (message: Model.Message) => Promise<boolean>;
+  acceptMessage: (
+    message: Model.Message,
+    allowActorId?: string,
+    allowAudienceId?: string
+  ) => Promise<boolean>;
   viewMessage: (message: Model.Message) => Promise<void>;
   getMessage: (id: string) => Promise<Model.Message | undefined>;
   getActor: (id: string) => Promise<Model.Actor | undefined>;
@@ -43,7 +48,7 @@ export function MessagesList(props: MessagesListProps) {
   useEffect(() => {
     if (!props.loggedIn) return;
     props
-      .buildMessageIter()
+      .buildMessageIter(props.actorId)
       .then(setMessageIter)
       .catch((x) => console.error(x));
   }, [props.loggedIn]);
@@ -54,7 +59,15 @@ export function MessagesList(props: MessagesListProps) {
       new MessageDisplayGrouper(
         messageIter,
         props.setIdToName,
-        props.acceptMessage,
+        (message) => {
+          return props.actorId != null
+            ? props.acceptMessage(
+                message,
+                props.actorId,
+                `${props.actorId}/followers`
+              )
+            : props.acceptMessage(message);
+        },
         props.viewMessage,
         props.getMessage,
         props.getActor,
@@ -74,7 +87,7 @@ export function MessagesList(props: MessagesListProps) {
     if (!props.loggedIn) return;
     setMessageDisplayGrouper(undefined);
     props
-      .buildMessageIter()
+      .buildMessageIter(props.actorId)
       .then(setMessageIter)
       .catch((x) => console.error(x));
   }, [props.refreshCount, props.loggedIn]);

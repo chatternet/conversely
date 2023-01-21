@@ -1,4 +1,3 @@
-import { AlertTop, AlertTopProps } from "./AlertTop";
 import { Header, HeaderProps } from "./Header";
 import { ReactNode } from "react";
 import { Container } from "react-bootstrap";

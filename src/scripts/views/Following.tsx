@@ -15,19 +15,19 @@ export type FollowingProps = {
   localActorId: string | undefined;
   following: Set<string>;
   formatIdNameProps: Omit<FormatIdNameProps, "id">;
-  followId: (id: string) => Promise<void>;
+  followDid: (id: string) => Promise<void>;
   unfollowId: (id: string) => Promise<void>;
   scaffoldProps: Omit<ScaffoldProps, "children">;
 };
 
 export function Following(props: FollowingProps) {
-  const [idToFollow, setIdToFollow]: UseState<string> = useState("");
+  const [didToFollow, setDidToFollow]: UseState<string> = useState("");
 
   function follow(event: FormEvent) {
     event.preventDefault();
     props
-      .followId(idToFollow)
-      .then(() => setIdToFollow(""))
+      .followDid(didToFollow)
+      .then(() => setDidToFollow(""))
       .catch((x) => console.error(x));
   }
 
@@ -41,11 +41,11 @@ export function Following(props: FollowingProps) {
               <Card.Body>
                 <Form onSubmit={follow}>
                   <Form.Control
-                    placeholder="ID to follow"
+                    placeholder="DID to follow"
                     type="text"
-                    value={idToFollow}
+                    value={didToFollow}
                     onChange={(e) => {
-                      setIdToFollow(e.target.value);
+                      setDidToFollow(e.target.value);
                     }}
                     className="my-1 font-monospace"
                   />
