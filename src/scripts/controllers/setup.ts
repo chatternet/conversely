@@ -1,7 +1,6 @@
 import { default as ANIMAL_NAMES } from "../../assets/alliterative-animals.json";
 import { localGet, SetState } from "../commonutils";
 import type { IdToName, LoginInfo } from "./interfaces";
-import { MessageDisplayGrouper } from "./messages";
 import { ChatterNet, DidKey, Model } from "chatternet-client-http";
 import { includes, has, remove, sample } from "lodash-es";
 import { ReactNode } from "react";
@@ -243,12 +242,7 @@ export async function postNote(
   pushAlertTop: (x: ReactNode) => void,
   inReplyTo?: string
 ) {
-  const document = await chatterNet?.newNote(
-    note,
-    undefined,
-    "text/markdown",
-    inReplyTo
-  );
+  const document = await chatterNet?.newNote(note, undefined, inReplyTo);
   // store local posts to local
   await chatterNet.storeMessageDocuments(document);
   chatterNet.postMessageDocuments(document).catch(() => {

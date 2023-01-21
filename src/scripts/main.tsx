@@ -261,7 +261,7 @@ export function Main() {
     getActor: async (id: string) => chatterNet?.getActor(id),
     getBody: async (id: string) => {
       const body = await chatterNet?.getDocument(id);
-      if (!Model.isNote1k(body)) return;
+      if (!Model.isNoteMd1k(body)) return;
       return body;
     },
     deleteMessage: async (messageId: string) => {

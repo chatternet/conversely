@@ -158,3 +158,9 @@ h6 {
 .round {
   border-radius: 50%;
 }
+
+.no-end-margin {
+  :last-child {
+    margin-bottom: 0;
+  }
+}

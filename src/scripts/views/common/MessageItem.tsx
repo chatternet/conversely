@@ -38,6 +38,16 @@ function MessageHeader(props: MessageItemProps) {
           id={props.message.note.attributedTo}
           {...props.formatIdNameProps}
         />
+        {props.message.inReplyToActorId ? (
+          <>
+            {" "}
+            replying to{" "}
+            <FormatIdName
+              id={props.message.inReplyToActorId}
+              {...props.formatIdNameProps}
+            />
+          </>
+        ) : null}
       </span>
       <small className="text-muted ms-auto">
         {formatTimestamp(props.message.timestamp)}
@@ -112,14 +122,8 @@ function MessageNote(props: MessageItemProps & MessageFooterProps) {
       <Card.Header>
         <MessageHeader {...props} />
       </Card.Header>
-      <Card.Body className="note-text">
+      <Card.Body className="note-text no-end-margin">
         <ReactMarkdown>{props.message.note.content}</ReactMarkdown>
-        {props.message.inReplyTo ? (
-          <MessageReplied
-            {...props.message.inReplyTo}
-            formatIdNameProps={props.formatIdNameProps}
-          />
-        ) : null}
       </Card.Body>
       <Card.Footer>
         <MessageFooter {...props} />

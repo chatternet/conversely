@@ -12,7 +12,7 @@ export interface MessageDisplay {
   id: string;
   timestamp: number;
   note: MessageDisplayNote;
-  inReplyTo?: MessageDisplayNote;
+  inReplyToActorId?: string;
 }
 
 function extractNote(objectDoc: Model.Body): MessageDisplayNote | undefined {
@@ -89,8 +89,9 @@ export class MessageDisplayGrouper {
     const inReplyToDoc = objectDoc.inReplyTo
       ? await this.getBody(objectDoc.inReplyTo)
       : undefined;
-    const inReplyTo = inReplyToDoc ? extractNote(inReplyToDoc) : undefined;
-    if (inReplyTo) await this.updateActorName(inReplyTo.attributedTo);
+    const inReplyToActorId = inReplyToDoc
+      ? inReplyToDoc.attributedTo
+      : undefined;
 
     const date = message.published;
     const timestamp = new Date(date).getTime() * 1e-3;
@@ -99,7 +100,7 @@ export class MessageDisplayGrouper {
       id: message.id,
       timestamp,
       note,
-      inReplyTo,
+      inReplyToActorId,
     };
   }
 
