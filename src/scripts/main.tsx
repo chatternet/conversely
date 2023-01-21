@@ -1,6 +1,7 @@
 import { UseState } from "./commonutils";
 import { clearAll } from "./controllers/clear.js";
 import { IdToName } from "./controllers/interfaces";
+import { buildNoteDisplay } from "./controllers/messages";
 import {
   login,
   loginFromSession,
@@ -31,6 +32,7 @@ import { CreatePostProps } from "./views/common/CreatePost";
 import { CreateSelectAccountProps } from "./views/common/CreateSelectAccount";
 import { FormatIdName, FormatIdNameProps } from "./views/common/FormatIdName";
 import { HeaderProps } from "./views/common/Header";
+import { MessageItemProps } from "./views/common/MessageItem";
 import { MessagesListProps } from "./views/common/MessagesList";
 import { ScaffoldProps } from "./views/common/Scaffold";
 import { ChatterNet, Model } from "chatternet-client-http";
@@ -222,9 +224,15 @@ export function Main() {
     },
   };
 
+  async function getBody(id: string) {
+    const body = await chatterNet?.getDocument(id);
+    if (!Model.isNoteMd1k(body)) return;
+    return body;
+  }
+
   const messagesListProps: Omit<
     MessagesListProps,
-    "pageSize" | "allowMore" | "refreshCount" | "messagesDisplayProps"
+    "pageSize" | "allowMore" | "refreshCount" | "messageItemProps"
   > = {
     loggedIn: !!chatterNet,
     actorId: undefined,
@@ -259,11 +267,7 @@ export function Main() {
       return message;
     },
     getActor: async (id: string) => chatterNet?.getActor(id),
-    getBody: async (id: string) => {
-      const body = await chatterNet?.getDocument(id);
-      if (!Model.isNote1k(body)) return;
-      return body;
-    },
+    getBody,
     deleteMessage: async (messageId: string) => {
       if (!chatterNet) return;
       await deleteMessage(chatterNet, messageId);
@@ -287,9 +291,23 @@ export function Main() {
     pushAlertTop,
   };
 
-  const messagesDisplayProps = {
+  const messageItemProps: Omit<
+    MessageItemProps,
+    "message" | "deleteMessage" | "setGroup"
+  > = {
     localActorId,
-    languageTag: "en",
+    buildParentDisplay: async (bodyId: string, actorId: string) => {
+      if (!chatterNet) {
+        pushAlertTop(errorNoChatterNet);
+        return;
+      }
+      const message = await chatterNet.getCreateMessageForDocument(
+        bodyId,
+        actorId
+      );
+      if (message == null) return;
+      return await buildNoteDisplay(message, getBody);
+    },
     formatIdNameProps,
     createPostProps,
   };
@@ -306,7 +324,7 @@ export function Main() {
     formatIdNameProps,
     messagesListProps: {
       ...messagesListProps,
-      messagesDisplayProps,
+      messageItemProps,
       refreshCount,
     },
     createSelectAccountProps,
@@ -318,7 +336,7 @@ export function Main() {
     createPostProps,
     messagesListProps: {
       ...messagesListProps,
-      messagesDisplayProps,
+      messageItemProps,
       refreshCount,
     },
     scaffoldProps,
@@ -329,7 +347,7 @@ export function Main() {
     formatIdNameProps,
     messagesListProps: {
       ...messagesListProps,
-      messagesDisplayProps,
+      messageItemProps,
       refreshCount,
     },
     scaffoldProps,

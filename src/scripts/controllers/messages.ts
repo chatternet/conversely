@@ -8,11 +8,16 @@ export interface MessageDisplayNote {
   attributedTo: string;
 }
 
+export interface InReplyTo {
+  actorId: string;
+  objectId: string;
+}
+
 export interface MessageDisplay {
   id: string;
   timestamp: number;
   note: MessageDisplayNote;
-  inReplyTo?: MessageDisplayNote;
+  inReplyTo?: InReplyTo;
 }
 
 function extractNote(objectDoc: Model.Body): MessageDisplayNote | undefined {
@@ -25,6 +30,41 @@ function extractNote(objectDoc: Model.Body): MessageDisplayNote | undefined {
     id: objectDoc.id,
     content: objectDoc.content,
     attributedTo: objectDoc.attributedTo,
+  };
+}
+
+export async function buildNoteDisplay(
+  message: Model.Message,
+  getBody: (id: string) => Promise<Model.Body | undefined>
+): Promise<MessageDisplay | undefined> {
+  const [objectId] = message.object;
+  const objectDoc = await getBody(objectId);
+  if (objectDoc == null) return;
+
+  // display only notes from message actor
+  const note = extractNote(objectDoc);
+  if (!note) return;
+  if (message.actor !== note.attributedTo) return;
+
+  const inReplyToDoc = objectDoc.inReplyTo
+    ? await getBody(objectDoc.inReplyTo)
+    : undefined;
+  let inReplyTo: InReplyTo | undefined = undefined;
+  if (inReplyToDoc) {
+    inReplyTo = {
+      actorId: inReplyToDoc.attributedTo,
+      objectId: inReplyToDoc.id,
+    };
+  }
+
+  const date = message.published;
+  const timestamp = new Date(date).getTime() * 1e-3;
+
+  return {
+    id: message.id,
+    timestamp,
+    note,
+    inReplyTo,
   };
 }
 
@@ -76,31 +116,11 @@ export class MessageDisplayGrouper {
       }
     }
 
-    const [objectId] = message.object;
-    const objectDoc = await this.getBody(objectId);
-    if (!objectDoc) return;
+    const display = await buildNoteDisplay(message, this.getBody);
+    if (display == null) return;
 
-    // display only notes from message actor
-    const note = extractNote(objectDoc);
-    if (!note) return;
-    if (message.actor !== note.attributedTo) return;
-    await this.updateActorName(message.actor);
-
-    const inReplyToDoc = objectDoc.inReplyTo
-      ? await this.getBody(objectDoc.inReplyTo)
-      : undefined;
-    const inReplyTo = inReplyToDoc ? extractNote(inReplyToDoc) : undefined;
-    if (inReplyTo) await this.updateActorName(inReplyTo.attributedTo);
-
-    const date = message.published;
-    const timestamp = new Date(date).getTime() * 1e-3;
-
-    return {
-      id: message.id,
-      timestamp,
-      note,
-      inReplyTo,
-    };
+    this.updateActorName(message.actor).catch((x) => console.error(x));
+    return display;
   }
 
   /**

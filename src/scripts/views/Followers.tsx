@@ -39,6 +39,7 @@ export function Followers(props: FollowersProps) {
   return (
     <Scaffold {...props.scaffoldProps}>
       <Container className="my-3 max-width-md mx-auto">
+        <span className="lead">Accounts following you</span>
         {props.buildPageIter ? (
           <ListGroup className="my-3">
             {(followers != null ? followers : []).map((x) => (
