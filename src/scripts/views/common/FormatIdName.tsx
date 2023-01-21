@@ -35,7 +35,7 @@ export function FormatIdName(props: FormatIdNameProps) {
   const actorPath = `/actor?did=${did}`;
 
   return (
-    <span>
+    <span className="text-nowrap">
       <span className="me-1">
         <Jidenticon value={props.id} size="1em" />
       </span>

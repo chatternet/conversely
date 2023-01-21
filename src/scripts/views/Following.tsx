@@ -57,6 +57,7 @@ export function Following(props: FollowingProps) {
                 </Form>
               </Card.Body>
             </Card>
+            <span className="lead">Accounts you are following</span>
             <ListGroup className="my-3">
               {[...props.following].map((x) => (
                 <ListGroup.Item key={x}>
