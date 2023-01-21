@@ -1,6 +1,7 @@
 import { default as ANIMAL_NAMES } from "../../assets/alliterative-animals.json";
 import { localGet, SetState } from "../commonutils";
 import type { IdToName, LoginInfo } from "./interfaces";
+import { MessageDisplayGrouper } from "./messages";
 import { ChatterNet, DidKey, Model } from "chatternet-client-http";
 import { includes, has, remove, sample } from "lodash-es";
 import { ReactNode } from "react";
@@ -206,11 +207,11 @@ export async function addFollowing(
   pushAlertTop: (x: ReactNode) => void
 ): Promise<boolean> {
   if (!id) {
-    pushAlertTop("ID to follow is empty.");
+    pushAlertTop("Follow ID is empty.");
     return false;
   }
-  if (id.startsWith("did:") && !id.endsWith("/actor")) {
-    pushAlertTop("ID to follow is a DID document and lacks the `/actor` path.");
+  if (!id.startsWith("did:") || !id.endsWith("/actor")) {
+    pushAlertTop("Follow ID is invalid.");
     return false;
   }
   // don't need to store follows as they are managed separately
@@ -263,13 +264,20 @@ export async function postNote(
 
 export async function acceptMessage(
   chatterNet: ChatterNet,
-  message: Model.Message
+  message: Model.Message,
+  allowActorId?: string,
+  allowAudienceId?: string
 ) {
   if (await chatterNet.messageIsDeleted(message.id)) return false;
   const { fromContact, inAudience } = await chatterNet.buildMessageAffinity(
     message
   );
-  if (!fromContact || !inAudience) return false;
+  const fromAllowedContact =
+    allowActorId != null && message.actor === allowActorId;
+  const inAllowedAudienceId =
+    allowAudienceId != null && includes(message.to, allowAudienceId);
+  if (!(fromContact || fromAllowedContact)) return false;
+  if (!(inAudience || inAllowedAudienceId)) return false;
   return true;
 }
 

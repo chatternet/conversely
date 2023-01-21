@@ -19,8 +19,6 @@ function AccountModalBody(props: AccountModalBodyProps) {
   if (!props.didName) return null;
   if (!props.logout) return null;
 
-  const actorId = `${props.didName.id}/actor`;
-
   const navigate = onClickNavigate("/settings");
 
   return (
@@ -57,7 +55,7 @@ function AccountModalBody(props: AccountModalBodyProps) {
         <div className="row mb-2">
           <div className="col-3 bg-secondary text-white rounded">ID</div>
           <div className="col-9 text-truncate">
-            <CopyLink value={actorId} />
+            <CopyLink value={props.didName.id} />
           </div>
         </div>
       </div>

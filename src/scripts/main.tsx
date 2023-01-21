@@ -17,6 +17,7 @@ import {
   deleteMessage,
   isPasswordless,
 } from "./controllers/setup.js";
+import { Actor, ActorProps } from "./views/Actor";
 import { Feed, FeedProps } from "./views/Feed";
 import { Followers, FollowersProps } from "./views/Followers";
 import { Following, FollowingProps } from "./views/Following";
@@ -35,7 +36,30 @@ import { ScaffoldProps } from "./views/common/Scaffold";
 import { ChatterNet, Model } from "chatternet-client-http";
 import { useEffect, useState, ReactNode } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  useSearchParams,
+} from "react-router-dom";
+
+function Error404() {
+  return (
+    <div className="d-flex justify-content-center align-items-center min-vh-100 text-white">
+      <span className="display-3 me-5">404</span>
+      <span className="lead">The requested URL did yield any content.</span>
+    </div>
+  );
+}
+
+function ActorFromRoute(props: Omit<ActorProps, "actorId">) {
+  const [searchParams] = useSearchParams();
+  const did = searchParams.get("did");
+  if (did == null) {
+    return <Error404 />;
+  }
+  const actorId = `${did}/actor`;
+  return <Actor {...props} actorId={actorId} />;
+}
 
 export function Main() {
   // prettier-ignore
@@ -122,6 +146,7 @@ export function Main() {
 
   const formatIdNameProps: Omit<FormatIdNameProps, "id"> = {
     idToName,
+    localActorId,
     contacts: following,
     addFollowing: async (id: string) => {
       if (!chatterNet) {
@@ -202,11 +227,25 @@ export function Main() {
     "pageSize" | "allowMore" | "refreshCount" | "messagesDisplayProps"
   > = {
     loggedIn: !!chatterNet,
-    buildMessageIter: async () => chatterNet?.buildMessageIter(),
+    actorId: undefined,
+    buildMessageIter: async (actorId?: string) => {
+      return actorId != null
+        ? chatterNet?.buildMessageIterFrom(actorId)
+        : chatterNet?.buildMessageIter();
+    },
     setIdToName,
-    acceptMessage: async (message: Model.Message) => {
+    acceptMessage: async (
+      message: Model.Message,
+      allowActorId?: string,
+      allowAudienceId?: string
+    ) => {
       if (!chatterNet) return false;
-      return await acceptMessage(chatterNet, message);
+      return await acceptMessage(
+        chatterNet,
+        message,
+        allowActorId,
+        allowAudienceId
+      );
     },
     viewMessage: async (message: Model.Message) => {
       if (!chatterNet) return;
@@ -285,6 +324,17 @@ export function Main() {
     scaffoldProps,
   };
 
+  const actorProps: Omit<ActorProps, "actorId"> = {
+    loggedIn,
+    formatIdNameProps,
+    messagesListProps: {
+      ...messagesListProps,
+      messagesDisplayProps,
+      refreshCount,
+    },
+    scaffoldProps,
+  };
+
   const followingProps: FollowingProps = {
     localActorId,
     following,
@@ -293,11 +343,12 @@ export function Main() {
       addFollowing: undefined,
       contacts: undefined,
     },
-    followId: async (id: string) => {
+    followDid: async (did: string) => {
       if (!chatterNet) {
         pushAlertTop(errorNoChatterNet);
         return;
       }
+      const id = `${did}/actor`;
       if (await addFollowing(chatterNet, id, setFollowing, pushAlertTop)) {
         pushAlertTop(
           <span>
@@ -397,6 +448,14 @@ export function Main() {
     {
       path: "/settings",
       element: <Settings {...settingsProps} />,
+    },
+    {
+      path: "/actor",
+      element: <ActorFromRoute {...actorProps} />,
+    },
+    {
+      path: "*",
+      element: <Error404 />,
     },
   ]);
 
