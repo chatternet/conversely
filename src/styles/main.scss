@@ -6,6 +6,7 @@ $min-contrast-ratio: 3;
 $btn-border-width: 0;
 $btn-border-radius: 50rem;
 
+$enable-negative-margins: true;
 @import "../../node_modules/bootstrap/scss/bootstrap";
 @import "../../node_modules/bootstrap-icons/font/bootstrap-icons.css";
 
@@ -156,5 +157,34 @@ h6 {
 .no-end-margin {
   :last-child {
     margin-bottom: 0;
+  }
+}
+
+blockquote {
+  border-left: 2px solid $secondary;
+  padding-left: 0.5em;
+  margin-left: 0;
+  color: $secondary;
+}
+
+.vertical-line {
+  border-left: 1px dashed $secondary;
+  margin: 0 auto;
+  width: 0;
+  height: 0;
+
+  &-1 {
+    @extend .vertical-line;
+    padding: $spacer * 0.25 0;
+  }
+
+  &-2 {
+    @extend .vertical-line;
+    padding: $spacer * 0.5 0;
+  }
+
+  &-3 {
+    @extend .vertical-line;
+    padding: $spacer 0;
   }
 }

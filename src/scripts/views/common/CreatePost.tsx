@@ -18,20 +18,29 @@ export function CreatePost(props: CreatePostProps) {
   return (
     <>
       <Card className="rounded m-3">
-        <Form onSubmit={() => false}>
-          <Form.Control
-            as="textarea"
-            rows={4}
-            value={note}
-            placeholder={
-              props.inReplyTo ? "Write a reply ..." : "Write a post ..."
-            }
-            onChange={(e) => {
-              setNote(e.target.value);
-            }}
-            className="border border-0"
-          />
-        </Form>
+        {showPreview ? (
+          <Card.Body
+            className="note-text no-end-margin"
+            style={{ minHeight: "8em" }}
+          >
+            <ReactMarkdown>{note}</ReactMarkdown>
+          </Card.Body>
+        ) : (
+          <Form onSubmit={() => false}>
+            <Form.Control
+              as="textarea"
+              rows={4}
+              value={note}
+              placeholder={
+                props.inReplyTo ? "Write a reply ..." : "Write a post ..."
+              }
+              onChange={(e) => {
+                setNote(e.target.value);
+              }}
+              className="border border-0 p-3"
+            />
+          </Form>
+        )}
         <Card.Footer>
           <div>
             <small>
@@ -59,21 +68,12 @@ export function CreatePost(props: CreatePostProps) {
                 }}
                 className="fw-normal bg-secondary text-white rounded-pill py-1 px-2 me-2"
               >
-                Preview
+                {showPreview ? "Edit" : "Preview"}
               </a>
             </small>
           </div>
         </Card.Footer>
       </Card>
-
-      {showPreview ? (
-        <Card className="rounded m-3">
-          <Card.Header>Preview</Card.Header>
-          <Card.Body className="note-text no-end-margin">
-            <ReactMarkdown>{note}</ReactMarkdown>
-          </Card.Body>
-        </Card>
-      ) : null}
     </>
   );
 }

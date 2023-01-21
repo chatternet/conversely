@@ -232,7 +232,7 @@ export function Main() {
 
   const messagesListProps: Omit<
     MessagesListProps,
-    "pageSize" | "allowMore" | "refreshCount" | "messagesDisplayProps"
+    "pageSize" | "allowMore" | "refreshCount" | "messageItemProps"
   > = {
     loggedIn: !!chatterNet,
     actorId: undefined,
@@ -291,24 +291,26 @@ export function Main() {
     pushAlertTop,
   };
 
-  const messageItemProps: Omit<MessageItemProps, "message" | "deleteMessage"> =
-    {
-      localActorId,
-      buildParentDisplay: async (bodyId: string, actorId: string) => {
-        if (!chatterNet) {
-          pushAlertTop(errorNoChatterNet);
-          return;
-        }
-        const message = await chatterNet.getCreateMessageForDocument(
-          bodyId,
-          actorId
-        );
-        if (message == null) return;
-        return await buildNoteDisplay(message, getBody);
-      },
-      formatIdNameProps,
-      createPostProps,
-    };
+  const messageItemProps: Omit<
+    MessageItemProps,
+    "message" | "deleteMessage" | "setGroup"
+  > = {
+    localActorId,
+    buildParentDisplay: async (bodyId: string, actorId: string) => {
+      if (!chatterNet) {
+        pushAlertTop(errorNoChatterNet);
+        return;
+      }
+      const message = await chatterNet.getCreateMessageForDocument(
+        bodyId,
+        actorId
+      );
+      if (message == null) return;
+      return await buildNoteDisplay(message, getBody);
+    },
+    formatIdNameProps,
+    createPostProps,
+  };
 
   const scaffoldProps: Omit<ScaffoldProps, "children"> = {
     backsplash: false,
@@ -322,7 +324,7 @@ export function Main() {
     formatIdNameProps,
     messagesListProps: {
       ...messagesListProps,
-      messagesDisplayProps: messageItemProps,
+      messageItemProps,
       refreshCount,
     },
     createSelectAccountProps,
@@ -334,7 +336,7 @@ export function Main() {
     createPostProps,
     messagesListProps: {
       ...messagesListProps,
-      messagesDisplayProps: messageItemProps,
+      messageItemProps,
       refreshCount,
     },
     scaffoldProps,
@@ -345,7 +347,7 @@ export function Main() {
     formatIdNameProps,
     messagesListProps: {
       ...messagesListProps,
-      messagesDisplayProps: messageItemProps,
+      messageItemProps,
       refreshCount,
     },
     scaffoldProps,

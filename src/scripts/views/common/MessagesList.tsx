@@ -4,7 +4,7 @@ import {
   MessageDisplay,
   MessageDisplayGrouper,
 } from "../../controllers/messages";
-import { MessageItem, MessageItemProps } from "./MessageItem";
+import { MessageItemGroup, MessageItemProps } from "./MessageItem";
 import type { MessageIter, Model } from "chatternet-client-http";
 import React, { useEffect, useState, MouseEvent } from "react";
 import { Button, Card } from "react-bootstrap";
@@ -27,7 +27,10 @@ export interface MessagesListProps {
   getActor: (id: string) => Promise<Model.Actor | undefined>;
   getBody: (id: string) => Promise<Model.Body | undefined>;
   deleteMessage: (messageId: string) => Promise<void>;
-  messagesDisplayProps: Omit<MessageItemProps, "message" | "deleteMessage">;
+  messageItemProps: Omit<
+    MessageItemProps,
+    "message" | "deleteMessage" | "setGroup"
+  >;
 }
 
 export function MessagesList(props: MessagesListProps) {
@@ -102,11 +105,11 @@ export function MessagesList(props: MessagesListProps) {
       {messages != null && messages.length > 0 ? (
         <div className="list-group">
           {messages.slice(0, pageSize).map((x) => (
-            <MessageItem
+            <MessageItemGroup
               key={x.id}
               message={x}
               deleteMessage={deleteMessage}
-              {...props.messagesDisplayProps}
+              {...props.messageItemProps}
             />
           ))}
         </div>

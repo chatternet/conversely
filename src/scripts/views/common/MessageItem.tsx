@@ -2,15 +2,15 @@ import { SetState, UseState } from "../../commonutils";
 import { MessageDisplay } from "../../controllers/messages";
 import { CreatePost, CreatePostProps } from "./CreatePost";
 import { FormatIdName, FormatIdNameProps } from "./FormatIdName";
-import { Message } from "chatternet-client-http/dist/src/model";
-import { includes, omit } from "lodash-es";
+import { omit } from "lodash-es";
 import { MouseEvent, useState } from "react";
-import { Card, Collapse } from "react-bootstrap";
+import { Card } from "react-bootstrap";
 import ReactMarkdown from "react-markdown";
 
 export interface MessageItemProps {
   message: MessageDisplay;
   localActorId: string | undefined;
+  setGroup: SetState<MessageDisplay[]>;
   deleteMessage: (messageId: string) => Promise<void>;
   buildParentDisplay: (
     bodyId: string,
@@ -105,7 +105,7 @@ function MessageFooter(props: MessageFooterProps) {
   );
 }
 
-function MessageNote(
+function MessageItem(
   props: MessageItemProps & MessageFooterProps & MessageHeaderProps
 ) {
   return (
@@ -123,61 +123,73 @@ function MessageNote(
   );
 }
 
-export function MessageItem(props: MessageItemProps) {
+function MessageItemReply(props: MessageItemProps) {
   const [showReply, setShowReply]: UseState<boolean> = useState(false);
-  const [parents, setParents]: UseState<MessageDisplay[]> = useState(
-    new Array()
-  );
-
-  // on click: build parent for id, then set parents
+  const [parentShown, setParentShown]: UseState<boolean> = useState(false);
 
   async function postNote(note: string, inReplyTo?: string): Promise<void> {
     setShowReply(false);
     return props.createPostProps.postNote(note, inReplyTo);
   }
 
+  const createPostProps = omit(props.createPostProps, "postNote");
+
   async function showParent(objectId: string, actorId: string) {
     if (!props.message.inReplyTo) return;
     const parent = await props.buildParentDisplay(objectId, actorId);
     if (!parent) return;
-    setParents((x) => [parent, ...x]);
+    props.setGroup((x) => [parent, ...x]);
   }
 
-  const createPostProps = omit(props.createPostProps, "postNote");
-
-  const grouped = showReply || parents.length > 0;
-
   return (
-    <div className={grouped ? "border rounded mb-3" : ""}>
-      {parents.map((x) => (
-        <MessageNote
-          key={x.id}
-          showParent={async () => {
-            if (x.inReplyTo == null) return;
-            await showParent(x.inReplyTo.objectId, x.note.attributedTo);
-          }}
-          {...props}
-          message={x}
-        />
-      ))}
-      <MessageNote
+    <>
+      <MessageItem
         {...props}
         showParent={async () => {
+          if (parentShown) return;
           if (props.message.inReplyTo == null) return;
           await showParent(
             props.message.inReplyTo.objectId,
             props.message.note.attributedTo
           );
+          setParentShown(true);
         }}
         setShowReply={setShowReply}
       />
       {showReply ? (
-        <CreatePost
-          {...createPostProps}
-          postNote={postNote}
-          inReplyTo={props.message.note.id}
-        />
+        <>
+          <div className="vertical-line-2 my-n3"></div>
+          <CreatePost
+            {...createPostProps}
+            postNote={postNote}
+            inReplyTo={props.message.note.id}
+          />
+        </>
       ) : null}
-    </div>
+    </>
+  );
+}
+
+export function MessageItemGroup(props: Omit<MessageItemProps, "setGroup">) {
+  const [group, setGroup]: UseState<MessageDisplay[]> = useState([
+    props.message,
+  ]);
+
+  return (
+    <>
+      {group.map((x, i) => (
+        <>
+          <MessageItemReply
+            key={x.id}
+            {...props}
+            message={x}
+            setGroup={setGroup}
+          />
+          {i < group.length - 1 ? (
+            <div className="vertical-line-2 my-n3"></div>
+          ) : null}
+        </>
+      ))}
+    </>
   );
 }
