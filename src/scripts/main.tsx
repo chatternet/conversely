@@ -30,7 +30,10 @@ import {
 } from "./views/common/AlertTop";
 import { CreatePostProps } from "./views/common/CreatePost";
 import { CreateSelectAccountProps } from "./views/common/CreateSelectAccount";
-import { FormatIdName, FormatIdNameProps } from "./views/common/FormatIdName";
+import {
+  FormatActorName,
+  FormatActorNameProps,
+} from "./views/common/FormatActorName";
 import { HeaderProps } from "./views/common/Header";
 import { MessageItemProps } from "./views/common/MessageItem";
 import { MessagesListProps } from "./views/common/MessagesList";
@@ -146,7 +149,7 @@ export function Main() {
     ? undefined
     : { id: chatterNet.getLocalDid(), name: chatterNet.getLocalName() };
 
-  const formatIdNameProps: Omit<FormatIdNameProps, "id"> = {
+  const FormatActorNameProps: Omit<FormatActorNameProps, "id"> = {
     idToName,
     localActorId,
     contacts: following,
@@ -183,7 +186,7 @@ export function Main() {
     },
     selectAccountProps: {
       accountsDid,
-      formatIdNameProps: { ...formatIdNameProps, bare: true },
+      FormatActorNameProps: { ...FormatActorNameProps, bare: true },
       accountSelectorProps: {
         isPasswordless,
         // NOTE: could use `loginInfo` from scope, but instead use the state
@@ -208,7 +211,7 @@ export function Main() {
       loggingIn,
       loginButtonProps: {
         localActorId,
-        formatIdNameProps: { ...formatIdNameProps, bare: true },
+        FormatActorNameProps: { ...FormatActorNameProps, bare: true },
         loggedIn: !!chatterNet,
         loggingIn,
       },
@@ -308,7 +311,7 @@ export function Main() {
       if (message == null) return;
       return await buildNoteDisplay(message, getBody);
     },
-    formatIdNameProps,
+    FormatActorNameProps,
     createPostProps,
   };
 
@@ -321,7 +324,7 @@ export function Main() {
     loggedIn,
     localActorId,
     newDefaultAccount,
-    formatIdNameProps,
+    FormatActorNameProps,
     messagesListProps: {
       ...messagesListProps,
       messageItemProps,
@@ -344,7 +347,7 @@ export function Main() {
 
   const actorProps: Omit<ActorProps, "actorId"> = {
     loggedIn,
-    formatIdNameProps,
+    FormatActorNameProps,
     messagesListProps: {
       ...messagesListProps,
       messageItemProps,
@@ -356,8 +359,8 @@ export function Main() {
   const followingProps: FollowingProps = {
     localActorId,
     following,
-    formatIdNameProps: {
-      ...formatIdNameProps,
+    FormatActorNameProps: {
+      ...FormatActorNameProps,
       addFollowing: undefined,
       contacts: undefined,
     },
@@ -371,9 +374,9 @@ export function Main() {
         pushAlertTop(
           <span>
             Following{" "}
-            <FormatIdName
+            <FormatActorName
               id={id}
-              {...formatIdNameProps}
+              {...FormatActorNameProps}
               addFollowing={undefined}
             />
           </span>
@@ -389,9 +392,9 @@ export function Main() {
       pushAlertTop(
         <span>
           Stopped following{" "}
-          <FormatIdName
+          <FormatActorName
             id={id}
-            {...formatIdNameProps}
+            {...FormatActorNameProps}
             addFollowing={undefined}
           />
         </span>
@@ -407,7 +410,7 @@ export function Main() {
           return chatterNet.buildFollowersIter();
         }
       : undefined,
-    formatIdNameProps,
+    FormatActorNameProps,
     scaffoldProps,
   };
 

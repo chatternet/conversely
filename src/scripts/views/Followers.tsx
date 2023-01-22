@@ -1,5 +1,8 @@
 import type { UseState, SetState } from "../commonutils";
-import { FormatIdName, FormatIdNameProps } from "./common/FormatIdName";
+import {
+  FormatActorName,
+  FormatActorNameProps,
+} from "./common/FormatActorName";
 import { Scaffold, ScaffoldProps } from "./common/Scaffold";
 import { PageIter } from "chatternet-client-http";
 import { useEffect, useState } from "react";
@@ -8,7 +11,7 @@ import { Alert, Container, ListGroup } from "react-bootstrap";
 export type FollowersProps = {
   pageSize: number;
   buildPageIter: (() => PageIter<string>) | undefined;
-  formatIdNameProps: Omit<FormatIdNameProps, "id">;
+  FormatActorNameProps: Omit<FormatActorNameProps, "id">;
   scaffoldProps: Omit<ScaffoldProps, "children">;
 };
 
@@ -44,7 +47,7 @@ export function Followers(props: FollowersProps) {
           <ListGroup className="my-3">
             {(followers != null ? followers : []).map((x) => (
               <ListGroup.Item key={x}>
-                <FormatIdName id={x} {...props.formatIdNameProps} />
+                <FormatActorName id={x} {...props.FormatActorNameProps} />
               </ListGroup.Item>
             ))}
           </ListGroup>

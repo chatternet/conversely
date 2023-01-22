@@ -1,4 +1,7 @@
-import { FormatIdName, FormatIdNameProps } from "./common/FormatIdName";
+import {
+  FormatActorName,
+  FormatActorNameProps,
+} from "./common/FormatActorName";
 import { MessagesList, MessagesListProps } from "./common/MessagesList";
 import { Scaffold, ScaffoldProps } from "./common/Scaffold";
 import { Alert, Container } from "react-bootstrap";
@@ -6,7 +9,7 @@ import { Alert, Container } from "react-bootstrap";
 export type ActorProps = {
   loggedIn: boolean;
   actorId: string;
-  formatIdNameProps: Omit<FormatIdNameProps, "id">;
+  FormatActorNameProps: Omit<FormatActorNameProps, "id">;
   messagesListProps: Omit<MessagesListProps, "pageSize" | "allowMore">;
   scaffoldProps: Omit<ScaffoldProps, "children">;
 };
@@ -17,7 +20,7 @@ export function Actor(props: ActorProps) {
       <Container className="max-width-md mt-3">
         <span className="lead">
           Feed received from{" "}
-          <FormatIdName {...props.formatIdNameProps} id={props.actorId} />
+          <FormatActorName {...props.FormatActorNameProps} id={props.actorId} />
         </span>
         {props.loggedIn ? (
           <>
