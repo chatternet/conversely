@@ -4,6 +4,7 @@ import {
   CreateSelectAccount,
   CreateSelectAccountProps,
 } from "./CreateSelectAccount";
+import { CustomButton } from "./CustomButtons";
 import { FormatActorName, FormatActorNameProps } from "./FormatActorName";
 import { IdName } from "chatternet-client-http";
 import { useState } from "react";
@@ -24,28 +25,28 @@ function AccountModalBody(props: AccountModalBodyProps) {
   return (
     <section>
       <div className="d-flex justify-content-center m-2">
-        <Button
-          type="button"
-          className="btn btn-primary"
+        <CustomButton
+          variant="outline-primary"
           onClick={() => {
             props.logout().catch((err) => console.error(err));
             props.setShowModal(false);
             clearState();
           }}
+          small
         >
           Log out
-        </Button>
+        </CustomButton>
         &nbsp;
-        <Button
-          type="button"
-          className="btn btn-primary"
+        <CustomButton
+          variant="outline-primary"
           onClick={(event) => {
             navigate(event);
             props.setShowModal(false);
           }}
+          small
         >
           Modify
-        </Button>
+        </CustomButton>
       </div>
       <div className="grid m-2">
         <div className="row mb-2">
@@ -108,7 +109,7 @@ export function AccountModal(props: AccountModalProps) {
   return (
     <>
       <Button
-        className="btn bg-purple-to-red"
+        className="bg-purple-to-red border border-0 shadow-sm"
         onClick={() => {
           if (props.loggingIn) return;
           setShowModal(true);
@@ -119,10 +120,7 @@ export function AccountModal(props: AccountModalProps) {
       <Modal show={showModal}>
         <Modal.Header>
           <Modal.Title>Account</Modal.Title>
-          <Button
-            className="btn-close"
-            onClick={() => setShowModal(false)}
-          ></Button>
+          <Button variant="close" onClick={() => setShowModal(false)}></Button>
         </Modal.Header>
         <Modal.Body>
           {props.loggedIn ? (

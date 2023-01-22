@@ -30,6 +30,7 @@ import {
   ListGroupItem,
   Collapse,
 } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 interface ListItemExpandProps {
   heading: React.ReactNode;
@@ -117,7 +118,7 @@ export function Welcome(props: WelcomeProps) {
               {...props.messagesListProps}
             />
             <div className="text-center">
-              <Button onClick={onClickNavigate("/feed")}>Full feed</Button>
+              <Link to="/feed">View full feed</Link>
             </div>
           </>
         ) : (

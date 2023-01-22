@@ -1,8 +1,9 @@
 import { UseState, clearState } from "../commonutils";
 import { AlertPasswordField } from "./common/CustomAlerts";
+import { CustomButton } from "./common/CustomButtons";
 import { Scaffold, ScaffoldProps } from "./common/Scaffold";
 import { FormEvent, useState } from "react";
-import { Button, Card, Container, Form } from "react-bootstrap";
+import { Card, Container, Form } from "react-bootstrap";
 
 export interface SettingsProps {
   loggedIn: boolean;
@@ -73,9 +74,13 @@ export function Settings(props: SettingsProps) {
                       className="my-1"
                     />
                     <div className="text-center">
-                      <Button type="submit" className="my-1">
+                      <CustomButton
+                        type="submit"
+                        variant="outline-primary"
+                        className="my-1"
+                      >
                         Change display name
-                      </Button>
+                      </CustomButton>
                     </div>
                   </Form>
                 </Card.Body>
@@ -116,9 +121,13 @@ export function Settings(props: SettingsProps) {
                     />
                     <AlertPasswordField />
                     <div className="text-center">
-                      <Button type="submit" className="my-1">
+                      <CustomButton
+                        type="submit"
+                        variant="outline-primary"
+                        className="my-1"
+                      >
                         Change password
-                      </Button>
+                      </CustomButton>
                     </div>
                   </Form>
                 </Card.Body>
@@ -133,9 +142,9 @@ export function Settings(props: SettingsProps) {
             <Card.Body>
               <Form onSubmit={deleteAll}>
                 <div className="text-center">
-                  <Button type="submit" variant="danger">
+                  <CustomButton type="submit" variant="danger">
                     Delete all data
-                  </Button>
+                  </CustomButton>
                 </div>
               </Form>
             </Card.Body>

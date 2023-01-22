@@ -19,9 +19,9 @@ import {
   isPasswordless,
 } from "./controllers/setup.js";
 import { Actor, ActorProps } from "./views/Actor";
+import { Contacts, ContactsProps } from "./views/Contacts";
 import { Feed, FeedProps } from "./views/Feed";
 import { Followers, FollowersProps } from "./views/Followers";
-import { Following, FollowingProps } from "./views/Following";
 import { Settings, SettingsProps } from "./views/Settings";
 import { Welcome, WelcomeProps } from "./views/Welcome";
 import { CreatePostProps } from "./views/common/CreatePost";
@@ -356,7 +356,7 @@ export function Main() {
     scaffoldProps,
   };
 
-  const followingProps: FollowingProps = {
+  const contactProps: ContactsProps = {
     localActorId,
     following,
     FormatActorNameProps: {
@@ -459,8 +459,8 @@ export function Main() {
       element: <Feed {...feedProps} />,
     },
     {
-      path: "/following",
-      element: <Following {...followingProps} />,
+      path: "/contacts",
+      element: <Contacts {...contactProps} />,
     },
     {
       path: "/followers",

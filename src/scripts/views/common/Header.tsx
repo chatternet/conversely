@@ -28,8 +28,8 @@ export function Header(props: HeaderProps) {
                 </Link>
               </Nav.Item>
               <Nav.Item>
-                <Link to="/following" className="nav-link active">
-                  Following
+                <Link to="/contacts" className="nav-link active">
+                  Contacts
                 </Link>
               </Nav.Item>
               <Nav.Item>

@@ -1,6 +1,7 @@
 import { SetState, UseState } from "../../commonutils";
 import { MessageDisplay } from "../../controllers/messages";
 import { CreatePost, CreatePostProps } from "./CreatePost";
+import { CustomButton } from "./CustomButtons";
 import { FormatActorName, FormatActorNameProps } from "./FormatActorName";
 import { omit } from "lodash-es";
 import { MouseEvent, useState } from "react";
@@ -20,12 +21,7 @@ export interface MessageItemProps {
   FormatActorNameProps: Omit<FormatActorNameProps, "id">;
 }
 
-interface MessageHeaderProps {
-  canShowParent: boolean;
-  showParent: () => Promise<void>;
-}
-
-function MessageHeader(props: MessageItemProps & MessageHeaderProps) {
+function MessageHeader(props: MessageItemProps) {
   return (
     <div className="d-flex align-items-center">
       <span>
@@ -44,20 +40,6 @@ function MessageHeader(props: MessageItemProps & MessageHeaderProps) {
           </>
         ) : null}
       </span>
-      <span className="ms-auto">
-        {props.canShowParent ? (
-          <a
-            href="#"
-            onClick={(event) => {
-              event.preventDefault();
-              props.showParent().catch((x) => console.error(x));
-            }}
-            className="ps-2"
-          >
-            Show parent
-          </a>
-        ) : null}
-      </span>
     </div>
   );
 }
@@ -65,6 +47,8 @@ function MessageHeader(props: MessageItemProps & MessageHeaderProps) {
 interface MessageFooterProps {
   message: MessageDisplay;
   localActorId: string | undefined;
+  canShowParent: boolean;
+  showParent: () => Promise<void>;
   deleteMessage: (messageId: string) => Promise<void>;
   setShowReply?: SetState<boolean>;
 }
@@ -83,32 +67,43 @@ function MessageFooter(props: MessageFooterProps) {
   return (
     <div>
       {props.setShowReply ? (
-        <small>
-          <a
-            href="#"
-            onClick={toggleReply}
-            className="fw-normal bg-primary text-white rounded-pill py-1 px-2 me-2"
-          >
-            Reply
-          </a>
-        </small>
+        <CustomButton
+          variant="outline-primary"
+          onClick={toggleReply}
+          className="me-2"
+          small
+        >
+          Reply
+        </CustomButton>
+      ) : null}
+      {props.canShowParent ? (
+        <CustomButton
+          variant="outline-primary"
+          onClick={(event) => {
+            event.preventDefault();
+            props.showParent().catch((x) => console.error(x));
+          }}
+          className="me-2"
+          small
+        >
+          Replied from
+        </CustomButton>
       ) : null}
       {props.message.note.attributedTo === props.localActorId ? (
-        <a
-          href="#"
+        <CustomButton
+          variant="outline-danger"
           onClick={deleteMessage}
-          className="fw-normal bg-danger text-white rounded-pill py-1 px-2 me-2"
+          className="me-2"
+          small
         >
           Delete
-        </a>
+        </CustomButton>
       ) : null}
     </div>
   );
 }
 
-function MessageItem(
-  props: MessageItemProps & MessageFooterProps & MessageHeaderProps
-) {
+function MessageItem(props: MessageItemProps & MessageFooterProps) {
   return (
     <Card className="rounded m-3">
       <Card.Header>
