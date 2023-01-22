@@ -2,7 +2,6 @@ import { default as IMG_AI } from "../../assets/undraw_artificial_intelligence_r
 import { default as IMG_LETTER } from "../../assets/undraw_confidential_letter_w6ux.svg";
 import { default as IMG_CONVERSATION } from "../../assets/undraw_conversation_re_c26v.svg";
 import { default as IMG_FILTER } from "../../assets/undraw_filter_re_sa16.svg";
-import { default as IMG_FINGERPRINT } from "../../assets/undraw_fingerprint_re_uf3f.svg";
 import { default as IMG_FISH } from "../../assets/undraw_fish_bowl_uu88.svg";
 import { default as IMG_FOLDER } from "../../assets/undraw_image__folder_re_hgp7.svg";
 import { default as IMG_CAT } from "../../assets/undraw_playful_cat_re_ac9g.svg";
@@ -14,6 +13,7 @@ import {
   CreateSelectAccount,
   CreateSelectAccountProps,
 } from "./common/CreateSelectAccount";
+import { CustomAlert } from "./common/CustomAlerts";
 import {
   FormatActorName,
   FormatActorNameProps,
@@ -25,7 +25,6 @@ import {
   Row,
   Col,
   Container,
-  Alert,
   Button,
   ListGroup,
   ListGroupItem,
@@ -87,32 +86,25 @@ export function Welcome(props: WelcomeProps) {
 
       {props.newDefaultAccount ? (
         <Container className="max-width-md my-3">
-          <Alert variant="info">
-            <div className="d-flex align-items-center">
-              <div className="me-2">
-                <i className="bi bi-info-circle-fill fs-4"></i>
-              </div>
-              <div className="ms-2">
-                Welcome
-                {props.localActorId ? (
-                  <>
-                    {" "}
-                    <FormatActorName
-                      id={props.localActorId}
-                      {...props.FormatActorNameProps}
-                    />
-                  </>
-                ) : null}
-                , you're logged into a default account and ready to go, it's
-                really that easy! To change your account name and create a
-                password, go to the{" "}
-                <a href="/settings" onClick={onClickNavigate("/settings")}>
-                  settings page
-                </a>
-                .
-              </div>
-            </div>
-          </Alert>
+          <CustomAlert variant="info">
+            Welcome
+            {props.localActorId ? (
+              <>
+                {" "}
+                <FormatActorName
+                  id={props.localActorId}
+                  {...props.FormatActorNameProps}
+                />
+              </>
+            ) : null}
+            , you're logged into a default account and ready to go, it's really
+            that easy! To change your account name and create a password, go to
+            the{" "}
+            <a href="/settings" onClick={onClickNavigate("/settings")}>
+              settings page
+            </a>
+            .
+          </CustomAlert>
         </Container>
       ) : null}
 
@@ -134,24 +126,17 @@ export function Welcome(props: WelcomeProps) {
       </Container>
 
       <Container className="max-width-md mx-auto my-3">
-        <Alert variant="danger">
-          <div className="d-flex align-items-center">
-            <div className="me-2">
-              <i className="bi bi-exclamation-triangle-fill fs-4"></i>
-            </div>
-            <div className="ms-2">
-              Conversely is currently in the prototype phase. Expect missing
-              features and rough edges. You can help the project by{" "}
-              <a
-                href="https://github.com/chatternet/conversely/issues"
-                target="_blank"
-              >
-                submitting issues
-              </a>
-              .
-            </div>
-          </div>
-        </Alert>
+        <CustomAlert variant="danger">
+          Conversely is currently in the prototype phase. Expect missing
+          features and rough edges. You can help the project by{" "}
+          <a
+            href="https://github.com/chatternet/conversely/issues"
+            target="_blank"
+          >
+            submitting issues
+          </a>
+          .
+        </CustomAlert>
       </Container>
 
       <Container className="max-width-lg mx-auto">

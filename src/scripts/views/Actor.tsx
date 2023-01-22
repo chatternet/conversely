@@ -1,10 +1,11 @@
+import { AlertNotLoggedIn } from "./common/CustomAlerts";
 import {
   FormatActorName,
   FormatActorNameProps,
 } from "./common/FormatActorName";
 import { MessagesList, MessagesListProps } from "./common/MessagesList";
 import { Scaffold, ScaffoldProps } from "./common/Scaffold";
-import { Alert, Container } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 
 export type ActorProps = {
   loggedIn: boolean;
@@ -34,7 +35,7 @@ export function Actor(props: ActorProps) {
             </div>
           </>
         ) : (
-          <Alert>Cannot view actor without logging in.</Alert>
+          <AlertNotLoggedIn />
         )}
       </Container>
     </Scaffold>

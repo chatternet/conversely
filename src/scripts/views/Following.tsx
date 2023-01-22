@@ -1,18 +1,12 @@
 import { UseState } from "../commonutils";
+import { AlertNotLoggedIn } from "./common/CustomAlerts";
 import {
   FormatActorName,
   FormatActorNameProps,
 } from "./common/FormatActorName";
 import { Scaffold, ScaffoldProps } from "./common/Scaffold";
 import { FormEvent, MouseEvent, useState } from "react";
-import {
-  Alert,
-  Card,
-  Container,
-  Form,
-  Button,
-  ListGroup,
-} from "react-bootstrap";
+import { Card, Container, Form, Button, ListGroup } from "react-bootstrap";
 
 export type FollowingProps = {
   localActorId: string | undefined;
@@ -93,7 +87,7 @@ export function Following(props: FollowingProps) {
             <div className="list-group"></div>
           </>
         ) : (
-          <Alert>Cannot view following list without logging in.</Alert>
+          <AlertNotLoggedIn />
         )}
       </Container>
     </Scaffold>

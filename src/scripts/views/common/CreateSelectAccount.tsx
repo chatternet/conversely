@@ -1,5 +1,6 @@
 import { UseState } from "../../commonutils";
 import { AccountSelector, AccountSelectorProps } from "./AccountSelector";
+import { AlertPasswordField } from "./CustomAlerts";
 import { FormatActorNameProps } from "./FormatActorName";
 import React, { useEffect, useState } from "react";
 import {
@@ -108,10 +109,7 @@ export function CreateAccount(props: CreateAccountProps) {
               </Form.Group>
             </Row>
 
-            <Alert variant="info">
-              The password field is optional. If you do not use a password,
-              anyone with access to your device can use your account.
-            </Alert>
+            <AlertPasswordField />
 
             <div className="text-center mt-3">
               <Button type="submit">Create account</Button> or{" "}

@@ -1,13 +1,13 @@
 import { LOGO } from "../../commonutils";
 import { AccountModal, AccountModalProps } from "./AccountModal";
-import { AlertTop, AlertTopProps } from "./AlertTop";
+import { AlertTop, MessageTopProps } from "./MessageTop";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
 export interface HeaderProps {
   loggedIn: boolean;
   accountModalProps: AccountModalProps;
-  alertTopProps: Omit<AlertTopProps, "style">;
+  alertTopProps: Omit<MessageTopProps, "style">;
 }
 
 export function Header(props: HeaderProps) {

@@ -1,4 +1,5 @@
 import type { UseState, SetState } from "../commonutils";
+import { AlertNotLoggedIn } from "./common/CustomAlerts";
 import {
   FormatActorName,
   FormatActorNameProps,
@@ -6,7 +7,7 @@ import {
 import { Scaffold, ScaffoldProps } from "./common/Scaffold";
 import { PageIter } from "chatternet-client-http";
 import { useEffect, useState } from "react";
-import { Alert, Container, ListGroup } from "react-bootstrap";
+import { Container, ListGroup } from "react-bootstrap";
 
 export type FollowersProps = {
   pageSize: number;
@@ -52,7 +53,7 @@ export function Followers(props: FollowersProps) {
             ))}
           </ListGroup>
         ) : (
-          <Alert>Cannot view followers list without logging in.</Alert>
+          <AlertNotLoggedIn />
         )}
       </Container>
     </Scaffold>

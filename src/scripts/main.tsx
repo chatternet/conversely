@@ -24,10 +24,6 @@ import { Followers, FollowersProps } from "./views/Followers";
 import { Following, FollowingProps } from "./views/Following";
 import { Settings, SettingsProps } from "./views/Settings";
 import { Welcome, WelcomeProps } from "./views/Welcome";
-import {
-  AlertItem,
-  pushAlertTop as pushAlertTopController,
-} from "./views/common/AlertTop";
 import { CreatePostProps } from "./views/common/CreatePost";
 import { CreateSelectAccountProps } from "./views/common/CreateSelectAccount";
 import {
@@ -36,6 +32,10 @@ import {
 } from "./views/common/FormatActorName";
 import { HeaderProps } from "./views/common/Header";
 import { MessageItemProps } from "./views/common/MessageItem";
+import {
+  MessageTopItem,
+  pushMessageTop as pushAlertTopController,
+} from "./views/common/MessageTop";
 import { MessagesListProps } from "./views/common/MessagesList";
 import { ScaffoldProps } from "./views/common/Scaffold";
 import { ChatterNet, Model } from "chatternet-client-http";
@@ -69,7 +69,7 @@ function ActorFromRoute(props: Omit<ActorProps, "actorId">) {
 export function Main() {
   // prettier-ignore
   const [alertTopState, setAlertTopState]:
-    UseState<AlertItem[]> =
+    UseState<MessageTopItem[]> =
     useState(new Array());
   // prettier-ignore
   const [loggingIn, setLoggingIn]:
