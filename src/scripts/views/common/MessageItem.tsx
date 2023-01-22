@@ -21,6 +21,7 @@ export interface MessageItemProps {
 }
 
 interface MessageHeaderProps {
+  canShowParent: boolean;
   showParent: () => Promise<void>;
 }
 
@@ -44,7 +45,7 @@ function MessageHeader(props: MessageItemProps & MessageHeaderProps) {
         ) : null}
       </span>
       <span className="ms-auto">
-        {props.message.inReplyTo != null ? (
+        {props.canShowParent ? (
           <a
             href="#"
             onClick={(event) => {
@@ -125,7 +126,9 @@ function MessageItem(
 
 function MessageItemReply(props: MessageItemProps) {
   const [showReply, setShowReply]: UseState<boolean> = useState(false);
-  const [parentShown, setParentShown]: UseState<boolean> = useState(false);
+  const [canShowParent, setCanShowParent]: UseState<boolean> = useState(
+    props.message.inReplyTo != null
+  );
 
   async function postNote(note: string, inReplyTo?: string): Promise<void> {
     setShowReply(false);
@@ -134,31 +137,32 @@ function MessageItemReply(props: MessageItemProps) {
 
   const createPostProps = omit(props.createPostProps, "postNote");
 
-  async function showParent(objectId: string, actorId: string) {
+  const showParent = async () => {
     if (!props.message.inReplyTo) return;
-    const parent = await props.buildParentDisplay(objectId, actorId);
+    const parent = await props.buildParentDisplay(
+      props.message.inReplyTo.objectId,
+      props.message.note.attributedTo
+    );
     if (!parent) return;
-    props.setGroup((x) => [parent, ...x]);
-  }
+    props.setGroup((x) => {
+      // don't re-add the parent if it's already in the group
+      if (x.findIndex((y) => y.id === parent.id) >= 0) return x;
+      return [parent, ...x];
+    });
+    setCanShowParent(false);
+  };
 
   return (
     <>
       <MessageItem
         {...props}
-        showParent={async () => {
-          if (parentShown) return;
-          if (props.message.inReplyTo == null) return;
-          await showParent(
-            props.message.inReplyTo.objectId,
-            props.message.note.attributedTo
-          );
-          setParentShown(true);
-        }}
+        showParent={showParent}
+        canShowParent={canShowParent}
         setShowReply={setShowReply}
       />
       {showReply ? (
         <>
-          <div className="vertical-line-2 my-n3"></div>
+          <div className="vertical-line-3 my-n3"></div>
           <CreatePost
             {...createPostProps}
             postNote={postNote}
@@ -178,17 +182,12 @@ export function MessageItemGroup(props: Omit<MessageItemProps, "setGroup">) {
   return (
     <>
       {group.map((x, i) => (
-        <>
-          <MessageItemReply
-            key={x.id}
-            {...props}
-            message={x}
-            setGroup={setGroup}
-          />
+        <div key={x.id}>
+          <MessageItemReply {...props} message={x} setGroup={setGroup} />
           {i < group.length - 1 ? (
-            <div className="vertical-line-2 my-n3"></div>
+            <div className="vertical-line-3 my-n3"></div>
           ) : null}
-        </>
+        </div>
       ))}
     </>
   );
