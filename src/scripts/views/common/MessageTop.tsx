@@ -17,7 +17,7 @@ export interface MessageTopProps {
 export function pushMessageTop(
   node: ReactNode,
   setState: SetState<MessageTopItem[]>,
-  title?: string,
+  title?: string
 ) {
   const messageItem: MessageTopItem = {
     children: node,

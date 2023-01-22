@@ -149,9 +149,10 @@ export function Welcome(props: WelcomeProps) {
             </p>
             <ListGroup>
               <ListItemExpand
-                className="text-bg-light"
                 heading={
-                  <span className="text-info">Only content you care about</span>
+                  <span className="text-primary">
+                    Only content you care about
+                  </span>
                 }
                 content={
                   <div className="mt-2">
@@ -162,9 +163,8 @@ export function Welcome(props: WelcomeProps) {
                 }
               />
               <ListItemExpand
-                className="text-bg-light"
                 heading={
-                  <span className="text-info">
+                  <span className="text-primary">
                     Find interesting new content
                   </span>
                 }
@@ -195,9 +195,8 @@ export function Welcome(props: WelcomeProps) {
             </p>
             <ListGroup>
               <ListItemExpand
-                className="text-bg-light"
                 heading={
-                  <span className="text-info">
+                  <span className="text-primary">
                     Differentiate spam from content
                   </span>
                 }
@@ -210,9 +209,8 @@ export function Welcome(props: WelcomeProps) {
                 }
               />
               <ListItemExpand
-                className="text-bg-light"
                 heading={
-                  <span className="text-info">
+                  <span className="text-primary">
                     Take charge of your public profile
                   </span>
                 }
@@ -236,9 +234,8 @@ export function Welcome(props: WelcomeProps) {
             </p>
             <ListGroup>
               <ListItemExpand
-                className="text-bg-light"
                 heading={
-                  <span className="text-info">
+                  <span className="text-primary">
                     Less shills, more people worth talking to
                   </span>
                 }
@@ -252,9 +249,8 @@ export function Welcome(props: WelcomeProps) {
                 }
               />
               <ListItemExpand
-                className="text-bg-light"
                 heading={
-                  <span className="text-info">Connect on your terms</span>
+                  <span className="text-primary">Connect on your terms</span>
                 }
                 content={
                   <div className="mt-2">
