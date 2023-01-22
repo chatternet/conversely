@@ -2,4 +2,4 @@
 
 ## TODO
 
-- in AccountModal selector, pass getAccountNames to FormatIdName
+- in AccountModal selector, pass getAccountNames to FormatActorName

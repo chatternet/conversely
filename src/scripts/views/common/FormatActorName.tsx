@@ -3,7 +3,7 @@ import { Jidenticon } from "./Jidenticon";
 import { MouseEvent } from "react";
 import { Link } from "react-router-dom";
 
-export interface FormatIdNameProps {
+export interface FormatActorNameProps {
   id: string;
   idToName: IdToName;
   localActorId?: string;
@@ -12,7 +12,7 @@ export interface FormatIdNameProps {
   addFollowing?: (id: string) => Promise<void>;
 }
 
-export function FormatIdName(props: FormatIdNameProps) {
+export function FormatActorName(props: FormatActorNameProps) {
   function addFollowing(event: MouseEvent) {
     event.preventDefault();
     if (props.addFollowing == null) return;

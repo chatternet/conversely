@@ -1,7 +1,7 @@
 import { SetState, UseState } from "../../commonutils";
 import { MessageDisplay } from "../../controllers/messages";
 import { CreatePost, CreatePostProps } from "./CreatePost";
-import { FormatIdName, FormatIdNameProps } from "./FormatIdName";
+import { FormatActorName, FormatActorNameProps } from "./FormatActorName";
 import { omit } from "lodash-es";
 import { MouseEvent, useState } from "react";
 import { Card } from "react-bootstrap";
@@ -17,7 +17,7 @@ export interface MessageItemProps {
     actorId: string
   ) => Promise<MessageDisplay | undefined>;
   createPostProps: CreatePostProps;
-  formatIdNameProps: Omit<FormatIdNameProps, "id">;
+  FormatActorNameProps: Omit<FormatActorNameProps, "id">;
 }
 
 interface MessageHeaderProps {
@@ -28,17 +28,17 @@ function MessageHeader(props: MessageItemProps & MessageHeaderProps) {
   return (
     <div className="d-flex align-items-center">
       <span>
-        <FormatIdName
+        <FormatActorName
           id={props.message.note.attributedTo}
-          {...props.formatIdNameProps}
+          {...props.FormatActorNameProps}
         />
         {props.message.inReplyTo ? (
           <>
             {" "}
             replying to{" "}
-            <FormatIdName
+            <FormatActorName
               id={props.message.inReplyTo.actorId}
-              {...props.formatIdNameProps}
+              {...props.FormatActorNameProps}
             />
           </>
         ) : null}

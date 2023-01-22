@@ -1,6 +1,6 @@
 import { UseState } from "../../commonutils";
 import { AccountSelector, AccountSelectorProps } from "./AccountSelector";
-import { FormatIdNameProps } from "./FormatIdName";
+import { FormatActorNameProps } from "./FormatActorName";
 import React, { useEffect, useState } from "react";
 import {
   Button,
@@ -128,10 +128,10 @@ export function CreateAccount(props: CreateAccountProps) {
 
 export interface SelectAccountProps {
   accountsDid: string[];
-  formatIdNameProps: Omit<FormatIdNameProps, "id">;
+  FormatActorNameProps: Omit<FormatActorNameProps, "id">;
   accountSelectorProps: Omit<
     AccountSelectorProps,
-    "did" | "formatIdNameProps" | "selectedDid" | "setSelectedDid"
+    "did" | "FormatActorNameProps" | "selectedDid" | "setSelectedDid"
   >;
   setCreateAccount: () => void;
 }
@@ -159,7 +159,7 @@ export function SelectAccount(props: SelectAccountProps) {
                 did={x}
                 selectedDid={selectedDid}
                 setSelectedDid={setSelectedDid}
-                formatIdNameProps={{ ...props.formatIdNameProps }}
+                FormatActorNameProps={{ ...props.FormatActorNameProps }}
                 {...props.accountSelectorProps}
               />
             ))}

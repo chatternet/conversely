@@ -1,5 +1,8 @@
 import { UseState } from "../commonutils";
-import { FormatIdName, FormatIdNameProps } from "./common/FormatIdName";
+import {
+  FormatActorName,
+  FormatActorNameProps,
+} from "./common/FormatActorName";
 import { Scaffold, ScaffoldProps } from "./common/Scaffold";
 import { FormEvent, MouseEvent, useState } from "react";
 import {
@@ -14,7 +17,7 @@ import {
 export type FollowingProps = {
   localActorId: string | undefined;
   following: Set<string>;
-  formatIdNameProps: Omit<FormatIdNameProps, "id">;
+  FormatActorNameProps: Omit<FormatActorNameProps, "id">;
   followDid: (id: string) => Promise<void>;
   unfollowId: (id: string) => Promise<void>;
   scaffoldProps: Omit<ScaffoldProps, "children">;
@@ -63,7 +66,7 @@ export function Following(props: FollowingProps) {
                 <ListGroup.Item key={x}>
                   <div className="d-flex">
                     <div className="me-auto">
-                      <FormatIdName id={x} {...props.formatIdNameProps} />
+                      <FormatActorName id={x} {...props.FormatActorNameProps} />
                     </div>
                     <div>
                       <small>
