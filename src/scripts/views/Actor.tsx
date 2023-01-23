@@ -9,7 +9,7 @@ import { Container } from "react-bootstrap";
 export type ActorProps = {
   loggedIn: boolean;
   actorId: string;
-  FormatActorNameProps: Omit<ActorNameProps, "id">;
+  actorNameProps: Omit<ActorNameProps, "id">;
   messagesListProps: Omit<MessagesListProps, "pageSize" | "allowMore">;
   scaffoldProps: Omit<ScaffoldProps, "children">;
   addContact: (actorId: string) => Promise<void>;
@@ -25,7 +25,7 @@ export function Actor(props: ActorProps) {
       <Container className="max-width-md mt-3">
         <div className="d-flex mb-3">
           <span className="lead me-auto">
-            <ActorNameIcon {...props.FormatActorNameProps} id={props.actorId} />
+            <ActorNameIcon {...props.actorNameProps} id={props.actorId} />
           </span>{" "}
           <CustomButton variant="primary" small onClick={addContact}>
             Add contact

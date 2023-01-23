@@ -27,6 +27,7 @@ import { Welcome, WelcomeProps } from "./views/Welcome";
 import { CreatePostProps } from "./views/common/CreatePost";
 import { CreateSelectAccountProps } from "./views/common/CreateSelectAccount";
 import { ActorNameIcon, ActorNameProps } from "./views/common/FormatActorName";
+import { TopicNameProps } from "./views/common/FormatTopicName";
 import { HeaderProps } from "./views/common/Header";
 import { MessageItemProps } from "./views/common/MessageItem";
 import {
@@ -146,9 +147,14 @@ export function Main() {
     ? undefined
     : { id: chatterNet.getLocalDid(), name: chatterNet.getLocalName() };
 
-  const FormatActorNameProps: Omit<ActorNameProps, "id"> = {
+  const actorNameProps: Omit<ActorNameProps, "id"> = {
     idToName,
     contacts: following,
+  };
+
+  const topicNameProps: Omit<TopicNameProps, "id"> = {
+    idToName,
+    following: new Set(),
   };
 
   const createSelectAccountProps: CreateSelectAccountProps = {
@@ -176,7 +182,7 @@ export function Main() {
     selectAccountProps: {
       accountsDid,
       FormatActorNameProps: {
-        ...FormatActorNameProps,
+        ...actorNameProps,
         noLink: true,
         contacts: undefined,
       },
@@ -205,7 +211,7 @@ export function Main() {
       loginButtonProps: {
         localActorId,
         FormatActorNameProps: {
-          ...FormatActorNameProps,
+          ...actorNameProps,
           noLink: true,
           contacts: undefined,
         },
@@ -315,7 +321,8 @@ export function Main() {
       if (message == null) return;
       return await buildNoteDisplay(message, getBody);
     },
-    FormatActorNameProps,
+    actorNameProps,
+    topicNameProps,
     createPostProps,
   };
 
@@ -328,7 +335,7 @@ export function Main() {
     loggedIn,
     localActorId,
     newDefaultAccount,
-    FormatActorNameProps,
+    actorNameProps,
     messagesListProps: {
       ...messagesListProps,
       messageItemProps,
@@ -351,7 +358,7 @@ export function Main() {
 
   const actorProps: Omit<ActorProps, "actorId"> = {
     loggedIn,
-    FormatActorNameProps,
+    actorNameProps,
     messagesListProps: {
       ...messagesListProps,
       messageItemProps,
@@ -366,7 +373,7 @@ export function Main() {
       if (await addContact(chatterNet, id, setFollowing, pushAlertTop)) {
         pushAlertTop(
           <span>
-            Following <ActorNameIcon id={id} {...FormatActorNameProps} />
+            Following <ActorNameIcon id={id} {...actorNameProps} />
           </span>
         );
       }
@@ -377,7 +384,7 @@ export function Main() {
     localActorId,
     following,
     FormatActorNameProps: {
-      ...FormatActorNameProps,
+      ...actorNameProps,
       contacts: undefined,
     },
     addContact: async (did: string) => {
@@ -389,7 +396,7 @@ export function Main() {
       if (await addContact(chatterNet, id, setFollowing, pushAlertTop)) {
         pushAlertTop(
           <span>
-            Following <ActorNameIcon id={id} {...FormatActorNameProps} />
+            Following <ActorNameIcon id={id} {...actorNameProps} />
           </span>
         );
       }
@@ -402,7 +409,7 @@ export function Main() {
       await removeFollowing(chatterNet, id, setFollowing);
       pushAlertTop(
         <span>
-          Stopped following <ActorNameIcon id={id} {...FormatActorNameProps} />
+          Stopped following <ActorNameIcon id={id} {...actorNameProps} />
         </span>
       );
     },
@@ -416,7 +423,7 @@ export function Main() {
           return chatterNet.buildFollowersIter();
         }
       : undefined,
-    FormatActorNameProps,
+    FormatActorNameProps: actorNameProps,
     scaffoldProps,
   };
 

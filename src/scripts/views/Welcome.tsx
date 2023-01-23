@@ -57,7 +57,7 @@ export type WelcomeProps = {
   loggedIn: boolean | undefined;
   localActorId: string | undefined;
   newDefaultAccount: boolean;
-  FormatActorNameProps: Omit<ActorNameProps, "id">;
+  actorNameProps: Omit<ActorNameProps, "id">;
   messagesListProps: Omit<MessagesListProps, "pageSize" | "allowMore">;
   createSelectAccountProps: CreateSelectAccountProps;
   scaffoldProps: Omit<ScaffoldProps, "children">;
@@ -91,7 +91,7 @@ export function Welcome(props: WelcomeProps) {
                 {" "}
                 <ActorNameIcon
                   id={props.localActorId}
-                  {...props.FormatActorNameProps}
+                  {...props.actorNameProps}
                 />
               </>
             ) : null}

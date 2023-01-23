@@ -65,9 +65,13 @@ export async function buildNoteDisplay(
   const date = message.published;
   const timestamp = new Date(date).getTime() * 1e-3;
 
-  const audienceActorsId = (message.to != null ? message.to : []).map((x) =>
-    x.endsWith("/followers") ? x.slice(0, -10) : x
-  );
+  const audienceActorsId = (message.to != null ? message.to : [])
+    .filter((x) => x.startsWith("did:key:") && x.endsWith("/followers"))
+    .map((x) => x.slice(0, -10));
+
+  const audienceTagsId = (message.to != null ? message.to : [])
+    .filter((x) => x.startsWith("urn:cid:") && x.endsWith("/followers"))
+    .map((x) => x.slice(0, -10));
 
   return {
     id: message.id,
@@ -75,7 +79,7 @@ export async function buildNoteDisplay(
     note,
     message,
     audienceActorsId,
-    audienceTagsId: [],
+    audienceTagsId,
     inReplyTo,
   };
 }

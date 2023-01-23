@@ -62,7 +62,7 @@ export function CreatePost(props: CreatePostProps) {
                 as="textarea"
                 rows={1}
                 value={tags}
-                placeholder={"Add any tags separated by spaces."}
+                placeholder={"add topics separated by spaces"}
                 spellCheck="false"
                 onChange={(e) => {
                   setTags(e.target.value);

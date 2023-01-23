@@ -3,6 +3,7 @@ import { MessageDisplay } from "../../controllers/messages";
 import { CreatePost, CreatePostProps } from "./CreatePost";
 import { CustomButton } from "./CustomButtons";
 import { ActorNameIcon, ActorNameProps } from "./FormatActorName";
+import { TopicName, TopicNameProps } from "./FormatTopicName";
 import { omit } from "lodash-es";
 import { MouseEvent, useState } from "react";
 import { Card } from "react-bootstrap";
@@ -18,7 +19,8 @@ export interface MessageItemProps {
     actorId: string
   ) => Promise<MessageDisplay | undefined>;
   createPostProps: CreatePostProps;
-  FormatActorNameProps: Omit<ActorNameProps, "id">;
+  actorNameProps: Omit<ActorNameProps, "id">;
+  topicNameProps: Omit<TopicNameProps, "id">;
 }
 
 function MessageHeader(props: MessageItemProps) {
@@ -27,7 +29,7 @@ function MessageHeader(props: MessageItemProps) {
       <span>
         <ActorNameIcon
           id={props.message.note.attributedTo}
-          {...props.FormatActorNameProps}
+          {...props.actorNameProps}
         />
         {props.message.inReplyTo ? (
           <>
@@ -35,7 +37,7 @@ function MessageHeader(props: MessageItemProps) {
             replying to{" "}
             <ActorNameIcon
               id={props.message.inReplyTo.actorId}
-              {...props.FormatActorNameProps}
+              {...props.actorNameProps}
             />
           </>
         ) : null}
@@ -105,6 +107,7 @@ function MessageFooter(props: MessageFooterProps) {
 
 function MessageItem(props: MessageItemProps & MessageFooterProps) {
   const actorsId = props.message.audienceActorsId;
+  const tagsId = props.message.audienceTagsId;
   return (
     <Card className="rounded m-3">
       <Card.Header>
@@ -116,7 +119,14 @@ function MessageItem(props: MessageItemProps & MessageFooterProps) {
           <span className="fw-bold">Tags:</span>
           {actorsId.map((x, i) => (
             <span key={x} className="ms-2">
-              <ActorNameIcon id={x} {...props.FormatActorNameProps} />
+              <ActorNameIcon id={x} {...props.actorNameProps} />
+              {i < actorsId.length - 1 ? "," : null}
+            </span>
+          ))}
+          {tagsId != null && tagsId.length > 0 ? "," : null}
+          {tagsId.map((x, i) => (
+            <span key={x} className="ms-2">
+              <TopicName id={x} {...props.topicNameProps} />
               {i < actorsId.length - 1 ? "," : null}
             </span>
           ))}
