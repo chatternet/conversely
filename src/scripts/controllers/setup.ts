@@ -240,9 +240,25 @@ export async function postNote(
   note: string,
   setRefreshCountFeed: SetState<number>,
   pushAlertTop: (x: ReactNode) => void,
+  toSelf?: boolean,
+  tags?: string[],
   inReplyTo?: string
 ) {
-  const document = await chatterNet?.newNote(note, undefined, inReplyTo);
+  const toDocuments = toSelf ? await chatterNet.toSelf() : [];
+  for (const tag of tags ?? []) {
+    if (tag.split("").length > 30) {
+      pushAlertTop(`The tag ${tag} has more than 30 characters.`);
+      continue;
+    }
+    toDocuments.push(await Model.newTag30(tag));
+  }
+  if (!toSelf && toDocuments.length === 0) {
+    pushAlertTop(
+      "The note has no valid tags and is not addressed to self. It will be received by no one."
+    );
+    return;
+  }
+  const document = await chatterNet?.newNote(note, toDocuments, inReplyTo);
   // store local posts to local
   await chatterNet.storeMessageDocuments(document);
   chatterNet.postMessageDocuments(document).catch(() => {

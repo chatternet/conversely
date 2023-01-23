@@ -135,11 +135,6 @@ function MessageItemReply(props: MessageItemProps) {
     props.message.inReplyTo != null
   );
 
-  async function postNote(note: string, inReplyTo?: string): Promise<void> {
-    setShowReply(false);
-    return props.createPostProps.postNote(note, inReplyTo);
-  }
-
   const createPostProps = omit(props.createPostProps, "postNote");
 
   const showParent = async () => {
@@ -170,7 +165,7 @@ function MessageItemReply(props: MessageItemProps) {
           <div className="vertical-line-3 my-n3"></div>
           <CreatePost
             {...createPostProps}
-            postNote={postNote}
+            postNote={props.createPostProps.postNote}
             inReplyTo={props.message.note.id}
           />
         </>

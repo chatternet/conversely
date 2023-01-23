@@ -17,6 +17,7 @@ export interface MessageDisplay {
   id: string;
   timestamp: number;
   note: MessageDisplayNote;
+  message: Model.Message;
   audienceActorsId: string[];
   audienceTagsId: string[];
   inReplyTo?: InReplyTo;
@@ -72,6 +73,7 @@ export async function buildNoteDisplay(
     id: message.id,
     timestamp,
     note,
+    message,
     audienceActorsId,
     audienceTagsId: [],
     inReplyTo,

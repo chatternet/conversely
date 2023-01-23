@@ -5,7 +5,12 @@ import { Button, Card, Form } from "react-bootstrap";
 import ReactMarkdown from "react-markdown";
 
 export interface CreatePostProps {
-  postNote: (note: string, inReplyTo?: string) => Promise<void>;
+  postNote: (
+    note: string,
+    toSelf?: boolean,
+    tags?: string[],
+    inReplyTo?: string
+  ) => Promise<void>;
   pushAlertTop: (message: ReactNode) => void;
   inReplyTo?: string;
 }
@@ -14,6 +19,8 @@ export function CreatePost(props: CreatePostProps) {
   if (!props.postNote) return null;
 
   const [note, setNote]: UseState<string> = useState("");
+  const [toSelf, setToSelf]: UseState<boolean> = useState(true);
+  const [tags, setTags]: UseState<string> = useState("");
   const [showPreview, setShowPreview]: UseState<boolean> = useState(false);
 
   return (
@@ -40,6 +47,29 @@ export function CreatePost(props: CreatePostProps) {
               }}
               className="border border-0 p-3"
             />
+            <hr className="m-0" />
+            <div className="d-flex align-items-center">
+              <Form.Check
+                type="checkbox"
+                label="To followers,"
+                className="text-nowrap ms-3"
+                checked={toSelf}
+                onChange={(e) => {
+                  setToSelf(e.target.checked);
+                }}
+              />
+              <Form.Control
+                as="textarea"
+                rows={1}
+                value={tags}
+                placeholder={"Add any tags separated by spaces."}
+                spellCheck="false"
+                onChange={(e) => {
+                  setTags(e.target.value);
+                }}
+                className="border border-0"
+              />
+            </div>
           </Form>
         )}
         <Card.Footer>
@@ -48,7 +78,15 @@ export function CreatePost(props: CreatePostProps) {
               onClick={(event) => {
                 event.preventDefault();
                 props
-                  .postNote(note, props.inReplyTo)
+                  .postNote(
+                    note,
+                    toSelf,
+                    tags
+                      .split(" ")
+                      .map((x) => x.trim())
+                      .filter((x) => !!x),
+                    props.inReplyTo
+                  )
                   .then(() => setNote(""))
                   .catch((err) => {
                     console.error(err);

@@ -275,7 +275,12 @@ export function Main() {
   };
 
   const createPostProps: CreatePostProps = {
-    postNote: async (note: string, inReplyTo?: string) => {
+    postNote: async (
+      note: string,
+      toSelf?: boolean,
+      tags?: string[],
+      inReplyTo?: string
+    ) => {
       if (!chatterNet) {
         pushAlertTop(errorNoChatterNet);
         return;
@@ -285,6 +290,8 @@ export function Main() {
         note,
         setRefreshCount,
         pushAlertTop,
+        toSelf,
+        tags,
         inReplyTo
       );
     },
