@@ -1,35 +1,27 @@
 import { UseState } from "../commonutils";
-import {
-  FormatActorName,
-  FormatActorNameProps,
-} from "./common/FormatActorName";
+import { AlertNotLoggedIn, CustomAlert } from "./common/CustomAlerts";
+import { CustomButton } from "./common/CustomButtons";
+import { ActorNameIcon, ActorNameProps } from "./common/FormatActorName";
 import { Scaffold, ScaffoldProps } from "./common/Scaffold";
 import { FormEvent, MouseEvent, useState } from "react";
-import {
-  Alert,
-  Card,
-  Container,
-  Form,
-  Button,
-  ListGroup,
-} from "react-bootstrap";
+import { Card, Container, Form, Button, ListGroup } from "react-bootstrap";
 
-export type FollowingProps = {
+export type ContactsProps = {
   localActorId: string | undefined;
   following: Set<string>;
-  FormatActorNameProps: Omit<FormatActorNameProps, "id">;
-  followDid: (id: string) => Promise<void>;
+  FormatActorNameProps: Omit<ActorNameProps, "id">;
+  addContact: (id: string) => Promise<void>;
   unfollowId: (id: string) => Promise<void>;
   scaffoldProps: Omit<ScaffoldProps, "children">;
 };
 
-export function Following(props: FollowingProps) {
+export function Contacts(props: ContactsProps) {
   const [didToFollow, setDidToFollow]: UseState<string> = useState("");
 
   function follow(event: FormEvent) {
     event.preventDefault();
     props
-      .followDid(didToFollow)
+      .addContact(didToFollow)
       .then(() => setDidToFollow(""))
       .catch((x) => console.error(x));
   }
@@ -40,33 +32,46 @@ export function Following(props: FollowingProps) {
         {props.localActorId != null ? (
           <>
             <Card className="rounded my-3">
-              <Card.Header>Follow</Card.Header>
-              <Card.Body>
+              <Card.Header>Add contact</Card.Header>
+              <Card.Body className="no-end-margin">
                 <Form onSubmit={follow}>
-                  <Form.Control
-                    placeholder="DID to follow"
-                    type="text"
-                    value={didToFollow}
-                    onChange={(e) => {
-                      setDidToFollow(e.target.value);
-                    }}
-                    className="my-1 font-monospace"
-                  />
-                  <div className="text-center">
-                    <Button type="submit" className="my-1">
-                      Follow
-                    </Button>
+                  <div className="d-flex align-items-center">
+                    <div className="flex-grow-1 me-2">
+                      <Form.Control
+                        placeholder="Account DID"
+                        type="text"
+                        value={didToFollow}
+                        onChange={(e) => {
+                          setDidToFollow(e.target.value);
+                        }}
+                        className="my-1 font-monospace"
+                      />
+                    </div>
+                    <div>
+                      <CustomButton
+                        type="submit"
+                        variant="outline-primary"
+                        small
+                      >
+                        Add contact
+                      </CustomButton>
+                    </div>
                   </div>
                 </Form>
+                <CustomAlert variant="info" className="mt-2">
+                  Adding a contact will allow you to receive messages sent and
+                  viewed by that contact. Add only trustworthy contacts to avoid
+                  unwanted messages.
+                </CustomAlert>
               </Card.Body>
             </Card>
-            <span className="lead">Accounts you are following</span>
+            <span className="lead">Contact accounts</span>
             <ListGroup className="my-3">
               {[...props.following].map((x) => (
                 <ListGroup.Item key={x}>
                   <div className="d-flex">
                     <div className="me-auto">
-                      <FormatActorName id={x} {...props.FormatActorNameProps} />
+                      <ActorNameIcon id={x} {...props.FormatActorNameProps} />
                     </div>
                     <div>
                       <small>
@@ -93,7 +98,7 @@ export function Following(props: FollowingProps) {
             <div className="list-group"></div>
           </>
         ) : (
-          <Alert>Cannot view following list without logging in.</Alert>
+          <AlertNotLoggedIn />
         )}
       </Container>
     </Scaffold>

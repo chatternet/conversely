@@ -1,10 +1,16 @@
 import { UseState } from "../../commonutils";
+import { CustomButton } from "./CustomButtons";
 import { ReactNode, useState } from "react";
-import { Card, Form } from "react-bootstrap";
+import { Button, Card, Form } from "react-bootstrap";
 import ReactMarkdown from "react-markdown";
 
 export interface CreatePostProps {
-  postNote: (note: string, inReplyTo?: string) => Promise<void>;
+  postNote: (
+    note: string,
+    toSelf?: boolean,
+    tags?: string[],
+    inReplyTo?: string
+  ) => Promise<void>;
   pushAlertTop: (message: ReactNode) => void;
   inReplyTo?: string;
 }
@@ -13,6 +19,8 @@ export function CreatePost(props: CreatePostProps) {
   if (!props.postNote) return null;
 
   const [note, setNote]: UseState<string> = useState("");
+  const [toSelf, setToSelf]: UseState<boolean> = useState(true);
+  const [tags, setTags]: UseState<string> = useState("");
   const [showPreview, setShowPreview]: UseState<boolean> = useState(false);
 
   return (
@@ -39,38 +47,69 @@ export function CreatePost(props: CreatePostProps) {
               }}
               className="border border-0 p-3"
             />
+            <hr className="m-0" />
+            <div className="d-flex align-items-center">
+              <Form.Check
+                type="checkbox"
+                label="To followers,"
+                className="text-nowrap ms-3"
+                checked={toSelf}
+                onChange={(e) => {
+                  setToSelf(e.target.checked);
+                }}
+              />
+              <Form.Control
+                as="textarea"
+                rows={1}
+                value={tags}
+                placeholder={"add topics separated by spaces"}
+                spellCheck="false"
+                onChange={(e) => {
+                  setTags(e.target.value);
+                }}
+                className="border border-0"
+              />
+            </div>
           </Form>
         )}
         <Card.Footer>
           <div>
-            <small>
-              <a
-                href="#"
-                onClick={(event) => {
-                  event.preventDefault();
-                  props
-                    .postNote(note, props.inReplyTo)
-                    .then(() => setNote(""))
-                    .catch((err) => {
-                      console.error(err);
-                      props.pushAlertTop("Note was not delivered.");
-                    });
-                }}
-                className="fw-normal bg-primary text-white rounded-pill py-1 px-2 me-2"
-              >
-                Post {props.inReplyTo ? "reply" : ""}
-              </a>
-              <a
-                href="#"
-                onClick={(event) => {
-                  event.preventDefault();
-                  setShowPreview((x) => !x);
-                }}
-                className="fw-normal bg-secondary text-white rounded-pill py-1 px-2 me-2"
-              >
-                {showPreview ? "Edit" : "Preview"}
-              </a>
-            </small>
+            <CustomButton
+              onClick={(event) => {
+                event.preventDefault();
+                props
+                  .postNote(
+                    note,
+                    toSelf,
+                    tags
+                      .split(" ")
+                      .map((x) => x.trim())
+                      .filter((x) => !!x),
+                    props.inReplyTo
+                  )
+                  .then(() => setNote(""))
+                  .catch((err) => {
+                    console.error(err);
+                    props.pushAlertTop("Note was not delivered.");
+                  });
+              }}
+              variant="outline-primary"
+              className="me-2"
+              small
+            >
+              Post {props.inReplyTo ? "reply" : ""}
+            </CustomButton>
+            <CustomButton
+              onClick={(event) => {
+                event.preventDefault();
+                setShowPreview((x) => !x);
+              }}
+              variant="outline-primary"
+              className="me-2"
+              small
+            >
+              {showPreview ? "Edit" : "Preview"}
+            </CustomButton>
           </div>
         </Card.Footer>
       </Card>

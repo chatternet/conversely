@@ -1,7 +1,8 @@
 import { CreatePost, CreatePostProps } from "./common/CreatePost";
+import { AlertNotLoggedIn } from "./common/CustomAlerts";
 import { MessagesList, MessagesListProps } from "./common/MessagesList";
 import { Scaffold, ScaffoldProps } from "./common/Scaffold";
-import { Alert, Container } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 
 export type FeedProps = {
   loggedIn: boolean;
@@ -26,7 +27,7 @@ export function Feed(props: FeedProps) {
             </div>
           </>
         ) : (
-          <Alert>Cannot access feed without logging in.</Alert>
+          <AlertNotLoggedIn />
         )}
       </Container>
     </Scaffold>

@@ -2,7 +2,6 @@ import { default as IMG_AI } from "../../assets/undraw_artificial_intelligence_r
 import { default as IMG_LETTER } from "../../assets/undraw_confidential_letter_w6ux.svg";
 import { default as IMG_CONVERSATION } from "../../assets/undraw_conversation_re_c26v.svg";
 import { default as IMG_FILTER } from "../../assets/undraw_filter_re_sa16.svg";
-import { default as IMG_FINGERPRINT } from "../../assets/undraw_fingerprint_re_uf3f.svg";
 import { default as IMG_FISH } from "../../assets/undraw_fish_bowl_uu88.svg";
 import { default as IMG_FOLDER } from "../../assets/undraw_image__folder_re_hgp7.svg";
 import { default as IMG_CAT } from "../../assets/undraw_playful_cat_re_ac9g.svg";
@@ -14,10 +13,8 @@ import {
   CreateSelectAccount,
   CreateSelectAccountProps,
 } from "./common/CreateSelectAccount";
-import {
-  FormatActorName,
-  FormatActorNameProps,
-} from "./common/FormatActorName";
+import { CustomAlert } from "./common/CustomAlerts";
+import { ActorNameIcon, ActorNameProps } from "./common/FormatActorName";
 import { MessagesList, MessagesListProps } from "./common/MessagesList";
 import { Scaffold, ScaffoldProps } from "./common/Scaffold";
 import React, { useState } from "react";
@@ -25,12 +22,12 @@ import {
   Row,
   Col,
   Container,
-  Alert,
   Button,
   ListGroup,
   ListGroupItem,
   Collapse,
 } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 interface ListItemExpandProps {
   heading: React.ReactNode;
@@ -60,7 +57,7 @@ export type WelcomeProps = {
   loggedIn: boolean | undefined;
   localActorId: string | undefined;
   newDefaultAccount: boolean;
-  FormatActorNameProps: Omit<FormatActorNameProps, "id">;
+  actorNameProps: Omit<ActorNameProps, "id">;
   messagesListProps: Omit<MessagesListProps, "pageSize" | "allowMore">;
   createSelectAccountProps: CreateSelectAccountProps;
   scaffoldProps: Omit<ScaffoldProps, "children">;
@@ -87,32 +84,25 @@ export function Welcome(props: WelcomeProps) {
 
       {props.newDefaultAccount ? (
         <Container className="max-width-md my-3">
-          <Alert variant="info">
-            <div className="d-flex align-items-center">
-              <div className="me-2">
-                <i className="bi bi-info-circle-fill fs-4"></i>
-              </div>
-              <div className="ms-2">
-                Welcome
-                {props.localActorId ? (
-                  <>
-                    {" "}
-                    <FormatActorName
-                      id={props.localActorId}
-                      {...props.FormatActorNameProps}
-                    />
-                  </>
-                ) : null}
-                , you're logged into a default account and ready to go, it's
-                really that easy! To change your account name and create a
-                password, go to the{" "}
-                <a href="/settings" onClick={onClickNavigate("/settings")}>
-                  settings page
-                </a>
-                .
-              </div>
-            </div>
-          </Alert>
+          <CustomAlert variant="info">
+            Welcome
+            {props.localActorId ? (
+              <>
+                {" "}
+                <ActorNameIcon
+                  id={props.localActorId}
+                  {...props.actorNameProps}
+                />
+              </>
+            ) : null}
+            , you're logged into a default account and ready to go, it's really
+            that easy! To change your account name and create a password, go to
+            the{" "}
+            <a href="/settings" onClick={onClickNavigate("/settings")}>
+              settings page
+            </a>
+            .
+          </CustomAlert>
         </Container>
       ) : null}
 
@@ -125,7 +115,7 @@ export function Welcome(props: WelcomeProps) {
               {...props.messagesListProps}
             />
             <div className="text-center">
-              <Button onClick={onClickNavigate("/feed")}>Full feed</Button>
+              <Link to="/feed">View full feed</Link>
             </div>
           </>
         ) : (
@@ -134,24 +124,17 @@ export function Welcome(props: WelcomeProps) {
       </Container>
 
       <Container className="max-width-md mx-auto my-3">
-        <Alert variant="danger">
-          <div className="d-flex align-items-center">
-            <div className="me-2">
-              <i className="bi bi-exclamation-triangle-fill fs-4"></i>
-            </div>
-            <div className="ms-2">
-              Conversely is currently in the prototype phase. Expect missing
-              features and rough edges. You can help the project by{" "}
-              <a
-                href="https://github.com/chatternet/conversely/issues"
-                target="_blank"
-              >
-                submitting issues
-              </a>
-              .
-            </div>
-          </div>
-        </Alert>
+        <CustomAlert variant="danger">
+          Conversely is currently in the prototype phase. Expect missing
+          features and rough edges. You can help the project by{" "}
+          <a
+            href="https://github.com/chatternet/conversely/issues"
+            target="_blank"
+          >
+            submitting issues
+          </a>
+          .
+        </CustomAlert>
       </Container>
 
       <Container className="max-width-lg mx-auto">
@@ -164,9 +147,10 @@ export function Welcome(props: WelcomeProps) {
             </p>
             <ListGroup>
               <ListItemExpand
-                className="text-bg-light"
                 heading={
-                  <span className="text-info">Only content you care about</span>
+                  <span className="text-primary">
+                    Only content you care about
+                  </span>
                 }
                 content={
                   <div className="mt-2">
@@ -177,9 +161,8 @@ export function Welcome(props: WelcomeProps) {
                 }
               />
               <ListItemExpand
-                className="text-bg-light"
                 heading={
-                  <span className="text-info">
+                  <span className="text-primary">
                     Find interesting new content
                   </span>
                 }
@@ -210,9 +193,8 @@ export function Welcome(props: WelcomeProps) {
             </p>
             <ListGroup>
               <ListItemExpand
-                className="text-bg-light"
                 heading={
-                  <span className="text-info">
+                  <span className="text-primary">
                     Differentiate spam from content
                   </span>
                 }
@@ -225,9 +207,8 @@ export function Welcome(props: WelcomeProps) {
                 }
               />
               <ListItemExpand
-                className="text-bg-light"
                 heading={
-                  <span className="text-info">
+                  <span className="text-primary">
                     Take charge of your public profile
                   </span>
                 }
@@ -251,9 +232,8 @@ export function Welcome(props: WelcomeProps) {
             </p>
             <ListGroup>
               <ListItemExpand
-                className="text-bg-light"
                 heading={
-                  <span className="text-info">
+                  <span className="text-primary">
                     Less shills, more people worth talking to
                   </span>
                 }
@@ -267,9 +247,8 @@ export function Welcome(props: WelcomeProps) {
                 }
               />
               <ListItemExpand
-                className="text-bg-light"
                 heading={
-                  <span className="text-info">Connect on your terms</span>
+                  <span className="text-primary">Connect on your terms</span>
                 }
                 content={
                   <div className="mt-2">

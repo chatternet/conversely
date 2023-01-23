@@ -1,17 +1,15 @@
 import type { UseState, SetState } from "../commonutils";
-import {
-  FormatActorName,
-  FormatActorNameProps,
-} from "./common/FormatActorName";
+import { AlertNotLoggedIn } from "./common/CustomAlerts";
+import { ActorNameIcon, ActorNameProps } from "./common/FormatActorName";
 import { Scaffold, ScaffoldProps } from "./common/Scaffold";
 import { PageIter } from "chatternet-client-http";
 import { useEffect, useState } from "react";
-import { Alert, Container, ListGroup } from "react-bootstrap";
+import { Container, ListGroup } from "react-bootstrap";
 
 export type FollowersProps = {
   pageSize: number;
   buildPageIter: (() => PageIter<string>) | undefined;
-  FormatActorNameProps: Omit<FormatActorNameProps, "id">;
+  FormatActorNameProps: Omit<ActorNameProps, "id">;
   scaffoldProps: Omit<ScaffoldProps, "children">;
 };
 
@@ -42,17 +40,19 @@ export function Followers(props: FollowersProps) {
   return (
     <Scaffold {...props.scaffoldProps}>
       <Container className="my-3 max-width-md mx-auto">
-        <span className="lead">Accounts following you</span>
         {props.buildPageIter ? (
-          <ListGroup className="my-3">
-            {(followers != null ? followers : []).map((x) => (
-              <ListGroup.Item key={x}>
-                <FormatActorName id={x} {...props.FormatActorNameProps} />
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
+          <>
+            <span className="lead">Accounts following you</span>
+            <ListGroup className="my-3">
+              {(followers != null ? followers : []).map((x) => (
+                <ListGroup.Item key={x}>
+                  <ActorNameIcon id={x} {...props.FormatActorNameProps} />
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </>
         ) : (
-          <Alert>Cannot view followers list without logging in.</Alert>
+          <AlertNotLoggedIn />
         )}
       </Container>
     </Scaffold>

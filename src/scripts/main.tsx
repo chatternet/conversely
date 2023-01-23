@@ -9,7 +9,7 @@ import {
   loginAnonymous,
   changePassword,
   changeDisplayName,
-  addFollowing,
+  addContact,
   removeFollowing,
   createAccount,
   viewMessage,
@@ -19,23 +19,21 @@ import {
   isPasswordless,
 } from "./controllers/setup.js";
 import { Actor, ActorProps } from "./views/Actor";
+import { Contacts, ContactsProps } from "./views/Contacts";
 import { Feed, FeedProps } from "./views/Feed";
 import { Followers, FollowersProps } from "./views/Followers";
-import { Following, FollowingProps } from "./views/Following";
 import { Settings, SettingsProps } from "./views/Settings";
 import { Welcome, WelcomeProps } from "./views/Welcome";
-import {
-  AlertItem,
-  pushAlertTop as pushAlertTopController,
-} from "./views/common/AlertTop";
 import { CreatePostProps } from "./views/common/CreatePost";
 import { CreateSelectAccountProps } from "./views/common/CreateSelectAccount";
-import {
-  FormatActorName,
-  FormatActorNameProps,
-} from "./views/common/FormatActorName";
+import { ActorNameIcon, ActorNameProps } from "./views/common/FormatActorName";
+import { TopicNameProps } from "./views/common/FormatTopicName";
 import { HeaderProps } from "./views/common/Header";
 import { MessageItemProps } from "./views/common/MessageItem";
+import {
+  MessageTopItem,
+  pushMessageTop as pushAlertTopController,
+} from "./views/common/MessageTop";
 import { MessagesListProps } from "./views/common/MessagesList";
 import { ScaffoldProps } from "./views/common/Scaffold";
 import { ChatterNet, Model } from "chatternet-client-http";
@@ -69,7 +67,7 @@ function ActorFromRoute(props: Omit<ActorProps, "actorId">) {
 export function Main() {
   // prettier-ignore
   const [alertTopState, setAlertTopState]:
-    UseState<AlertItem[]> =
+    UseState<MessageTopItem[]> =
     useState(new Array());
   // prettier-ignore
   const [loggingIn, setLoggingIn]:
@@ -149,17 +147,14 @@ export function Main() {
     ? undefined
     : { id: chatterNet.getLocalDid(), name: chatterNet.getLocalName() };
 
-  const FormatActorNameProps: Omit<FormatActorNameProps, "id"> = {
+  const actorNameProps: Omit<ActorNameProps, "id"> = {
     idToName,
-    localActorId,
     contacts: following,
-    addFollowing: async (id: string) => {
-      if (!chatterNet) {
-        pushAlertTop(errorNoChatterNet);
-        return;
-      }
-      await addFollowing(chatterNet, id, setFollowing, pushAlertTop);
-    },
+  };
+
+  const topicNameProps: Omit<TopicNameProps, "id"> = {
+    idToName,
+    following: new Set(),
   };
 
   const createSelectAccountProps: CreateSelectAccountProps = {
@@ -186,7 +181,11 @@ export function Main() {
     },
     selectAccountProps: {
       accountsDid,
-      FormatActorNameProps: { ...FormatActorNameProps, bare: true },
+      FormatActorNameProps: {
+        ...actorNameProps,
+        noLink: true,
+        contacts: undefined,
+      },
       accountSelectorProps: {
         isPasswordless,
         // NOTE: could use `loginInfo` from scope, but instead use the state
@@ -211,7 +210,11 @@ export function Main() {
       loggingIn,
       loginButtonProps: {
         localActorId,
-        FormatActorNameProps: { ...FormatActorNameProps, bare: true },
+        FormatActorNameProps: {
+          ...actorNameProps,
+          noLink: true,
+          contacts: undefined,
+        },
         loggedIn: !!chatterNet,
         loggingIn,
       },
@@ -278,7 +281,12 @@ export function Main() {
   };
 
   const createPostProps: CreatePostProps = {
-    postNote: async (note: string, inReplyTo?: string) => {
+    postNote: async (
+      note: string,
+      toSelf?: boolean,
+      tags?: string[],
+      inReplyTo?: string
+    ) => {
       if (!chatterNet) {
         pushAlertTop(errorNoChatterNet);
         return;
@@ -288,6 +296,8 @@ export function Main() {
         note,
         setRefreshCount,
         pushAlertTop,
+        toSelf,
+        tags,
         inReplyTo
       );
     },
@@ -311,7 +321,8 @@ export function Main() {
       if (message == null) return;
       return await buildNoteDisplay(message, getBody);
     },
-    FormatActorNameProps,
+    actorNameProps,
+    topicNameProps,
     createPostProps,
   };
 
@@ -324,7 +335,7 @@ export function Main() {
     loggedIn,
     localActorId,
     newDefaultAccount,
-    FormatActorNameProps,
+    actorNameProps,
     messagesListProps: {
       ...messagesListProps,
       messageItemProps,
@@ -347,38 +358,45 @@ export function Main() {
 
   const actorProps: Omit<ActorProps, "actorId"> = {
     loggedIn,
-    FormatActorNameProps,
+    actorNameProps,
     messagesListProps: {
       ...messagesListProps,
       messageItemProps,
       refreshCount,
     },
     scaffoldProps,
+    addContact: async (id: string) => {
+      if (!chatterNet) {
+        pushAlertTop(errorNoChatterNet);
+        return;
+      }
+      if (await addContact(chatterNet, id, setFollowing, pushAlertTop)) {
+        pushAlertTop(
+          <span>
+            Following <ActorNameIcon id={id} {...actorNameProps} />
+          </span>
+        );
+      }
+    },
   };
 
-  const followingProps: FollowingProps = {
+  const contactProps: ContactsProps = {
     localActorId,
     following,
     FormatActorNameProps: {
-      ...FormatActorNameProps,
-      addFollowing: undefined,
+      ...actorNameProps,
       contacts: undefined,
     },
-    followDid: async (did: string) => {
+    addContact: async (did: string) => {
       if (!chatterNet) {
         pushAlertTop(errorNoChatterNet);
         return;
       }
       const id = `${did}/actor`;
-      if (await addFollowing(chatterNet, id, setFollowing, pushAlertTop)) {
+      if (await addContact(chatterNet, id, setFollowing, pushAlertTop)) {
         pushAlertTop(
           <span>
-            Following{" "}
-            <FormatActorName
-              id={id}
-              {...FormatActorNameProps}
-              addFollowing={undefined}
-            />
+            Following <ActorNameIcon id={id} {...actorNameProps} />
           </span>
         );
       }
@@ -391,12 +409,7 @@ export function Main() {
       await removeFollowing(chatterNet, id, setFollowing);
       pushAlertTop(
         <span>
-          Stopped following{" "}
-          <FormatActorName
-            id={id}
-            {...FormatActorNameProps}
-            addFollowing={undefined}
-          />
+          Stopped following <ActorNameIcon id={id} {...actorNameProps} />
         </span>
       );
     },
@@ -410,7 +423,7 @@ export function Main() {
           return chatterNet.buildFollowersIter();
         }
       : undefined,
-    FormatActorNameProps,
+    FormatActorNameProps: actorNameProps,
     scaffoldProps,
   };
 
@@ -459,8 +472,8 @@ export function Main() {
       element: <Feed {...feedProps} />,
     },
     {
-      path: "/following",
-      element: <Following {...followingProps} />,
+      path: "/contacts",
+      element: <Contacts {...contactProps} />,
     },
     {
       path: "/followers",

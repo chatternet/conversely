@@ -1,6 +1,7 @@
 import { UseState } from "../../commonutils";
 import { AccountSelector, AccountSelectorProps } from "./AccountSelector";
-import { FormatActorNameProps } from "./FormatActorName";
+import { AlertPasswordField } from "./CustomAlerts";
+import { ActorNameProps } from "./FormatActorName";
 import React, { useEffect, useState } from "react";
 import {
   Button,
@@ -108,10 +109,7 @@ export function CreateAccount(props: CreateAccountProps) {
               </Form.Group>
             </Row>
 
-            <Alert variant="info">
-              The password field is optional. If you do not use a password,
-              anyone with access to your device can use your account.
-            </Alert>
+            <AlertPasswordField />
 
             <div className="text-center mt-3">
               <Button type="submit">Create account</Button> or{" "}
@@ -128,7 +126,7 @@ export function CreateAccount(props: CreateAccountProps) {
 
 export interface SelectAccountProps {
   accountsDid: string[];
-  FormatActorNameProps: Omit<FormatActorNameProps, "id">;
+  FormatActorNameProps: Omit<ActorNameProps, "id">;
   accountSelectorProps: Omit<
     AccountSelectorProps,
     "did" | "FormatActorNameProps" | "selectedDid" | "setSelectedDid"

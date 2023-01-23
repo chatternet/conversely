@@ -17,10 +17,15 @@ export interface MessageDisplay {
   id: string;
   timestamp: number;
   note: MessageDisplayNote;
+  message: Model.Message;
+  audienceActorsId: string[];
+  audienceTagsId: string[];
   inReplyTo?: InReplyTo;
 }
 
-function extractNote(objectDoc: Model.Body): MessageDisplayNote | undefined {
+function extractNote(
+  objectDoc: Model.NoteMd1k
+): MessageDisplayNote | undefined {
   if (objectDoc.type !== "Note") return;
   if (objectDoc.mediaType !== "text/markdown") return;
   if (!objectDoc.content || typeof objectDoc.content !== "string") return;
@@ -35,7 +40,7 @@ function extractNote(objectDoc: Model.Body): MessageDisplayNote | undefined {
 
 export async function buildNoteDisplay(
   message: Model.Message,
-  getBody: (id: string) => Promise<Model.Body | undefined>
+  getBody: (id: string) => Promise<Model.NoteMd1k | undefined>
 ): Promise<MessageDisplay | undefined> {
   const [objectId] = message.object;
   const objectDoc = await getBody(objectId);
@@ -60,10 +65,21 @@ export async function buildNoteDisplay(
   const date = message.published;
   const timestamp = new Date(date).getTime() * 1e-3;
 
+  const audienceActorsId = (message.to != null ? message.to : [])
+    .filter((x) => x.startsWith("did:key:") && x.endsWith("/followers"))
+    .map((x) => x.slice(0, -10));
+
+  const audienceTagsId = (message.to != null ? message.to : [])
+    .filter((x) => x.startsWith("urn:cid:") && x.endsWith("/followers"))
+    .map((x) => x.slice(0, -10));
+
   return {
     id: message.id,
     timestamp,
     note,
+    message,
+    audienceActorsId,
+    audienceTagsId,
     inReplyTo,
   };
 }
@@ -80,7 +96,9 @@ export class MessageDisplayGrouper {
       id: string
     ) => Promise<Model.Message | undefined>,
     private readonly getActor: (id: string) => Promise<Model.Actor | undefined>,
-    private readonly getBody: (id: string) => Promise<Model.Body | undefined>,
+    private readonly getBody: (
+      id: string
+    ) => Promise<Model.NoteMd1k | undefined>,
     private readonly setMessages: SetState<MessageDisplay[] | undefined>,
     private readonly seenMessagesId: Set<string> = new Set()
   ) {}

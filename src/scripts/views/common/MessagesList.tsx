@@ -4,10 +4,11 @@ import {
   MessageDisplay,
   MessageDisplayGrouper,
 } from "../../controllers/messages";
+import { CustomButton } from "./CustomButtons";
 import { MessageItemGroup, MessageItemProps } from "./MessageItem";
 import type { MessageIter, Model } from "chatternet-client-http";
-import React, { useEffect, useState, MouseEvent } from "react";
-import { Button, Card } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import { Card } from "react-bootstrap";
 
 export interface MessagesListProps {
   loggedIn: boolean;
@@ -25,7 +26,7 @@ export interface MessagesListProps {
   viewMessage: (message: Model.Message) => Promise<void>;
   getMessage: (id: string) => Promise<Model.Message | undefined>;
   getActor: (id: string) => Promise<Model.Actor | undefined>;
-  getBody: (id: string) => Promise<Model.Body | undefined>;
+  getBody: (id: string) => Promise<Model.NoteMd1k | undefined>;
   deleteMessage: (messageId: string) => Promise<void>;
   messageItemProps: Omit<
     MessageItemProps,
@@ -124,7 +125,9 @@ export function MessagesList(props: MessagesListProps) {
       )}
       {props.allowMore ? (
         <div className="text-center my-3">
-          <Button onClick={loadMore}>Load more</Button>
+          <CustomButton onClick={loadMore} variant="primary" small>
+            Load more
+          </CustomButton>
         </div>
       ) : null}
     </>

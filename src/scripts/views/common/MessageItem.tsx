@@ -1,7 +1,9 @@
 import { SetState, UseState } from "../../commonutils";
 import { MessageDisplay } from "../../controllers/messages";
 import { CreatePost, CreatePostProps } from "./CreatePost";
-import { FormatActorName, FormatActorNameProps } from "./FormatActorName";
+import { CustomButton } from "./CustomButtons";
+import { ActorNameIcon, ActorNameProps } from "./FormatActorName";
+import { TopicName, TopicNameProps } from "./FormatTopicName";
 import { omit } from "lodash-es";
 import { MouseEvent, useState } from "react";
 import { Card } from "react-bootstrap";
@@ -17,45 +19,27 @@ export interface MessageItemProps {
     actorId: string
   ) => Promise<MessageDisplay | undefined>;
   createPostProps: CreatePostProps;
-  FormatActorNameProps: Omit<FormatActorNameProps, "id">;
+  actorNameProps: Omit<ActorNameProps, "id">;
+  topicNameProps: Omit<TopicNameProps, "id">;
 }
 
-interface MessageHeaderProps {
-  canShowParent: boolean;
-  showParent: () => Promise<void>;
-}
-
-function MessageHeader(props: MessageItemProps & MessageHeaderProps) {
+function MessageHeader(props: MessageItemProps) {
   return (
     <div className="d-flex align-items-center">
       <span>
-        <FormatActorName
+        <ActorNameIcon
           id={props.message.note.attributedTo}
-          {...props.FormatActorNameProps}
+          {...props.actorNameProps}
         />
         {props.message.inReplyTo ? (
           <>
             {" "}
             replying to{" "}
-            <FormatActorName
+            <ActorNameIcon
               id={props.message.inReplyTo.actorId}
-              {...props.FormatActorNameProps}
+              {...props.actorNameProps}
             />
           </>
-        ) : null}
-      </span>
-      <span className="ms-auto">
-        {props.canShowParent ? (
-          <a
-            href="#"
-            onClick={(event) => {
-              event.preventDefault();
-              props.showParent().catch((x) => console.error(x));
-            }}
-            className="ps-2"
-          >
-            Show parent
-          </a>
         ) : null}
       </span>
     </div>
@@ -65,6 +49,8 @@ function MessageHeader(props: MessageItemProps & MessageHeaderProps) {
 interface MessageFooterProps {
   message: MessageDisplay;
   localActorId: string | undefined;
+  canShowParent: boolean;
+  showParent: () => Promise<void>;
   deleteMessage: (messageId: string) => Promise<void>;
   setShowReply?: SetState<boolean>;
 }
@@ -83,32 +69,45 @@ function MessageFooter(props: MessageFooterProps) {
   return (
     <div>
       {props.setShowReply ? (
-        <small>
-          <a
-            href="#"
-            onClick={toggleReply}
-            className="fw-normal bg-primary text-white rounded-pill py-1 px-2 me-2"
-          >
-            Reply
-          </a>
-        </small>
+        <CustomButton
+          variant="outline-primary"
+          onClick={toggleReply}
+          className="me-2"
+          small
+        >
+          Reply
+        </CustomButton>
+      ) : null}
+      {props.canShowParent ? (
+        <CustomButton
+          variant="outline-primary"
+          onClick={(event) => {
+            event.preventDefault();
+            props.showParent().catch((x) => console.error(x));
+          }}
+          className="me-2"
+          small
+        >
+          Replied from
+        </CustomButton>
       ) : null}
       {props.message.note.attributedTo === props.localActorId ? (
-        <a
-          href="#"
+        <CustomButton
+          variant="outline-danger"
           onClick={deleteMessage}
-          className="fw-normal bg-danger text-white rounded-pill py-1 px-2 me-2"
+          className="me-2"
+          small
         >
           Delete
-        </a>
+        </CustomButton>
       ) : null}
     </div>
   );
 }
 
-function MessageItem(
-  props: MessageItemProps & MessageFooterProps & MessageHeaderProps
-) {
+function MessageItem(props: MessageItemProps & MessageFooterProps) {
+  const actorsId = props.message.audienceActorsId;
+  const tagsId = props.message.audienceTagsId;
   return (
     <Card className="rounded m-3">
       <Card.Header>
@@ -116,6 +115,22 @@ function MessageItem(
       </Card.Header>
       <Card.Body className="note-text no-end-margin">
         <ReactMarkdown>{props.message.note.content}</ReactMarkdown>
+        <small>
+          <span className="fw-bold">Tags:</span>
+          {actorsId.map((x, i) => (
+            <span key={x} className="ms-2">
+              <ActorNameIcon id={x} {...props.actorNameProps} />
+              {i < actorsId.length - 1 ? "," : null}
+            </span>
+          ))}
+          {tagsId != null && tagsId.length > 0 ? "," : null}
+          {tagsId.map((x, i) => (
+            <span key={x} className="ms-2">
+              <TopicName id={x} {...props.topicNameProps} />
+              {i < actorsId.length - 1 ? "," : null}
+            </span>
+          ))}
+        </small>
       </Card.Body>
       <Card.Footer>
         <MessageFooter {...props} />
@@ -129,11 +144,6 @@ function MessageItemReply(props: MessageItemProps) {
   const [canShowParent, setCanShowParent]: UseState<boolean> = useState(
     props.message.inReplyTo != null
   );
-
-  async function postNote(note: string, inReplyTo?: string): Promise<void> {
-    setShowReply(false);
-    return props.createPostProps.postNote(note, inReplyTo);
-  }
 
   const createPostProps = omit(props.createPostProps, "postNote");
 
@@ -165,7 +175,7 @@ function MessageItemReply(props: MessageItemProps) {
           <div className="vertical-line-3 my-n3"></div>
           <CreatePost
             {...createPostProps}
-            postNote={postNote}
+            postNote={props.createPostProps.postNote}
             inReplyTo={props.message.note.id}
           />
         </>

@@ -3,7 +3,6 @@
 $font-family-sans-serif: -apple-system, system-ui, sans-serif;
 
 $min-contrast-ratio: 3;
-$btn-border-width: 0;
 $btn-border-radius: 50rem;
 
 $enable-negative-margins: true;
@@ -62,10 +61,6 @@ h6 {
   h6 {
     font-size: $h6-font-size;
   }
-}
-
-.btn {
-  box-shadow: $box-shadow-sm;
 }
 
 .bg-blue-to-purple {

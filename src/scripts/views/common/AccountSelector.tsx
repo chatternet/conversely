@@ -1,5 +1,5 @@
 import { UseState, SetState } from "../../commonutils";
-import { FormatActorName, FormatActorNameProps } from "./FormatActorName";
+import { ActorNameIcon, ActorNameProps } from "./FormatActorName";
 import { ChatterNet } from "chatternet-client-http";
 import { useState } from "react";
 import React from "react";
@@ -7,7 +7,7 @@ import { Collapse, Form, InputGroup, ListGroup } from "react-bootstrap";
 
 export interface AccountSelectorProps {
   did: string;
-  FormatActorNameProps: Omit<FormatActorNameProps, "id">;
+  FormatActorNameProps: Omit<ActorNameProps, "id">;
   selectedDid: string | undefined;
   isPasswordless: (did: string) => boolean;
   login: (did: string, password: string) => Promise<void>;
@@ -38,7 +38,7 @@ export function AccountSelector(props: AccountSelectorProps) {
         className="d-block"
         onClick={() => props.setSelectedDid(props.did)}
       >
-        <FormatActorName id={accountId} {...props.FormatActorNameProps} />
+        <ActorNameIcon id={accountId} {...props.FormatActorNameProps} />
       </a>
       <Collapse in={props.selectedDid === props.did}>
         <Form onSubmit={onSubmit}>
