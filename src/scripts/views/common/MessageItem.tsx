@@ -2,7 +2,7 @@ import { SetState, UseState } from "../../commonutils";
 import { MessageDisplay } from "../../controllers/messages";
 import { CreatePost, CreatePostProps } from "./CreatePost";
 import { CustomButton } from "./CustomButtons";
-import { FormatActorName, FormatActorNameProps } from "./FormatActorName";
+import { ActorNameIcon, ActorNameProps } from "./FormatActorName";
 import { omit } from "lodash-es";
 import { MouseEvent, useState } from "react";
 import { Card } from "react-bootstrap";
@@ -18,14 +18,14 @@ export interface MessageItemProps {
     actorId: string
   ) => Promise<MessageDisplay | undefined>;
   createPostProps: CreatePostProps;
-  FormatActorNameProps: Omit<FormatActorNameProps, "id">;
+  FormatActorNameProps: Omit<ActorNameProps, "id">;
 }
 
 function MessageHeader(props: MessageItemProps) {
   return (
     <div className="d-flex align-items-center">
       <span>
-        <FormatActorName
+        <ActorNameIcon
           id={props.message.note.attributedTo}
           {...props.FormatActorNameProps}
         />
@@ -33,7 +33,7 @@ function MessageHeader(props: MessageItemProps) {
           <>
             {" "}
             replying to{" "}
-            <FormatActorName
+            <ActorNameIcon
               id={props.message.inReplyTo.actorId}
               {...props.FormatActorNameProps}
             />
@@ -104,6 +104,7 @@ function MessageFooter(props: MessageFooterProps) {
 }
 
 function MessageItem(props: MessageItemProps & MessageFooterProps) {
+  const actorsId = props.message.audienceActorsId;
   return (
     <Card className="rounded m-3">
       <Card.Header>
@@ -111,17 +112,15 @@ function MessageItem(props: MessageItemProps & MessageFooterProps) {
       </Card.Header>
       <Card.Body className="note-text no-end-margin">
         <ReactMarkdown>{props.message.note.content}</ReactMarkdown>
-      </Card.Body>
-      <hr className="m-0" />
-      <Card.Body className="note-text no-end-margin">
-        <>
+        <small>
           <span className="fw-bold">Tags:</span>
-          {props.message.audienceActorsId.map((x) => (
+          {actorsId.map((x, i) => (
             <span key={x} className="ms-2">
-              <FormatActorName id={x} {...props.FormatActorNameProps} />
+              <ActorNameIcon id={x} {...props.FormatActorNameProps} />
+              {i < actorsId.length - 1 ? "," : null}
             </span>
           ))}
-        </>
+        </small>
       </Card.Body>
       <Card.Footer>
         <MessageFooter {...props} />

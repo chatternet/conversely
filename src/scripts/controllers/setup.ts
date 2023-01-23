@@ -199,7 +199,7 @@ export async function changeDisplayName(
   pushAlertTop("Name changed.");
 }
 
-export async function addFollowing(
+export async function addContact(
   chatterNet: ChatterNet,
   id: string,
   setFollowing: SetState<Set<string>>,

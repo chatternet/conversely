@@ -5,7 +5,7 @@ import {
   CreateSelectAccountProps,
 } from "./CreateSelectAccount";
 import { CustomButton } from "./CustomButtons";
-import { FormatActorName, FormatActorNameProps } from "./FormatActorName";
+import { ActorNameIcon, ActorNameProps } from "./FormatActorName";
 import { IdName } from "chatternet-client-http";
 import { useState } from "react";
 import { Button, Modal, Spinner } from "react-bootstrap";
@@ -66,7 +66,7 @@ function AccountModalBody(props: AccountModalBodyProps) {
 
 export interface LoginButtonProps {
   localActorId: string | undefined;
-  FormatActorNameProps: Omit<FormatActorNameProps, "id" | "plain">;
+  FormatActorNameProps: Omit<ActorNameProps, "id" | "plain">;
   loggedIn: boolean;
   loggingIn: boolean;
 }
@@ -74,11 +74,7 @@ export interface LoginButtonProps {
 function LoginButton(props: LoginButtonProps) {
   if (props.loggedIn && props.localActorId) {
     return (
-      <FormatActorName
-        id={props.localActorId}
-        {...props.FormatActorNameProps}
-        bare
-      />
+      <ActorNameIcon id={props.localActorId} {...props.FormatActorNameProps} />
     );
   } else if (props.loggingIn) {
     return (

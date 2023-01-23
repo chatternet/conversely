@@ -33,3 +33,12 @@ export function AlertNotLoggedIn() {
     </CustomAlert>
   );
 }
+
+export function AlertAddAccount() {
+  return (
+    <CustomAlert variant="info">
+      Adding a contact will allow you to receive messages sent and viewed by
+      that contact. Add only trustworthy contacts to avoid unwanted messages.
+    </CustomAlert>
+  );
+}

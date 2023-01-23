@@ -1,7 +1,7 @@
 import { UseState } from "../../commonutils";
 import { AccountSelector, AccountSelectorProps } from "./AccountSelector";
 import { AlertPasswordField } from "./CustomAlerts";
-import { FormatActorNameProps } from "./FormatActorName";
+import { ActorNameProps } from "./FormatActorName";
 import React, { useEffect, useState } from "react";
 import {
   Button,
@@ -126,7 +126,7 @@ export function CreateAccount(props: CreateAccountProps) {
 
 export interface SelectAccountProps {
   accountsDid: string[];
-  FormatActorNameProps: Omit<FormatActorNameProps, "id">;
+  FormatActorNameProps: Omit<ActorNameProps, "id">;
   accountSelectorProps: Omit<
     AccountSelectorProps,
     "did" | "FormatActorNameProps" | "selectedDid" | "setSelectedDid"

@@ -1,10 +1,7 @@
 import { UseState } from "../commonutils";
 import { AlertNotLoggedIn, CustomAlert } from "./common/CustomAlerts";
 import { CustomButton } from "./common/CustomButtons";
-import {
-  FormatActorName,
-  FormatActorNameProps,
-} from "./common/FormatActorName";
+import { ActorNameIcon, ActorNameProps } from "./common/FormatActorName";
 import { Scaffold, ScaffoldProps } from "./common/Scaffold";
 import { FormEvent, MouseEvent, useState } from "react";
 import { Card, Container, Form, Button, ListGroup } from "react-bootstrap";
@@ -12,8 +9,8 @@ import { Card, Container, Form, Button, ListGroup } from "react-bootstrap";
 export type ContactsProps = {
   localActorId: string | undefined;
   following: Set<string>;
-  FormatActorNameProps: Omit<FormatActorNameProps, "id">;
-  followDid: (id: string) => Promise<void>;
+  FormatActorNameProps: Omit<ActorNameProps, "id">;
+  addContact: (id: string) => Promise<void>;
   unfollowId: (id: string) => Promise<void>;
   scaffoldProps: Omit<ScaffoldProps, "children">;
 };
@@ -24,7 +21,7 @@ export function Contacts(props: ContactsProps) {
   function follow(event: FormEvent) {
     event.preventDefault();
     props
-      .followDid(didToFollow)
+      .addContact(didToFollow)
       .then(() => setDidToFollow(""))
       .catch((x) => console.error(x));
   }
@@ -74,7 +71,7 @@ export function Contacts(props: ContactsProps) {
                 <ListGroup.Item key={x}>
                   <div className="d-flex">
                     <div className="me-auto">
-                      <FormatActorName id={x} {...props.FormatActorNameProps} />
+                      <ActorNameIcon id={x} {...props.FormatActorNameProps} />
                     </div>
                     <div>
                       <small>

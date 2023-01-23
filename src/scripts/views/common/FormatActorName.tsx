@@ -1,61 +1,48 @@
 import { IdToName } from "../../controllers/interfaces";
 import { Jidenticon } from "./Jidenticon";
-import { MouseEvent } from "react";
 import { Link } from "react-router-dom";
 
-export interface FormatActorNameProps {
+export interface ActorNameProps {
   id: string;
   idToName: IdToName;
-  localActorId?: string;
-  bare?: boolean;
+  noLink?: boolean;
   contacts?: Set<string>;
-  addFollowing?: (id: string) => Promise<void>;
+  style?: React.CSSProperties;
+  className?: string;
 }
 
-export function FormatActorName(props: FormatActorNameProps) {
-  function addFollowing(event: MouseEvent) {
-    event.preventDefault();
-    if (props.addFollowing == null) return;
-    props.addFollowing(props.id).catch((x) => console.error(x));
-  }
-
+export function ActorName(props: ActorNameProps) {
   const [did] = props.id.split("/");
   const suffix = did.split("").reverse().slice(0, 8).join("");
 
   let name = props.idToName.get(props.id);
   name = name != null && name.trim().length > 0 ? name : suffix;
 
-  const isLocal = props.localActorId === props.id;
   const isContact = props.contacts && props.contacts.has(props.id);
-  const showIsContact =
-    !props.bare && !isLocal && isContact && !!props.addFollowing;
-  const showAddContact =
-    !props.bare && !isLocal && !isContact && !!props.addFollowing;
-
+  const jointClassName = ["text-nowrap", props.className].join(" ");
   const actorPath = `/actor?did=${did}`;
 
   return (
-    <span className="text-nowrap">
+    <span className={jointClassName} style={props.style}>
+      {props.noLink ? name : <Link to={actorPath}>{name}</Link>}
+      {isContact ? (
+        <span className="ms-1">
+          <i className="bi bi-person-fill"></i>
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
+export function ActorNameIcon(props: ActorNameProps) {
+  const { className, style, ...otherProps } = props;
+  const jointClassName = ["text-nowrap", props.className].join(" ");
+  return (
+    <span className={jointClassName}>
       <span className="me-1">
-        <Jidenticon value={props.id} size="1em" />
+        <Jidenticon value={otherProps.id} size="1.25em" className="border" />
       </span>
-      {props.bare ? (
-        <span className="fw-bold">{name}</span>
-      ) : (
-        <Link to={actorPath}>{name}</Link>
-      )}
-      {showIsContact ? (
-        <span className="ms-1">
-          <i className="bi bi-person-check-fill"></i>
-        </span>
-      ) : null}
-      {showAddContact ? (
-        <span className="ms-1">
-          <a href="#" onClick={addFollowing}>
-            <i className="bi bi-person-plus-fill"></i>
-          </a>
-        </span>
-      ) : null}
+      <ActorName {...otherProps} />
     </span>
   );
 }

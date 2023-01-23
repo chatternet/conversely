@@ -14,10 +14,7 @@ import {
   CreateSelectAccountProps,
 } from "./common/CreateSelectAccount";
 import { CustomAlert } from "./common/CustomAlerts";
-import {
-  FormatActorName,
-  FormatActorNameProps,
-} from "./common/FormatActorName";
+import { ActorNameIcon, ActorNameProps } from "./common/FormatActorName";
 import { MessagesList, MessagesListProps } from "./common/MessagesList";
 import { Scaffold, ScaffoldProps } from "./common/Scaffold";
 import React, { useState } from "react";
@@ -60,7 +57,7 @@ export type WelcomeProps = {
   loggedIn: boolean | undefined;
   localActorId: string | undefined;
   newDefaultAccount: boolean;
-  FormatActorNameProps: Omit<FormatActorNameProps, "id">;
+  FormatActorNameProps: Omit<ActorNameProps, "id">;
   messagesListProps: Omit<MessagesListProps, "pageSize" | "allowMore">;
   createSelectAccountProps: CreateSelectAccountProps;
   scaffoldProps: Omit<ScaffoldProps, "children">;
@@ -92,7 +89,7 @@ export function Welcome(props: WelcomeProps) {
             {props.localActorId ? (
               <>
                 {" "}
-                <FormatActorName
+                <ActorNameIcon
                   id={props.localActorId}
                   {...props.FormatActorNameProps}
                 />

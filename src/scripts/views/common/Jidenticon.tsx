@@ -7,6 +7,7 @@ import { useRef, useEffect } from "react";
 export interface JidenticonProps {
   value: string;
   size?: string;
+  className?: string;
 }
 
 export function Jidenticon(props: JidenticonProps) {
@@ -33,6 +34,7 @@ export function Jidenticon(props: JidenticonProps) {
       height={size}
       ref={icon}
       width={size}
+      className={props.className}
       style={{
         borderRadius: "50%",
       }}
