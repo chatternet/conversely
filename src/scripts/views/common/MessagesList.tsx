@@ -7,7 +7,7 @@ import {
 import { CustomButton } from "./CustomButtons";
 import { MessageItemGroup, MessageItemProps } from "./MessageItem";
 import type { MessageIter, Model } from "chatternet-client-http";
-import React, { useEffect, useState, MouseEvent } from "react";
+import React, { useEffect, useState } from "react";
 import { Card } from "react-bootstrap";
 
 export interface MessagesListProps {
@@ -26,7 +26,7 @@ export interface MessagesListProps {
   viewMessage: (message: Model.Message) => Promise<void>;
   getMessage: (id: string) => Promise<Model.Message | undefined>;
   getActor: (id: string) => Promise<Model.Actor | undefined>;
-  getBody: (id: string) => Promise<Model.Body | undefined>;
+  getBody: (id: string) => Promise<Model.NoteMd1k | undefined>;
   deleteMessage: (messageId: string) => Promise<void>;
   messageItemProps: Omit<
     MessageItemProps,

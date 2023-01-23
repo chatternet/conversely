@@ -112,6 +112,17 @@ function MessageItem(props: MessageItemProps & MessageFooterProps) {
       <Card.Body className="note-text no-end-margin">
         <ReactMarkdown>{props.message.note.content}</ReactMarkdown>
       </Card.Body>
+      <hr className="m-0" />
+      <Card.Body className="note-text no-end-margin">
+        <>
+          <span className="fw-bold">Tags:</span>
+          {props.message.audienceActorsId.map((x) => (
+            <span key={x} className="ms-2">
+              <FormatActorName id={x} {...props.FormatActorNameProps} />
+            </span>
+          ))}
+        </>
+      </Card.Body>
       <Card.Footer>
         <MessageFooter {...props} />
       </Card.Footer>
