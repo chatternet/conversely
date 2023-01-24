@@ -36,6 +36,7 @@ import {
 } from "./views/common/MessageTop";
 import { MessagesListProps } from "./views/common/MessagesList";
 import { ScaffoldProps } from "./views/common/Scaffold";
+import { TagListProps } from "./views/common/TagList";
 import { ChatterNet, Model } from "chatternet-client-http";
 import { useEffect, useState, ReactNode } from "react";
 import { createRoot } from "react-dom/client";
@@ -274,6 +275,16 @@ export function Main() {
     },
   };
 
+  const tagListProps: Omit<TagListProps, "tagsId" | "setTagsId"> = {
+    tagToId: async (tag: string) => {
+      const tagDocument = await Model.newTag30(tag);
+      const timestamp = new Date().getTime() * 1e-3;
+      idToName.update(tagDocument.id, tagDocument.name, timestamp);
+      return tagDocument.id;
+    },
+    topicNameProps,
+  };
+
   const createPostProps: CreatePostProps = {
     postNote: async (
       note: string,
@@ -295,7 +306,11 @@ export function Main() {
         inReplyTo
       );
     },
+    tagIdToName: (tagId: string) => {
+      return idToName.get(tagId);
+    },
     pushAlertTop,
+    tagListProps,
   };
 
   const messageItemProps: Omit<

@@ -105,32 +105,55 @@ function MessageFooter(props: MessageFooterProps) {
   );
 }
 
+export interface MessageItemBodyProps {
+  content: string;
+  actorsId: string[];
+  tagsId: string[];
+  actorNameProps: Omit<ActorNameProps, "id">;
+  topicNameProps: Omit<TopicNameProps, "id">;
+}
+
+function MessageItemBody(props: MessageItemBodyProps) {
+  return (
+    <>
+      <ReactMarkdown>{props.content}</ReactMarkdown>
+      <small>
+        <span className="fw-bold">Topics:</span>
+        {props.actorsId.map((x, i) => (
+          <span key={x} className="ms-2">
+            <ActorNameIcon id={x} {...props.actorNameProps} />
+            {i < props.actorsId.length - 1 ? "," : null}
+          </span>
+        ))}
+        {props.tagsId != null && props.tagsId.length > 0 ? "," : null}
+        {props.tagsId.map((x, i) => (
+          <span key={x} className="ms-2">
+            <TopicName id={x} {...props.topicNameProps} />
+            {i < props.tagsId.length - 1 ? "," : null}
+          </span>
+        ))}
+      </small>
+    </>
+  );
+}
+
 function MessageItem(props: MessageItemProps & MessageFooterProps) {
   const actorsId = props.message.audienceActorsId;
   const tagsId = props.message.audienceTagsId;
+  const messageItemBodyProps = {
+    content: props.message.note.content,
+    actorsId: actorsId,
+    tagsId: tagsId,
+    actorNameProps: props.actorNameProps,
+    topicNameProps: props.topicNameProps,
+  };
   return (
     <Card className="rounded m-3">
       <Card.Header>
         <MessageHeader {...props} />
       </Card.Header>
       <Card.Body className="note-text no-end-margin">
-        <ReactMarkdown>{props.message.note.content}</ReactMarkdown>
-        <small>
-          <span className="fw-bold">Topics:</span>
-          {actorsId.map((x, i) => (
-            <span key={x} className="ms-2">
-              <ActorNameIcon id={x} {...props.actorNameProps} />
-              {i < actorsId.length - 1 ? "," : null}
-            </span>
-          ))}
-          {tagsId != null && tagsId.length > 0 ? "," : null}
-          {tagsId.map((x, i) => (
-            <span key={x} className="ms-2">
-              <TopicName id={x} {...props.topicNameProps} />
-              {i < tagsId.length - 1 ? "," : null}
-            </span>
-          ))}
-        </small>
+        <MessageItemBody {...messageItemBodyProps} />
       </Card.Body>
       <Card.Footer>
         <MessageFooter {...props} />
@@ -177,6 +200,7 @@ function MessageItemReply(props: MessageItemProps) {
             {...createPostProps}
             postNote={props.createPostProps.postNote}
             inReplyTo={props.message.note.id}
+            defaultTagsId={props.message.audienceTagsId}
           />
         </>
       ) : null}

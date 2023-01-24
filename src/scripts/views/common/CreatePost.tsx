@@ -1,7 +1,9 @@
 import { UseState } from "../../commonutils";
 import { CustomButton } from "./CustomButtons";
+import { TagList, TagListProps } from "./TagList";
 import { ReactNode, useState } from "react";
-import { Button, Card, Form } from "react-bootstrap";
+import { useEffect } from "react";
+import { Card, Form } from "react-bootstrap";
 import ReactMarkdown from "react-markdown";
 
 export interface CreatePostProps {
@@ -12,7 +14,10 @@ export interface CreatePostProps {
     inReplyTo?: string
   ) => Promise<void>;
   pushAlertTop: (message: ReactNode) => void;
+  tagIdToName: (id: string) => string | undefined;
   inReplyTo?: string;
+  defaultTagsId?: string[];
+  tagListProps: Omit<TagListProps, "tagsId" | "setTagsId">;
 }
 
 export function CreatePost(props: CreatePostProps) {
@@ -20,8 +25,17 @@ export function CreatePost(props: CreatePostProps) {
 
   const [note, setNote]: UseState<string> = useState("");
   const [toSelf, setToSelf]: UseState<boolean> = useState(true);
-  const [tags, setTags]: UseState<string> = useState("");
+  const [tagsId, setTagsId]: UseState<string[]> = useState(new Array());
   const [showPreview, setShowPreview]: UseState<boolean> = useState(false);
+
+  useEffect(() => {
+    if (props.defaultTagsId == null || props.defaultTagsId.length <= 0) return;
+    setTagsId(props.defaultTagsId);
+  }, [props.defaultTagsId]);
+
+  const tags = tagsId
+    .map((x) => props.tagIdToName(x))
+    .filter((x) => x != null) as string[];
 
   return (
     <>
@@ -34,7 +48,7 @@ export function CreatePost(props: CreatePostProps) {
             <ReactMarkdown>{note}</ReactMarkdown>
           </Card.Body>
         ) : (
-          <Form onSubmit={() => false}>
+          <div>
             <Form.Control
               as="textarea"
               rows={4}
@@ -47,30 +61,26 @@ export function CreatePost(props: CreatePostProps) {
               }}
               className="border border-0 p-3"
             />
-            <hr className="m-0" />
-            <div className="d-flex align-items-center">
-              <Form.Check
-                type="checkbox"
-                label="To followers"
-                className="text-nowrap ms-3"
-                checked={toSelf}
-                onChange={(e) => {
-                  setToSelf(e.target.checked);
-                }}
-              />
-              <Form.Control
-                as="textarea"
-                rows={1}
-                value={tags}
-                placeholder={"add topics separated by spaces"}
-                spellCheck="false"
-                onChange={(e) => {
-                  setTags(e.target.value);
-                }}
-                className="border border-0"
-              />
-            </div>
-          </Form>
+            <small>
+              <div className="d-flex align-items-center">
+                <Form.Check
+                  inline
+                  type="checkbox"
+                  label="to followers"
+                  className="text-nowrap m-0 ms-3"
+                  checked={toSelf}
+                  onChange={(e) => {
+                    setToSelf(e.target.checked);
+                  }}
+                />
+                <TagList
+                  tagsId={tagsId}
+                  setTagsId={setTagsId}
+                  {...props.tagListProps}
+                />
+              </div>
+            </small>
+          </div>
         )}
         <Card.Footer>
           <div>
@@ -78,20 +88,12 @@ export function CreatePost(props: CreatePostProps) {
               onClick={(event) => {
                 event.preventDefault();
                 props
-                  .postNote(
-                    note,
-                    toSelf,
-                    tags
-                      .split(" ")
-                      .map((x) => x.trim())
-                      .filter((x) => !!x),
-                    props.inReplyTo
-                  )
-                  .then(() => setNote(""))
+                  .postNote(note, toSelf, tags, props.inReplyTo)
                   .catch((err) => {
                     console.error(err);
                     props.pushAlertTop("Note was not delivered.");
-                  });
+                  })
+                  .then(() => setNote(""));
               }}
               variant="outline-primary"
               className="me-2"
