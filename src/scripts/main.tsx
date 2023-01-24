@@ -154,7 +154,7 @@ export function Main() {
 
   const topicNameProps: Omit<TopicNameProps, "id"> = {
     idToName,
-    following: new Set(),
+    following,
   };
 
   const createSelectAccountProps: CreateSelectAccountProps = {
@@ -230,12 +230,6 @@ export function Main() {
     },
   };
 
-  async function getBody(id: string) {
-    const body = await chatterNet?.getDocument(id);
-    if (!Model.isNoteMd1k(body)) return;
-    return body;
-  }
-
   const messagesListProps: Omit<
     MessagesListProps,
     "pageSize" | "allowMore" | "refreshCount" | "messageItemProps"
@@ -273,7 +267,7 @@ export function Main() {
       return message;
     },
     getActor: async (id: string) => chatterNet?.getActor(id),
-    getBody,
+    getDocument: async (id: string) => chatterNet?.getDocument(id),
     deleteMessage: async (messageId: string) => {
       if (!chatterNet) return;
       await deleteMessage(chatterNet, messageId);
@@ -319,7 +313,7 @@ export function Main() {
         actorId
       );
       if (message == null) return;
-      return await buildNoteDisplay(message, getBody);
+      return await buildNoteDisplay(message, (x) => chatterNet.getDocument(x));
     },
     actorNameProps,
     topicNameProps,

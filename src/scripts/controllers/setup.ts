@@ -40,7 +40,8 @@ export async function login(
   setLoggingIn(true);
 
   try {
-    // url: "https://conversely.social/api",
+    // const url: = "https://conversely.social/api";
+    // const did = "did:key:z6Mkh8AnWFeKPMHnDVeVF1kuT8pnhTjSVFbH7SrT4CfYiNqg";
     const url = "http://127.0.0.1:3030/api";
     const did = "did:key:z6Mkh8AnWFeKPMHnDVeVF1kuT8pnhTjSVFbH7SrT4CfYiNqg";
     const servers = [{ url, did }];

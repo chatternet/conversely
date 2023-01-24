@@ -116,7 +116,7 @@ function MessageItem(props: MessageItemProps & MessageFooterProps) {
       <Card.Body className="note-text no-end-margin">
         <ReactMarkdown>{props.message.note.content}</ReactMarkdown>
         <small>
-          <span className="fw-bold">Tags:</span>
+          <span className="fw-bold">Topics:</span>
           {actorsId.map((x, i) => (
             <span key={x} className="ms-2">
               <ActorNameIcon id={x} {...props.actorNameProps} />
@@ -127,7 +127,7 @@ function MessageItem(props: MessageItemProps & MessageFooterProps) {
           {tagsId.map((x, i) => (
             <span key={x} className="ms-2">
               <TopicName id={x} {...props.topicNameProps} />
-              {i < actorsId.length - 1 ? "," : null}
+              {i < tagsId.length - 1 ? "," : null}
             </span>
           ))}
         </small>

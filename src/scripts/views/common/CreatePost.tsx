@@ -51,7 +51,7 @@ export function CreatePost(props: CreatePostProps) {
             <div className="d-flex align-items-center">
               <Form.Check
                 type="checkbox"
-                label="To followers,"
+                label="To followers"
                 className="text-nowrap ms-3"
                 checked={toSelf}
                 onChange={(e) => {
