@@ -38,7 +38,7 @@ export function TagList(props: TagListProps) {
   return (
     <>
       {props.tagsId.map((tagId) => (
-        <span className="ms-2 text-nowrap">
+        <span key={tagId} className="ms-2 text-nowrap">
           <span className="badge rounded-pill text-bg-secondary m-1 fw-normal">
             <TopicName id={tagId} {...props.topicNameProps} noLink />
           </span>

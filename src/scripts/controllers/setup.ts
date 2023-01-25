@@ -65,6 +65,9 @@ export async function login(
       )
     );
     setIdToName((x) => x.update(serverActor.id, serverName, timestamp));
+    for (const [id, name] of await ChatterNet.getIdToName()) {
+      setIdToName((x) => x.update(id, name, timestamp));
+    }
     setFollowing(await getFollowing(chatterNet));
     setChatterNet(chatterNet);
   } catch {
@@ -220,6 +223,18 @@ export async function addContact(
     .catch(() => {});
   setFollowing(await getFollowing(chatterNet));
   return true;
+}
+
+export async function addInterest(
+  chatterNet: ChatterNet,
+  tag: Model.Tag30,
+  setFollowing: SetState<Set<string>>
+) {
+  // don't need to store follows as they are managed separately
+  chatterNet
+    .postMessageDocuments(await chatterNet.newFollow(tag.id))
+    .catch(() => {});
+  setFollowing(await getFollowing(chatterNet));
 }
 
 export async function removeFollowing(

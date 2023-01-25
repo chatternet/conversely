@@ -9,9 +9,9 @@ import { Card, Container, Form, Button, ListGroup } from "react-bootstrap";
 export type ContactsProps = {
   localActorId: string | undefined;
   following: Set<string>;
-  FormatActorNameProps: Omit<ActorNameProps, "id">;
   addContact: (id: string) => Promise<void>;
   unfollowId: (id: string) => Promise<void>;
+  formatActorNameProps: Omit<ActorNameProps, "id">;
   scaffoldProps: Omit<ScaffoldProps, "children">;
 };
 
@@ -48,11 +48,7 @@ export function Contacts(props: ContactsProps) {
                       />
                     </div>
                     <div>
-                      <CustomButton
-                        type="submit"
-                        variant="outline-primary"
-                        small
-                      >
+                      <CustomButton type="submit" variant="primary" small>
                         Add contact
                       </CustomButton>
                     </div>
@@ -71,7 +67,7 @@ export function Contacts(props: ContactsProps) {
                 <ListGroup.Item key={x}>
                   <div className="d-flex">
                     <div className="me-auto">
-                      <ActorNameIcon id={x} {...props.FormatActorNameProps} />
+                      <ActorNameIcon id={x} {...props.formatActorNameProps} />
                     </div>
                     <div>
                       <small>
@@ -86,7 +82,7 @@ export function Contacts(props: ContactsProps) {
                             }}
                             className="fw-normal bg-danger text-white rounded-pill mb-2 py-1 px-2"
                           >
-                            Unfollow
+                            Remove contact
                           </a>
                         ) : null}
                       </small>

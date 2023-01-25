@@ -105,7 +105,7 @@ export function AccountModal(props: AccountModalProps) {
   return (
     <>
       <Button
-        className="bg-purple-to-red border border-0 shadow-sm"
+        className="bg-purple-to-red border border-0 rounded-pill shadow-sm"
         onClick={() => {
           if (props.loggingIn) return;
           setShowModal(true);

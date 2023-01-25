@@ -22,14 +22,20 @@ export function ActorName(props: ActorNameProps) {
   const jointClassName = ["text-nowrap", props.className].join(" ");
   const actorPath = `/actor?did=${did}`;
 
-  return (
-    <span className={jointClassName} style={props.style}>
-      {props.noLink ? name : <Link to={actorPath}>{name}</Link>}
+  const content = (
+    <>
+      {name}
       {isContact ? (
         <span className="ms-1">
-          <i className="bi bi-person-fill"></i>
+          <i className="bi bi-check-circle-fill"></i>
         </span>
       ) : null}
+    </>
+  );
+
+  return (
+    <span className={jointClassName} style={props.style}>
+      {props.noLink ? content : <Link to={actorPath}>{content}</Link>}
     </span>
   );
 }

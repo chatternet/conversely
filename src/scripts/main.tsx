@@ -17,17 +17,19 @@ import {
   acceptMessage,
   deleteMessage,
   isPasswordless,
+  addInterest,
 } from "./controllers/setup.js";
 import { Actor, ActorProps } from "./views/Actor";
 import { Contacts, ContactsProps } from "./views/Contacts";
 import { Feed, FeedProps } from "./views/Feed";
 import { Followers, FollowersProps } from "./views/Followers";
+import { Interests, InterestsProps } from "./views/Interests";
 import { Settings, SettingsProps } from "./views/Settings";
 import { Welcome, WelcomeProps } from "./views/Welcome";
 import { CreatePostProps } from "./views/common/CreatePost";
 import { CreateSelectAccountProps } from "./views/common/CreateSelectAccount";
 import { ActorNameIcon, ActorNameProps } from "./views/common/FormatActorName";
-import { TopicNameProps } from "./views/common/FormatTopicName";
+import { TopicName, TopicNameProps } from "./views/common/FormatTopicName";
 import { HeaderProps } from "./views/common/Header";
 import { MessageItemProps } from "./views/common/MessageItem";
 import {
@@ -140,6 +142,16 @@ export function Main() {
 
   const pushAlertTop = (message: ReactNode) =>
     pushAlertTopController(message, setAlertTopState);
+
+  async function newTag(name: string): Promise<Model.Tag30> {
+    if (!chatterNet) {
+      throw new Error(errorNoChatterNet);
+    }
+    const timestamp = new Date().getTime() * 1e-3;
+    const tag = await chatterNet.buildTag(name);
+    setIdToName((x) => x.update(tag.id, tag.name, timestamp));
+    return tag;
+  }
 
   const loggedIn = !!chatterNet;
   const did = !chatterNet ? undefined : chatterNet.getLocalDid();
@@ -276,11 +288,9 @@ export function Main() {
   };
 
   const tagListProps: Omit<TagListProps, "tagsId" | "setTagsId"> = {
-    tagToId: async (tag: string) => {
-      const tagDocument = await Model.newTag30(tag);
-      const timestamp = new Date().getTime() * 1e-3;
-      idToName.update(tagDocument.id, tagDocument.name, timestamp);
-      return tagDocument.id;
+    tagToId: async (name: string) => {
+      const tag = await newTag(name);
+      return tag.id;
     },
     topicNameProps,
   };
@@ -367,6 +377,7 @@ export function Main() {
 
   const actorProps: Omit<ActorProps, "actorId"> = {
     loggedIn,
+    following,
     actorNameProps,
     messagesListProps: {
       ...messagesListProps,
@@ -392,7 +403,7 @@ export function Main() {
   const contactProps: ContactsProps = {
     localActorId,
     following,
-    FormatActorNameProps: {
+    formatActorNameProps: {
       ...actorNameProps,
       contacts: undefined,
     },
@@ -421,6 +432,41 @@ export function Main() {
           Stopped following <ActorNameIcon id={id} {...actorNameProps} />
         </span>
       );
+    },
+    scaffoldProps,
+  };
+
+  const interestsProps: InterestsProps = {
+    loggedIn,
+    following,
+    addInterest: async (name: string) => {
+      if (!chatterNet) {
+        pushAlertTop(errorNoChatterNet);
+        return;
+      }
+      const tag = await newTag(name);
+      await addInterest(chatterNet, tag, setFollowing);
+      pushAlertTop(
+        <span>
+          Following <TopicName id={tag.id} {...topicNameProps} />
+        </span>
+      );
+    },
+    unfollowId: async (id: string) => {
+      if (!chatterNet) {
+        pushAlertTop(errorNoChatterNet);
+        return;
+      }
+      await removeFollowing(chatterNet, id, setFollowing);
+      pushAlertTop(
+        <span>
+          Stopped following <TopicName id={id} {...topicNameProps} />
+        </span>
+      );
+    },
+    formatTopicNameProps: {
+      ...topicNameProps,
+      following: undefined,
     },
     scaffoldProps,
   };
@@ -483,6 +529,10 @@ export function Main() {
     {
       path: "/contacts",
       element: <Contacts {...contactProps} />,
+    },
+    {
+      path: "/interests",
+      element: <Interests {...interestsProps} />,
     },
     {
       path: "/followers",
