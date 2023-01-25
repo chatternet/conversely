@@ -26,7 +26,7 @@ export interface MessagesListProps {
   viewMessage: (message: Model.Message) => Promise<void>;
   getMessage: (id: string) => Promise<Model.Message | undefined>;
   getActor: (id: string) => Promise<Model.Actor | undefined>;
-  getBody: (id: string) => Promise<Model.NoteMd1k | undefined>;
+  getDocument: (id: string) => Promise<Model.WithId | undefined>;
   deleteMessage: (messageId: string) => Promise<void>;
   messageItemProps: Omit<
     MessageItemProps,
@@ -75,7 +75,7 @@ export function MessagesList(props: MessagesListProps) {
         props.viewMessage,
         props.getMessage,
         props.getActor,
-        props.getBody,
+        props.getDocument,
         setMessages
       )
     );

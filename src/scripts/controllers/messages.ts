@@ -1,6 +1,7 @@
 import type { SetState } from "../commonutils.js";
 import { IdToName } from "./interfaces.js";
-import type { Model, MessageIter } from "chatternet-client-http";
+import { Model, MessageIter } from "chatternet-client-http";
+import { get } from "lodash-es";
 
 export interface MessageDisplayNote {
   id: string;
@@ -40,11 +41,13 @@ function extractNote(
 
 export async function buildNoteDisplay(
   message: Model.Message,
-  getBody: (id: string) => Promise<Model.NoteMd1k | undefined>
+  getDocument: (id: string) => Promise<Model.WithId | undefined>
 ): Promise<MessageDisplay | undefined> {
   const [objectId] = message.object;
-  const objectDoc = await getBody(objectId);
+  const objectDoc = await getDocument(objectId);
   if (objectDoc == null) return;
+  if (!Model.isNoteMd1k(objectDoc)) return;
+  if (!(await Model.verifyNoteMd1k(objectDoc))) return;
 
   // display only notes from message actor
   const note = extractNote(objectDoc);
@@ -52,10 +55,10 @@ export async function buildNoteDisplay(
   if (message.actor !== note.attributedTo) return;
 
   const inReplyToDoc = objectDoc.inReplyTo
-    ? await getBody(objectDoc.inReplyTo)
+    ? await getDocument(objectDoc.inReplyTo)
     : undefined;
   let inReplyTo: InReplyTo | undefined = undefined;
-  if (inReplyToDoc) {
+  if (inReplyToDoc != null && Model.isNoteMd1k(inReplyToDoc)) {
     inReplyTo = {
       actorId: inReplyToDoc.attributedTo,
       objectId: inReplyToDoc.id,
@@ -96,9 +99,9 @@ export class MessageDisplayGrouper {
       id: string
     ) => Promise<Model.Message | undefined>,
     private readonly getActor: (id: string) => Promise<Model.Actor | undefined>,
-    private readonly getBody: (
+    private readonly getDocument: (
       id: string
-    ) => Promise<Model.NoteMd1k | undefined>,
+    ) => Promise<Model.WithId | undefined>,
     private readonly setMessages: SetState<MessageDisplay[] | undefined>,
     private readonly seenMessagesId: Set<string> = new Set()
   ) {}
@@ -111,6 +114,17 @@ export class MessageDisplayGrouper {
     // current as of now
     const timestamp = new Date().getTime() * 1e-3;
     this.setIdToName((x) => x.update(actorId, actorName, timestamp));
+  }
+
+  private async updateTopicName(id: string): Promise<void> {
+    const document = await this.getDocument(id);
+    if (!document) return;
+    if (!Model.isTag30(document)) return;
+    if (!(await Model.verifyTag30(document))) return;
+    if (!document.name) return;
+    // current as of now
+    const timestamp = new Date().getTime() * 1e-3;
+    this.setIdToName((x) => x.update(id, document.name, timestamp));
   }
 
   private async buildMessageDisplay(
@@ -134,10 +148,16 @@ export class MessageDisplayGrouper {
       }
     }
 
-    const display = await buildNoteDisplay(message, this.getBody);
+    const display = await buildNoteDisplay(message, this.getDocument);
     if (display == null) return;
 
     this.updateActorName(message.actor).catch((x) => console.error(x));
+    for (const audienceId of message.to ?? []) {
+      if (!audienceId.endsWith("/followers")) continue;
+      this.updateTopicName(audienceId.slice(0, -10)).catch((x) =>
+        console.error(x)
+      );
+    }
     return display;
   }
 
