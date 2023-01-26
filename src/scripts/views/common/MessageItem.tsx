@@ -191,7 +191,7 @@ function MessageItemReply(props: MessageItemProps) {
     if (!props.message.inReplyTo) return;
     const parent = await props.buildParentDisplay(
       props.message.inReplyTo.objectId,
-      props.message.note.attributedTo
+      props.message.inReplyTo.actorId
     );
     if (!parent) return;
     props.setGroup((x) => {
