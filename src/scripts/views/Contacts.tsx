@@ -26,6 +26,8 @@ export function Contacts(props: ContactsProps) {
       .catch((x) => console.error(x));
   }
 
+  const contacts = [...props.following].filter((x) => x.startsWith("did:key:"));
+
   return (
     <Scaffold {...props.scaffoldProps}>
       <Container className="my-3 max-width-md mx-auto">
@@ -63,7 +65,7 @@ export function Contacts(props: ContactsProps) {
             </Card>
             <span className="lead">Contact accounts</span>
             <ListGroup className="my-3">
-              {[...props.following].map((x) => (
+              {contacts.map((x) => (
                 <ListGroup.Item key={x}>
                   <div className="d-flex">
                     <div className="me-auto">
