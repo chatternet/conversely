@@ -3,11 +3,14 @@
 npm run clean
 npm run fmt
 npm run build
-cp dist/index.html dist/feed.html
-cp dist/index.html dist/contacts.html
-cp dist/index.html dist/interests.html
-cp dist/index.html dist/followers.html
-cp dist/index.html dist/settings.html
-cp dist/index.html dist/actor.html
-. ~/dhadmin/select conv
-scp -r dist/* $dhs:~/conversely.social/
+for page in feed contacts interests followers settings actor; do
+  mkdir -p dist/$page
+  pushd dist/$page
+  ln -s ../index.html index.html
+  popd
+done
+pushd dist && \
+  tar -cf - . | \
+  ssh $dhs 'cd ~/conversely.social/ && tar -xf -' && \
+  popd
+
