@@ -8,6 +8,7 @@ export interface TopicNameProps {
   following?: Set<string>;
   style?: React.CSSProperties;
   className?: string;
+  isMessage?: boolean;
 }
 
 export function TopicName(props: TopicNameProps) {
@@ -32,7 +33,13 @@ export function TopicName(props: TopicNameProps) {
 
   return (
     <span className={jointClassName} style={props.style}>
-      <i className="bi bi-hash"></i>
+      {props.isMessage ? (
+        <span className="mx-1">
+          <i className="bi bi-envelope"></i>
+        </span>
+      ) : (
+        <i className="bi bi-hash"></i>
+      )}
       {content}
       {isFollowed ? (
         <span className="ms-1">

@@ -30,12 +30,12 @@ function MessageHeader(props: MessageItemProps) {
         <ActorNameIcon
           id={props.message.note.attributedTo}
           {...props.actorNameProps}
-        />
+        />{" "}
         <small className="text-secondary">
           <TopicName
             id={props.message.objectId}
             {...props.topicNameProps}
-            className="mx-1"
+            isMessage
           />
         </small>
         {props.message.inReplyTo ? (
@@ -45,12 +45,12 @@ function MessageHeader(props: MessageItemProps) {
             <ActorNameIcon
               id={props.message.inReplyTo.actorId}
               {...props.actorNameProps}
-            />
+            />{" "}
             <small className="text-secondary">
               <TopicName
                 id={props.message.inReplyTo.objectId}
                 {...props.topicNameProps}
-                className="mx-1"
+                isMessage
               />
             </small>
           </>
