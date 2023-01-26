@@ -22,9 +22,9 @@ export function TopicName(props: TopicNameProps) {
   const topicPath = `/topic?id=${id}`;
 
   const content = hasName ? (
-    `#${name}`
+    name
   ) : (
-    <span className="font-monospace">#id:{suffix}</span>
+    <span className="font-monospace">{suffix}</span>
   );
 
   // TODO: re-add link when working
@@ -32,10 +32,11 @@ export function TopicName(props: TopicNameProps) {
 
   return (
     <span className={jointClassName} style={props.style}>
+      <i className="bi bi-hash"></i>
       {content}
       {isFollowed ? (
         <span className="ms-1">
-          <i className="bi bi-check"></i>
+          <i className="bi bi-check-circle-fill"></i>
         </span>
       ) : null}
     </span>

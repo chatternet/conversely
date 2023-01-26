@@ -61,6 +61,7 @@ export function CreatePost(props: CreatePostProps) {
               }}
               className="border border-0 p-3"
             />
+            <hr className="m-0" />
             <small>
               <div className="d-flex align-items-center">
                 <Form.Check

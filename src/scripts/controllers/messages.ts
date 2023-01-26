@@ -16,6 +16,7 @@ export interface InReplyTo {
 
 export interface MessageDisplay {
   id: string;
+  objectId: string;
   timestamp: number;
   note: MessageDisplayNote;
   message: Model.Message;
@@ -78,6 +79,7 @@ export async function buildNoteDisplay(
 
   return {
     id: message.id,
+    objectId,
     timestamp,
     note,
     message,

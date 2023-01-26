@@ -3,6 +3,7 @@
  */
 import * as jdenticon from "jdenticon";
 import { useRef, useEffect } from "react";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 export interface JidenticonProps {
   value: string;
@@ -28,16 +29,29 @@ export function Jidenticon(props: JidenticonProps) {
     });
     jdenticon.update(icon.current, props.value);
   }, [props.value]);
+  const [id] = props.value.split("/");
+  const suffix = id.split("").reverse().slice(0, 8).join("");
+  const tooltip = (
+    <Tooltip id={id}>
+      <small className="font-monospace">{suffix}</small>
+    </Tooltip>
+  );
   return (
-    <svg
-      data-jdenticon-value={props.value}
-      height={size}
-      ref={icon}
-      width={size}
-      className={props.className}
-      style={{
-        borderRadius: "50%",
-      }}
-    />
+    <OverlayTrigger
+      overlay={tooltip}
+      trigger={["hover", "focus", "click"]}
+      delay={{ show: 300, hide: 400 }}
+    >
+      <svg
+        data-jdenticon-value={props.value}
+        height={size}
+        ref={icon}
+        width={size}
+        className={props.className}
+        style={{
+          borderRadius: "50%",
+        }}
+      />
+    </OverlayTrigger>
   );
 }

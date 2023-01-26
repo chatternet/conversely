@@ -31,6 +31,13 @@ function MessageHeader(props: MessageItemProps) {
           id={props.message.note.attributedTo}
           {...props.actorNameProps}
         />
+        <small className="text-secondary">
+          <TopicName
+            id={props.message.objectId}
+            {...props.topicNameProps}
+            className="mx-1"
+          />
+        </small>
         {props.message.inReplyTo ? (
           <>
             {" "}
@@ -39,6 +46,13 @@ function MessageHeader(props: MessageItemProps) {
               id={props.message.inReplyTo.actorId}
               {...props.actorNameProps}
             />
+            <small className="text-secondary">
+              <TopicName
+                id={props.message.inReplyTo.objectId}
+                {...props.topicNameProps}
+                className="mx-1"
+              />
+            </small>
           </>
         ) : null}
       </span>
@@ -88,7 +102,7 @@ function MessageFooter(props: MessageFooterProps) {
           className="me-2"
           small
         >
-          Replied from
+          Show parent
         </CustomButton>
       ) : null}
       {props.message.note.attributedTo === props.localActorId ? (
@@ -116,23 +130,28 @@ export interface MessageItemBodyProps {
 function MessageItemBody(props: MessageItemBodyProps) {
   return (
     <>
-      <ReactMarkdown>{props.content}</ReactMarkdown>
-      <small>
-        <span className="fw-bold">Topics:</span>
-        {props.actorsId.map((x, i) => (
-          <span key={x} className="ms-2">
-            <ActorNameIcon id={x} {...props.actorNameProps} />
-            {i < props.actorsId.length - 1 ? "," : null}
-          </span>
-        ))}
-        {props.tagsId != null && props.tagsId.length > 0 ? "," : null}
-        {props.tagsId.map((x, i) => (
-          <span key={x} className="ms-2">
-            <TopicName id={x} {...props.topicNameProps} />
-            {i < props.tagsId.length - 1 ? "," : null}
-          </span>
-        ))}
-      </small>
+      <Card.Body className="note-text no-end-margin">
+        <ReactMarkdown>{props.content}</ReactMarkdown>
+      </Card.Body>
+      <hr className="my-0" />
+      <Card.Body className="note-text no-end-margin py-2">
+        <small>
+          <span className="fw-bold">Topics:</span>
+          {props.actorsId.map((x, i) => (
+            <span key={x} className="ms-2">
+              <ActorNameIcon id={x} {...props.actorNameProps} />
+              {i < props.actorsId.length - 1 ? "," : null}
+            </span>
+          ))}
+          {props.tagsId != null && props.tagsId.length > 0 ? "," : null}
+          {props.tagsId.map((x, i) => (
+            <span key={x} className="ms-2">
+              <TopicName id={x} {...props.topicNameProps} />
+              {i < props.tagsId.length - 1 ? "," : null}
+            </span>
+          ))}
+        </small>
+      </Card.Body>
     </>
   );
 }
@@ -152,9 +171,7 @@ function MessageItem(props: MessageItemProps & MessageFooterProps) {
       <Card.Header>
         <MessageHeader {...props} />
       </Card.Header>
-      <Card.Body className="note-text no-end-margin">
-        <MessageItemBody {...messageItemBodyProps} />
-      </Card.Body>
+      <MessageItemBody {...messageItemBodyProps} />
       <Card.Footer>
         <MessageFooter {...props} />
       </Card.Footer>

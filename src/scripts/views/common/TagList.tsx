@@ -68,7 +68,7 @@ export function TagList(props: TagListProps) {
           style={{ width: "12em", fontSize: "inherit" }}
         />
         <Button variant="link" className="p-0" onClick={addTag}>
-          <i className="bi bi-check-circle"></i>
+          <i className="bi bi-plus-circle"></i>
         </Button>
       </span>
     </>
