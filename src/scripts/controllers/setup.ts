@@ -40,10 +40,10 @@ export async function login(
   setLoggingIn(true);
 
   try {
-    // const url: = "https://conversely.social/api";
+    // const url = "http://127.0.0.1:3030/api";
     // const did = "did:key:z6Mkh8AnWFeKPMHnDVeVF1kuT8pnhTjSVFbH7SrT4CfYiNqg";
-    const url = "http://127.0.0.1:3030/api";
-    const did = "did:key:z6Mkh8AnWFeKPMHnDVeVF1kuT8pnhTjSVFbH7SrT4CfYiNqg";
+    const url = "https://conversely.social/api";
+    const did = "did:key:z6Mkmi8mefbMQSrBMGb9zYhhLoKrT1ETqLS24uxDNdcNb9e8";
     const servers = [{ url, did }];
     const chatterNet = await ChatterNet.new(
       loginInfo.did,

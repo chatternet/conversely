@@ -5,6 +5,7 @@ npm run fmt
 npm run build
 cp dist/index.html dist/feed.html
 cp dist/index.html dist/contacts.html
+cp dist/index.html dist/interests.html
 cp dist/index.html dist/followers.html
 cp dist/index.html dist/settings.html
 cp dist/index.html dist/actor.html
