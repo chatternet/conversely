@@ -1,9 +1,13 @@
 import { default as ANIMAL_NAMES } from "../../assets/alliterative-animals.json";
 import { localGet, SetState } from "../commonutils";
 import type { IdToName, LoginInfo } from "./interfaces";
-import { ChatterNet, DidKey, Model } from "chatternet-client-http";
+import { ChatterNet, DidKey, IdName, Model } from "chatternet-client-http";
 import { includes, has, remove, sample } from "lodash-es";
 import { ReactNode } from "react";
+
+export function getTimestamp(): number {
+  return new Date().getTime() * 1e-3;
+}
 
 export async function getFollowing(
   chatterNet: ChatterNet
@@ -51,12 +55,16 @@ export async function login(
       servers
     );
     updatePasswordless(loginInfo);
-    const timestamp = new Date().getTime() * 1e-3;
+    const timestamp = getTimestamp();
     const serverActor = await chatterNet.getActor(`${did}/actor`);
     if (serverActor == null) throw Error("server has no actor");
     const serverName = serverActor.name;
     if (serverName == null) throw Error("server has no name");
-    chatterNet.newFollow(serverActor.id);
+    chatterNet.newFollow({
+      id: serverActor.id,
+      name: serverName,
+      timestamp: getTimestamp(),
+    });
     setIdToName((x) =>
       x.update(
         ChatterNet.actorFromDid(chatterNet.getLocalDid()),
@@ -197,16 +205,59 @@ export async function changeDisplayName(
   chatterNet.postMessageDocuments(actor).catch((x) => {
     console.error(x);
   });
-  const timestamp = new Date().getTime() * 1e-3;
+  const timestamp = getTimestamp();
   const actorId = ChatterNet.actorFromDid(chatterNet.getLocalDid());
   setIdToName((x) => x.update(actorId, chatterNet.getLocalName(), timestamp));
   pushAlertTop("Name changed.");
+}
+
+export async function updateIdName(
+  chatterNet: ChatterNet,
+  idName: IdName,
+  setIdToName: SetState<IdToName>
+) {
+  // this doesn't add a name, only updates existing ones
+  await chatterNet.updateIdName(idName);
+  // this adds the name to the session state and updates as necessary
+  setIdToName((x) => x.update(idName.id, idName.name, idName.timestamp));
+}
+
+export async function newTag(
+  chatterNet: ChatterNet,
+  name: string,
+  setIdToName: SetState<IdToName>
+): Promise<Model.Tag30> {
+  const timestamp = getTimestamp();
+  const tag = await chatterNet.buildTag(name);
+  // track the name at least for the duration of the session
+  await updateIdName(
+    chatterNet,
+    { id: tag.id, name: tag.name, timestamp },
+    setIdToName
+  );
+  return tag;
+}
+
+export async function follow(
+  chatterNet: ChatterNet,
+  idName: IdName,
+  setFollowing: SetState<Set<string>>,
+  setIdToName: SetState<IdToName>
+): Promise<boolean> {
+  // don't need to store follows as they are managed separately
+  chatterNet
+    .postMessageDocuments(await chatterNet.newFollow(idName))
+    .catch(() => {});
+  setFollowing(await getFollowing(chatterNet));
+  updateIdName(chatterNet, idName, setIdToName);
+  return true;
 }
 
 export async function addContact(
   chatterNet: ChatterNet,
   id: string,
   setFollowing: SetState<Set<string>>,
+  setIdToName: SetState<IdToName>,
   pushAlertTop: (x: ReactNode) => void
 ): Promise<boolean> {
   if (!id) {
@@ -217,11 +268,14 @@ export async function addContact(
     pushAlertTop("Follow ID is invalid.");
     return false;
   }
+  const timestamp = getTimestamp();
+  await follow(chatterNet, { id, timestamp }, setFollowing, setIdToName);
   // don't need to store follows as they are managed separately
   chatterNet
-    .postMessageDocuments(await chatterNet.newFollow(id))
+    .postMessageDocuments(await chatterNet.newFollow({ id, timestamp }))
     .catch(() => {});
   setFollowing(await getFollowing(chatterNet));
+  updateIdName(chatterNet, { id, timestamp }, setIdToName);
   return true;
 }
 
@@ -230,9 +284,12 @@ export async function addInterest(
   tag: Model.Tag30,
   setFollowing: SetState<Set<string>>
 ) {
+  const timestamp = getTimestamp();
   // don't need to store follows as they are managed separately
   chatterNet
-    .postMessageDocuments(await chatterNet.newFollow(tag.id))
+    .postMessageDocuments(
+      await chatterNet.newFollow({ id: tag.id, name: tag.name, timestamp })
+    )
     .catch(() => {});
   setFollowing(await getFollowing(chatterNet));
 }

@@ -33,10 +33,14 @@ export class IdToName {
    * @param timestamp the timestamp at which this name was published
    * @returns the same or a new `IdToName` object
    */
-  update(id: string, name: string, timestamp: number): IdToName {
+  update(id: string, name: string | undefined, timestamp: number): IdToName {
     const lastTimestamp = this.idToNameTime.get(id)?.timestamp;
     if (lastTimestamp != null && timestamp <= lastTimestamp) return this;
-    this.idToNameTime.set(id, { name, timestamp });
+    if (name == null) {
+      this.idToNameTime.delete(id);
+    } else {
+      this.idToNameTime.set(id, { name, timestamp });
+    }
     return new IdToName(this.idToNameTime);
   }
 
@@ -45,10 +49,13 @@ export class IdToName {
   }
 
   getIdNames(): IdName[] {
-    return [...this.idToNameTime.entries()].map(([id, { name }]) => ({
-      id,
-      name,
-    }));
+    return [...this.idToNameTime.entries()].map(
+      ([id, { name, timestamp }]) => ({
+        id,
+        name,
+        timestamp,
+      })
+    );
   }
 
   isEmpty(): boolean {

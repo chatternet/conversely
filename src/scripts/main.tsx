@@ -18,6 +18,8 @@ import {
   deleteMessage,
   isPasswordless,
   addInterest,
+  getTimestamp,
+  newTag,
 } from "./controllers/setup.js";
 import { Actor, ActorProps } from "./views/Actor";
 import { Contacts, ContactsProps } from "./views/Contacts";
@@ -39,7 +41,7 @@ import {
 import { MessagesListProps } from "./views/common/MessagesList";
 import { ScaffoldProps } from "./views/common/Scaffold";
 import { TagListProps } from "./views/common/TagList";
-import { ChatterNet, Model } from "chatternet-client-http";
+import { ChatterNet, IdName, Model } from "chatternet-client-http";
 import { useEffect, useState, ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -143,22 +145,16 @@ export function Main() {
   const pushAlertTop = (message: ReactNode) =>
     pushAlertTopController(message, setAlertTopState);
 
-  async function newTag(name: string): Promise<Model.Tag30> {
-    if (!chatterNet) {
-      throw new Error(errorNoChatterNet);
-    }
-    const timestamp = new Date().getTime() * 1e-3;
-    const tag = await chatterNet.buildTag(name);
-    setIdToName((x) => x.update(tag.id, tag.name, timestamp));
-    return tag;
-  }
-
   const loggedIn = !!chatterNet;
   const did = !chatterNet ? undefined : chatterNet.getLocalDid();
   const localActorId = !did ? undefined : ChatterNet.actorFromDid(did);
   const didName = !chatterNet
     ? undefined
-    : { id: chatterNet.getLocalDid(), name: chatterNet.getLocalName() };
+    : {
+        id: chatterNet.getLocalDid(),
+        name: chatterNet.getLocalName(),
+        timestamp: getTimestamp(),
+      };
 
   const actorNameProps: Omit<ActorNameProps, "id"> = {
     idToName,
@@ -289,7 +285,8 @@ export function Main() {
 
   const tagListProps: Omit<TagListProps, "tagsId" | "setTagsId"> = {
     tagToId: async (name: string) => {
-      const tag = await newTag(name);
+      if (chatterNet == null) throw new Error(errorNoChatterNet);
+      const tag = await newTag(chatterNet, name, setIdToName);
       return tag.id;
     },
     topicNameProps,
@@ -302,10 +299,7 @@ export function Main() {
       tags?: string[],
       inReplyTo?: string
     ) => {
-      if (!chatterNet) {
-        pushAlertTop(errorNoChatterNet);
-        return;
-      }
+      if (chatterNet == null) throw new Error(errorNoChatterNet);
       await postNote(
         chatterNet,
         note,
@@ -329,10 +323,7 @@ export function Main() {
   > = {
     localActorId,
     buildParentDisplay: async (bodyId: string, actorId: string) => {
-      if (!chatterNet) {
-        pushAlertTop(errorNoChatterNet);
-        return;
-      }
+      if (chatterNet == null) throw new Error(errorNoChatterNet);
       const message = await chatterNet.getCreateMessageForDocument(
         bodyId,
         actorId
@@ -386,11 +377,16 @@ export function Main() {
     },
     scaffoldProps,
     addContact: async (id: string) => {
-      if (!chatterNet) {
-        pushAlertTop(errorNoChatterNet);
-        return;
-      }
-      if (await addContact(chatterNet, id, setFollowing, pushAlertTop)) {
+      if (chatterNet == null) throw new Error(errorNoChatterNet);
+      if (
+        await addContact(
+          chatterNet,
+          id,
+          setFollowing,
+          setIdToName,
+          pushAlertTop
+        )
+      ) {
         pushAlertTop(
           <span>
             Following <ActorNameIcon id={id} {...actorNameProps} />
@@ -408,12 +404,17 @@ export function Main() {
       contacts: undefined,
     },
     addContact: async (did: string) => {
-      if (!chatterNet) {
-        pushAlertTop(errorNoChatterNet);
-        return;
-      }
+      if (chatterNet == null) throw new Error(errorNoChatterNet);
       const id = `${did}/actor`;
-      if (await addContact(chatterNet, id, setFollowing, pushAlertTop)) {
+      if (
+        await addContact(
+          chatterNet,
+          id,
+          setFollowing,
+          setIdToName,
+          pushAlertTop
+        )
+      ) {
         pushAlertTop(
           <span>
             Following <ActorNameIcon id={id} {...actorNameProps} />
@@ -422,10 +423,7 @@ export function Main() {
       }
     },
     unfollowId: async (id: string) => {
-      if (!chatterNet) {
-        pushAlertTop(errorNoChatterNet);
-        return;
-      }
+      if (chatterNet == null) throw new Error(errorNoChatterNet);
       await removeFollowing(chatterNet, id, setFollowing);
       pushAlertTop(
         <span>
@@ -440,11 +438,8 @@ export function Main() {
     loggedIn,
     following,
     addInterest: async (name: string) => {
-      if (!chatterNet) {
-        pushAlertTop(errorNoChatterNet);
-        return;
-      }
-      const tag = await newTag(name);
+      if (chatterNet == null) throw new Error(errorNoChatterNet);
+      const tag = await newTag(chatterNet, name, setIdToName);
       await addInterest(chatterNet, tag, setFollowing);
       pushAlertTop(
         <span>
@@ -453,10 +448,7 @@ export function Main() {
       );
     },
     unfollowId: async (id: string) => {
-      if (!chatterNet) {
-        pushAlertTop(errorNoChatterNet);
-        return;
-      }
+      if (chatterNet == null) throw new Error(errorNoChatterNet);
       await removeFollowing(chatterNet, id, setFollowing);
       pushAlertTop(
         <span>
@@ -485,10 +477,7 @@ export function Main() {
   const settingsProps: SettingsProps = {
     loggedIn: !!chatterNet,
     changeDisplayName: async (newDisplayName: string) => {
-      if (!chatterNet) {
-        pushAlertTop(errorNoChatterNet);
-        return;
-      }
+      if (chatterNet == null) throw new Error(errorNoChatterNet);
       await changeDisplayName(
         chatterNet,
         newDisplayName,
@@ -501,10 +490,7 @@ export function Main() {
       newPassword: string,
       confirmPassword: string
     ) => {
-      if (!chatterNet) {
-        pushAlertTop(errorNoChatterNet);
-        return;
-      }
+      if (chatterNet == null) throw new Error(errorNoChatterNet);
       await changePassword(
         chatterNet,
         oldPassword,
