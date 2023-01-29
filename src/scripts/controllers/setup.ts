@@ -89,8 +89,8 @@ export async function login(
   if (newAccount) {
     const actorMessageDocuments = await chatterNet.buildActor();
     (async () => {
-    await chatterNet.storeMessageDocuments(actorMessageDocuments);
-    await chatterNet.postMessageDocuments(actorMessageDocuments);
+      await chatterNet.storeMessageDocuments(actorMessageDocuments);
+      await chatterNet.postMessageDocuments(actorMessageDocuments);
     })().catch((x) => console.error(x));
   }
 
@@ -219,11 +219,10 @@ export async function changeDisplayName(
     pushAlertTop("Display name is empty.");
     return;
   }
-  await chatterNet.changeName(newDisplayName);
+  const messageDocuments = await chatterNet.changeName(newDisplayName);
   // store name in local
-  await chatterNet.storeMessageDocuments(await chatterNet.buildActor());
-  const actor = await chatterNet.buildActor();
-  chatterNet.postMessageDocuments(actor).catch((x) => {
+  await chatterNet.storeMessageDocuments(messageDocuments);
+  chatterNet.postMessageDocuments(messageDocuments).catch((x) => {
     console.error(x);
   });
   const timestamp = getTimestamp();

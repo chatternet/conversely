@@ -247,18 +247,13 @@ export function MessageItemGroup(props: Omit<MessageItemProps, "setGroup">) {
 export function MessageNameChange(props: Omit<MessageItemProps, "setGroup">) {
   return (
     <Card className="rounded m-3">
-      <Card.Header>
-        <>
-          <ActorNameIcon
-            id={props.message.note.attributedTo}
-            {...props.actorNameProps}
-          />
-          &nbsp; new name:{" "}
-          <Badge bg="secondary" pill>
-            {props.message.note.content}
-          </Badge>
-        </>
-      </Card.Header>
+      <Card.Body>
+        <ActorNameIcon
+          id={props.message.note.attributedTo}
+          {...props.actorNameProps}
+        />
+        &nbsp; name changed
+      </Card.Body>
     </Card>
   );
 }

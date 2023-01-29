@@ -58,7 +58,7 @@ export async function buildNoteDisplay(
       timestamp: getTimestamp(),
       note: {
         id: objectDoc.id,
-        content: objectDoc.name,
+        content: "",
         attributedTo: objectDoc.id,
       },
       message,
@@ -202,8 +202,6 @@ export class MessageDisplayGrouper {
       if (display != null) {
         this.setMessages((prevState) => {
           prevState = prevState == null ? [] : prevState;
-
-          console.info(display.id);
 
           // don't show the same message multiple times
           const idx = prevState.findIndex((x) => x.id === display.id);

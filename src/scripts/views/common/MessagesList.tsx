@@ -5,11 +5,7 @@ import {
   MessageDisplayGrouper,
 } from "../../controllers/messages";
 import { CustomButton } from "./CustomButtons";
-import {
-  MessageItemGroup,
-  MessageItemProps,
-  MessageNameChange,
-} from "./MessageItem";
+import { MessageItemGroup, MessageItemProps } from "./MessageItem";
 import type { MessageIter, Model } from "chatternet-client-http";
 import React, { useEffect, useState } from "react";
 import { Card } from "react-bootstrap";
@@ -105,29 +101,20 @@ export function MessagesList(props: MessagesListProps) {
     setPageSize((x) => x + props.pageSize);
   }
 
+  const page = messages?.slice(0, pageSize).filter((x) => !!x.note.content);
+
   return (
     <>
-      {messages != null && messages.length > 0 ? (
+      {page != null && page.length > 0 ? (
         <div className="list-group">
-          {messages
-            .slice(0, pageSize)
-            .map((x) =>
-              x.isNameChange ? (
-                <MessageNameChange
-                  key={x.id}
-                  message={x}
-                  deleteMessage={deleteMessage}
-                  {...props.messageItemProps}
-                />
-              ) : (
-                <MessageItemGroup
-                  key={x.id}
-                  message={x}
-                  deleteMessage={deleteMessage}
-                  {...props.messageItemProps}
-                />
-              )
-            )}
+          {page.map((x) => (
+            <MessageItemGroup
+              key={x.id}
+              message={x}
+              deleteMessage={deleteMessage}
+              {...props.messageItemProps}
+            />
+          ))}
         </div>
       ) : (
         <Card className="rounded m-3">
