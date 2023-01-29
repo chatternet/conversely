@@ -44,19 +44,34 @@ export async function login(
   if (!loginInfo) return;
   setLoggingIn(true);
 
+  const url = "http://127.0.0.1:3030/api";
+  const did = "did:key:z6Mkh8AnWFeKPMHnDVeVF1kuT8pnhTjSVFbH7SrT4CfYiNqg";
+  // const url = "https://conversely.social/api";
+  // const did = "did:key:z6Mkmi8mefbMQSrBMGb9zYhhLoKrT1ETqLS24uxDNdcNb9e8";
+  const servers = [{ url, did }];
+
+  let chatterNet: ChatterNet | undefined = undefined;
+
   try {
-    const url = "http://127.0.0.1:3030/api";
-    const did = "did:key:z6Mkh8AnWFeKPMHnDVeVF1kuT8pnhTjSVFbH7SrT4CfYiNqg";
-    // const url = "https://conversely.social/api";
-    // const did = "did:key:z6Mkmi8mefbMQSrBMGb9zYhhLoKrT1ETqLS24uxDNdcNb9e8";
-    const servers = [{ url, did }];
-    const chatterNet = await ChatterNet.new(
+    chatterNet = await ChatterNet.new(
       loginInfo.did,
       loginInfo.password,
       servers
     );
-    updatePasswordless(loginInfo);
-    const timestamp = getTimestamp();
+  } catch {
+    pushAlertTop("Failed to login due to invalid DID, password.");
+  }
+
+  if (chatterNet == null) {
+    setLoggingIn(false);
+    return;
+  }
+
+  updatePasswordless(loginInfo);
+
+  const timestamp = getTimestamp();
+
+  try {
     const serverActor = await chatterNet.getActor(`${did}/actor`);
     if (serverActor == null) throw Error("server has no actor");
     const serverName = serverActor.name;
@@ -66,29 +81,27 @@ export async function login(
       name: serverName,
       timestamp: getTimestamp(),
     });
-    if (newAccount) {
-      const actorMessageDocuments = await chatterNet.buildActor();
-      await chatterNet.storeMessageDocuments(actorMessageDocuments);
-      await chatterNet.postMessageDocuments(actorMessageDocuments);
-    }
-    setIdToName((x) =>
-      x.update(
-        ChatterNet.actorFromDid(chatterNet.getLocalDid()),
-        chatterNet.getLocalName(),
-        timestamp
-      )
-    );
     setIdToName((x) => x.update(serverActor.id, serverName, timestamp));
-    for (const [id, name] of await ChatterNet.getIdToName()) {
-      setIdToName((x) => x.update(id, name, timestamp));
-    }
-    setFollowing(await getFollowing(chatterNet));
-    setChatterNet(chatterNet);
   } catch {
-    pushAlertTop("Failed to login due to invalid DID, password.");
-    setLoggingIn(false);
-    return;
+    pushAlertTop("Failed to connect to servers.");
   }
+
+  if (newAccount) {
+    const actorMessageDocuments = await chatterNet.buildActor();
+    (async () => {
+    await chatterNet.storeMessageDocuments(actorMessageDocuments);
+    await chatterNet.postMessageDocuments(actorMessageDocuments);
+    })().catch((x) => console.error(x));
+  }
+
+  const actorId = ChatterNet.actorFromDid(chatterNet.getLocalDid());
+  const actorName = chatterNet.getLocalName();
+  for (const [id, name] of await ChatterNet.getIdToName()) {
+    setIdToName((x) => x.update(id, name, timestamp));
+  }
+  setIdToName((x) => x.update(actorId, actorName, timestamp));
+  setFollowing(await getFollowing(chatterNet));
+  setChatterNet(chatterNet);
 
   setLoggingIn(false);
   sessionStorage.setItem("loginInfo", JSON.stringify(loginInfo));
