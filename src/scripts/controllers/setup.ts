@@ -34,6 +34,7 @@ export function isPasswordless(did: string): boolean {
 
 export async function login(
   loginInfo: LoginInfo | undefined,
+  newAccount: boolean,
   setLoggingIn: SetState<boolean>,
   setChatterNet: SetState<ChatterNet | undefined>,
   setIdToName: SetState<IdToName>,
@@ -44,10 +45,10 @@ export async function login(
   setLoggingIn(true);
 
   try {
-    // const url = "http://127.0.0.1:3030/api";
-    // const did = "did:key:z6Mkh8AnWFeKPMHnDVeVF1kuT8pnhTjSVFbH7SrT4CfYiNqg";
-    const url = "https://conversely.social/api";
-    const did = "did:key:z6Mkmi8mefbMQSrBMGb9zYhhLoKrT1ETqLS24uxDNdcNb9e8";
+    const url = "http://127.0.0.1:3030/api";
+    const did = "did:key:z6Mkh8AnWFeKPMHnDVeVF1kuT8pnhTjSVFbH7SrT4CfYiNqg";
+    // const url = "https://conversely.social/api";
+    // const did = "did:key:z6Mkmi8mefbMQSrBMGb9zYhhLoKrT1ETqLS24uxDNdcNb9e8";
     const servers = [{ url, did }];
     const chatterNet = await ChatterNet.new(
       loginInfo.did,
@@ -65,6 +66,11 @@ export async function login(
       name: serverName,
       timestamp: getTimestamp(),
     });
+    if (newAccount) {
+      const actorMessageDocuments = await chatterNet.buildActor();
+      await chatterNet.storeMessageDocuments(actorMessageDocuments);
+      await chatterNet.postMessageDocuments(actorMessageDocuments);
+    }
     setIdToName((x) =>
       x.update(
         ChatterNet.actorFromDid(chatterNet.getLocalDid()),
@@ -109,6 +115,7 @@ export async function loginFromSession(
   const loginInfo: LoginInfo = JSON.parse(loginInfoData);
   await login(
     loginInfo,
+    false,
     setLoggingIn,
     setChatterNet,
     setIdToName,
@@ -154,6 +161,7 @@ export async function loginAnonymous(
   const did = await ChatterNet.newAccount(key, displayName, password);
   await login(
     { did, password },
+    true,
     setLoggingIn,
     setChatterNet,
     setIdToName,
@@ -351,7 +359,8 @@ export async function acceptMessage(
   allowActorId?: string,
   allowAudienceId?: string
 ) {
-  if (await chatterNet.messageIsDeleted(message.id)) return false;
+  if (await chatterNet.isDeleted(message.id)) return false;
+  if (message.to?.length === 0) return false;
   const { fromContact, inAudience } = await chatterNet.buildMessageAffinity(
     message
   );
@@ -391,11 +400,9 @@ export async function viewMessage(
 export async function deleteMessage(chatterNet: ChatterNet, messageId: string) {
   // build the message to request deletion on the network
   const deleteMessage = await chatterNet.newDelete(messageId);
-  // fails if wrong actor or message not known to local
-  if (deleteMessage == null) return;
   // build the message to request deletion on the network
   // delete the message locally
-  await chatterNet.deleteMessageLocal(messageId);
+  await chatterNet.deleteLocalId(messageId, true);
   const messageDocuments = { message: deleteMessage, documents: [] };
   // propagate the delete message
   await chatterNet.storeMessageDocuments(messageDocuments);

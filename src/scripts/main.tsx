@@ -180,6 +180,7 @@ export function Main() {
         if (!did) return;
         await login(
           { did, password },
+          true,
           setLoggingIn,
           setChatterNet,
           setIdToName,
@@ -199,15 +200,17 @@ export function Main() {
         isPasswordless,
         // NOTE: could use `loginInfo` from scope, but instead use the state
         // as seen by the UI component to ensure no surprises
-        login: async (did: string, password: string) =>
+        login: async (did: string, password: string) => {
           login(
             { did, password },
+            false,
             setLoggingIn,
             setChatterNet,
             setIdToName,
             setFollowing,
             pushAlertTop
-          ),
+          );
+        },
       },
     },
   };

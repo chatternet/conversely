@@ -6,7 +6,7 @@ import { ActorNameIcon, ActorNameProps } from "./FormatActorName";
 import { TopicName, TopicNameProps } from "./FormatTopicName";
 import { omit } from "lodash-es";
 import { MouseEvent, useState } from "react";
-import { Card } from "react-bootstrap";
+import { Badge, Card } from "react-bootstrap";
 import ReactMarkdown from "react-markdown";
 
 export interface MessageItemProps {
@@ -241,5 +241,24 @@ export function MessageItemGroup(props: Omit<MessageItemProps, "setGroup">) {
         </div>
       ))}
     </>
+  );
+}
+
+export function MessageNameChange(props: Omit<MessageItemProps, "setGroup">) {
+  return (
+    <Card className="rounded m-3">
+      <Card.Header>
+        <>
+          <ActorNameIcon
+            id={props.message.note.attributedTo}
+            {...props.actorNameProps}
+          />
+          &nbsp; new name:{" "}
+          <Badge bg="secondary" pill>
+            {props.message.note.content}
+          </Badge>
+        </>
+      </Card.Header>
+    </Card>
   );
 }

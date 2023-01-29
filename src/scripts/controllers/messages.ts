@@ -1,5 +1,6 @@
 import type { SetState } from "../commonutils.js";
 import { IdToName } from "./interfaces.js";
+import { getTimestamp } from "./setup.js";
 import { Model, MessageIter } from "chatternet-client-http";
 import { get } from "lodash-es";
 
@@ -23,6 +24,7 @@ export interface MessageDisplay {
   audienceActorsId: string[];
   audienceTagsId: string[];
   inReplyTo?: InReplyTo;
+  isNameChange?: boolean;
 }
 
 function extractNote(
@@ -47,6 +49,25 @@ export async function buildNoteDisplay(
   const [objectId] = message.object;
   const objectDoc = await getDocument(objectId);
   if (objectDoc == null) return;
+
+  if (Model.isActor(objectDoc) && (await Model.verifyActor(objectDoc))) {
+    if (!objectDoc.name) return;
+    return {
+      id: message.id,
+      objectId,
+      timestamp: getTimestamp(),
+      note: {
+        id: objectDoc.id,
+        content: objectDoc.name,
+        attributedTo: objectDoc.id,
+      },
+      message,
+      audienceActorsId: [],
+      audienceTagsId: [],
+      isNameChange: true,
+    };
+  }
+
   if (!Model.isNoteMd1k(objectDoc)) return;
   if (!(await Model.verifyNoteMd1k(objectDoc))) return;
 
@@ -181,6 +202,8 @@ export class MessageDisplayGrouper {
       if (display != null) {
         this.setMessages((prevState) => {
           prevState = prevState == null ? [] : prevState;
+
+          console.info(display.id);
 
           // don't show the same message multiple times
           const idx = prevState.findIndex((x) => x.id === display.id);
